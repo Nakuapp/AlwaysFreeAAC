@@ -102,7 +102,7 @@ export default function App() {
   };
 
   return (
-    <div className="app" role="application" aria-label="AlwaysFreeAAC">
+    <div className="app" aria-label="AlwaysFreeAAC">
       {/* Header */}
       <header className="app-header">
         <div className="app-header__brand">

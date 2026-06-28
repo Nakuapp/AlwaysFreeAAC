@@ -14,7 +14,7 @@ AlwaysFreeAAC helps people with communication difficulties express themselves us
 - **Category navigation** — Core, People, Actions, Feelings, Food & Drink, Places, Describe, Social
 - **Responsive design** — works on any screen size (mobile, tablet, desktop)
 - **PWA installable** — install on any device for offline-capable use
-- **Accessible** — ARIA labels, keyboard navigation, focus management, `prefers-reduced-motion` support
+- **Accessible** — ARIA labels, keyboard navigation, and `prefers-reduced-motion` support
 - **Customisable** — adjust voice, speech rate/pitch, grid size, and font size in Settings
 - **Persistent settings** — preferences saved to localStorage
 
@@ -39,7 +39,7 @@ npm run lint       # Lint source files
 | Framework   | React 19 + TypeScript       |
 | Bundler     | Vite 8                      |
 | Speech      | Web Speech API              |
-| Styling     | CSS Modules (plain CSS)     |
+| Styling     | Plain CSS                   |
 | Linter      | oxlint                      |
 | PWA         | Web App Manifest            |
 
@@ -63,8 +63,8 @@ src/
 ├── App.css               # App shell styles
 └── index.css             # Global reset + CSS variables
 public/
-├── manifest.json         # PWA manifest
-└── favicon.svg           # App icon
+├── favicon.svg           # App icon used in PWA manifest
+└── icons.svg             # Additional SVG icon sheet
 ```
 
 ---

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Symbol } from "../data/vocabulary";
 import { SymbolButton } from "./SymbolButton";
 import "./SymbolGrid.css";
@@ -12,7 +13,7 @@ export function SymbolGrid({ symbols, columns, onSelect }: SymbolGridProps) {
   return (
     <main
       className="symbol-grid"
-      style={{ "--grid-columns": columns } as React.CSSProperties}
+      style={{ "--grid-columns": columns } as CSSProperties}
       aria-label="Symbol grid"
     >
       {symbols.map((sym) => (

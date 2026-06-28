@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { VoiceOption } from "../hooks/useSpeech";
 import "./Settings.css";
 
@@ -30,6 +31,17 @@ export function Settings({
   onFontSizeChange,
   onClose,
 }: SettingsProps) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <div
       className="settings-overlay"
@@ -45,6 +57,7 @@ export function Settings({
             onClick={onClose}
             aria-label="Close settings"
             type="button"
+            autoFocus
           >
             ✕
           </button>

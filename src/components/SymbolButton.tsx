@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Symbol } from "../data/vocabulary";
 import "./SymbolButton.css";
 
@@ -25,7 +26,7 @@ export function SymbolButton({ symbol, onClick, size = "normal" }: SymbolButtonP
   return (
     <button
       className={`symbol-btn symbol-btn--${size}`}
-      style={{ "--symbol-bg": bg } as React.CSSProperties}
+      style={{ "--symbol-bg": bg } as CSSProperties}
       onClick={() => onClick(symbol)}
       aria-label={symbol.speak ?? symbol.label}
       type="button"
