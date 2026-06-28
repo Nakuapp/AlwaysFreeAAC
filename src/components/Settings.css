@@ -1,0 +1,142 @@
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.settings-panel {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.settings-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.settings-panel__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.settings-panel__close {
+  background: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  color: #333;
+}
+
+.settings-panel__close:hover {
+  background: #e0e0e0;
+}
+
+.settings-panel__close:focus-visible {
+  outline: 3px solid #005fcc;
+  outline-offset: 2px;
+}
+
+.settings-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.settings-field__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.settings-field__select {
+  padding: 0.5rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.settings-field__select:focus {
+  outline: 3px solid #005fcc;
+  border-color: #005fcc;
+}
+
+.settings-field__range {
+  width: 100%;
+  accent-color: #005fcc;
+  cursor: pointer;
+  height: 6px;
+}
+
+.settings-field__range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.settings-field__hint {
+  font-size: 0.85rem;
+  color: #777;
+  margin: 0;
+}
+
+.settings-panel__footer {
+  padding: 1rem 1.25rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.settings-panel__done {
+  width: 100%;
+  background: #005fcc;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.settings-panel__done:hover {
+  background: #0047a3;
+}
+
+.settings-panel__done:focus-visible {
+  outline: 3px solid #ffcc00;
+  outline-offset: 2px;
+}
