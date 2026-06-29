@@ -54,11 +54,12 @@ export function Settings({
   const [voiceFilter, setVoiceFilter] = useState("");
   const platform = Capacitor.getPlatform();
 
-  const filteredVoices = voiceFilter.trim()
+  const normalizedFilter = voiceFilter.trim().toLowerCase();
+  const filteredVoices = normalizedFilter
     ? voices.filter(
         (v) =>
-          v.name.toLowerCase().includes(voiceFilter.toLowerCase()) ||
-          v.lang.toLowerCase().includes(voiceFilter.toLowerCase())
+          v.name.toLowerCase().includes(normalizedFilter) ||
+          v.lang.toLowerCase().includes(normalizedFilter)
       )
     : voices;
 
@@ -170,7 +171,7 @@ export function Settings({
                   <button
                     type="button"
                     className="settings-field__preview-btn"
-                    onClick={() => onPreviewVoice(selectedVoice || (voices[0]?.id ?? ""))}
+                    onClick={() => onPreviewVoice(selectedVoice || (filteredVoices[0]?.id ?? ""))}
                     aria-label={t(language, "previewVoice")}
                     title={t(language, "previewVoice")}
                   >
