@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { Capacitor } from "@capacitor/core";
+import { TextToSpeech } from "@capacitor-community/text-to-speech";
 
 export interface VoiceOption {
   name: string;
@@ -19,8 +21,25 @@ export function useSpeech(options: UseSpeechOptions = {}) {
   const [supported, setSupported] = useState(false);
   const optionsRef = useRef(options);
   optionsRef.current = options;
+  const nativeVoicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
+    if (isNative) {
+      setSupported(true);
+      TextToSpeech.getSupportedVoices()
+        .then(({ voices: nativeVoices }) => {
+          nativeVoicesRef.current = nativeVoices;
+          setVoices(
+            nativeVoices.map((v) => ({ name: v.name, lang: v.lang, voice: v }))
+          );
+        })
+        .catch(() => {
+          // Voice enumeration unavailable on some Android versions; default voice will be used
+        });
+      return;
+    }
+
     if (!("speechSynthesis" in window)) return;
     setSupported(true);
 
@@ -37,40 +56,69 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
     };
-  }, []);
+  }, [isNative]);
 
-  const speak = useCallback((text: string) => {
-    if (!("speechSynthesis" in window) || !text.trim()) return;
+  const speak = useCallback(
+    (text: string) => {
+      if (!text.trim()) return;
 
-    window.speechSynthesis.cancel();
+      if (isNative) {
+        const { rate = 1, pitch = 1, volume = 1, voiceName } = optionsRef.current;
+        const idx = voiceName
+          ? nativeVoicesRef.current.findIndex((v) => v.name === voiceName)
+          : -1;
+        setSpeaking(true);
+        TextToSpeech.speak({
+          text,
+          rate,
+          pitch,
+          volume,
+          ...(idx >= 0 && { voice: idx }),
+        })
+          .then(() => setSpeaking(false))
+          .catch(() => setSpeaking(false));
+        return;
+      }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    const { rate = 1, pitch = 1, volume = 1, voiceName } = optionsRef.current;
+      if (!("speechSynthesis" in window)) return;
 
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-    utterance.volume = volume;
+      window.speechSynthesis.cancel();
 
-    if (voiceName) {
-      const match = window.speechSynthesis
-        .getVoices()
-        .find((v) => v.name === voiceName);
-      if (match) utterance.voice = match;
-    }
+      const utterance = new SpeechSynthesisUtterance(text);
+      const { rate = 1, pitch = 1, volume = 1, voiceName } = optionsRef.current;
 
-    utterance.onstart = () => setSpeaking(true);
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = volume;
 
-    window.speechSynthesis.speak(utterance);
-  }, []);
+      if (voiceName) {
+        const match = window.speechSynthesis
+          .getVoices()
+          .find((v) => v.name === voiceName);
+        if (match) utterance.voice = match;
+      }
+
+      utterance.onstart = () => setSpeaking(true);
+      utterance.onend = () => setSpeaking(false);
+      utterance.onerror = () => setSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    },
+    [isNative]
+  );
 
   const cancel = useCallback(() => {
+    if (isNative) {
+      TextToSpeech.stop()
+        .then(() => setSpeaking(false))
+        .catch(() => setSpeaking(false));
+      return;
+    }
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       setSpeaking(false);
     }
-  }, []);
+  }, [isNative]);
 
   return { speak, cancel, speaking, voices, supported };
 }
