@@ -122,6 +122,33 @@
   align-items: stretch;
 }
 
+.settings-field__search {
+  padding: 0.5rem;
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-field__search:focus {
+  outline: 3px solid var(--button-focus);
+  border-color: var(--button-focus);
+}
+
+.settings-field__tip {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .settings-field__select--voice {
   flex: 1;
   min-width: 0;
