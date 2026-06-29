@@ -32,26 +32,40 @@ function defaultSettings(): AppSettings {
   };
 }
 
+const LEGACY_VOICE_PRESET_MAP: Record<string, AppSettings["voicePreset"]> = {
+  male: "baritone",
+  female: "alto",
+  child: "soprano",
+  deep: "bass",
+};
+
+const VALID_VOICE_PRESETS = new Set<AppSettings["voicePreset"]>([
+  "custom",
+  "baritone",
+  "alto",
+  "soprano",
+  "bass",
+]);
+
+function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
+  if (typeof preset !== "string") return "custom";
+  const mapped = LEGACY_VOICE_PRESET_MAP[preset] ?? preset;
+  return VALID_VOICE_PRESETS.has(mapped as AppSettings["voicePreset"])
+    ? (mapped as AppSettings["voicePreset"])
+    : "custom";
+}
+
 function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<AppSettings>;
-      const voicePresetMap: Record<string, string> = {
-        male: "baritone",
-        female: "alto",
-        child: "soprano",
-        deep: "bass",
-      };
-      const normalizedPreset =
-        parsed.voicePreset && voicePresetMap[parsed.voicePreset]
-          ? voicePresetMap[parsed.voicePreset]
-          : parsed.voicePreset;
+      const normalizedPreset = normalizeVoicePreset(parsed.voicePreset);
 
       return {
         ...defaultSettings(),
         ...parsed,
-        ...(normalizedPreset ? { voicePreset: normalizedPreset } : {}),
+        voicePreset: normalizedPreset,
       };
     }
   } catch {
@@ -171,8 +185,6 @@ export default function App() {
         setSettings((prev) => ({
           ...prev,
           voicePreset: "custom",
-          rate: 1,
-          pitch: 1,
         }));
     }
   };
