@@ -12,20 +12,62 @@ const STORAGE_KEY = "aac_settings";
 
 interface AppSettings {
   voiceName: string;
+  voicePreset: string;
   rate: number;
   pitch: number;
+  volume: number;
   columns: number;
   fontSize: number;
 }
 
 function defaultSettings(): AppSettings {
-  return { voiceName: "", rate: 1, pitch: 1, columns: 4, fontSize: 14 };
+  return {
+    voiceName: "",
+    voicePreset: "custom",
+    rate: 1,
+    pitch: 1,
+    volume: 1,
+    columns: 4,
+    fontSize: 14,
+  };
+}
+
+const LEGACY_VOICE_PRESET_MAP: Record<string, AppSettings["voicePreset"]> = {
+  male: "baritone",
+  female: "alto",
+  child: "soprano",
+  deep: "bass",
+};
+
+const VALID_VOICE_PRESETS = new Set<AppSettings["voicePreset"]>([
+  "custom",
+  "baritone",
+  "alto",
+  "soprano",
+  "bass",
+]);
+
+function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
+  if (typeof preset !== "string") return "custom";
+  const mapped = LEGACY_VOICE_PRESET_MAP[preset] ?? preset;
+  return VALID_VOICE_PRESETS.has(mapped as AppSettings["voicePreset"])
+    ? (mapped as AppSettings["voicePreset"])
+    : "custom";
 }
 
 function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...defaultSettings(), ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<AppSettings>;
+      const normalizedPreset = normalizeVoicePreset(parsed.voicePreset);
+
+      return {
+        ...defaultSettings(),
+        ...parsed,
+        voicePreset: normalizedPreset,
+      };
+    }
   } catch {
     // ignore
   }
@@ -49,7 +91,7 @@ export default function App() {
   const { speak, speaking, voices } = useSpeech({
     rate: settings.rate,
     pitch: settings.pitch,
-    volume: 1,
+    volume: settings.volume,
     voiceName: settings.voiceName || undefined,
   });
 
@@ -99,6 +141,52 @@ export default function App() {
     value: AppSettings[K]
   ) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const applyVoicePreset = (preset: string) => {
+    switch (preset) {
+      case "baritone":
+      case "male":
+        setSettings((prev) => ({
+          ...prev,
+          voicePreset: "baritone",
+          rate: 0.95,
+          pitch: 0.75,
+        }));
+        return;
+      case "alto":
+      case "female":
+        setSettings((prev) => ({
+          ...prev,
+          voicePreset: "alto",
+          rate: 1.05,
+          pitch: 1.25,
+        }));
+        return;
+      case "soprano":
+      case "child":
+        setSettings((prev) => ({
+          ...prev,
+          voicePreset: "soprano",
+          rate: 1.15,
+          pitch: 1.45,
+        }));
+        return;
+      case "bass":
+      case "deep":
+        setSettings((prev) => ({
+          ...prev,
+          voicePreset: "bass",
+          rate: 0.85,
+          pitch: 0.6,
+        }));
+        return;
+      default:
+        setSettings((prev) => ({
+          ...prev,
+          voicePreset: "custom",
+        }));
+    }
   };
 
   return (
@@ -152,13 +240,21 @@ export default function App() {
         <Settings
           voices={voices}
           selectedVoice={settings.voiceName}
+          voicePreset={settings.voicePreset}
           rate={settings.rate}
           pitch={settings.pitch}
+          volume={settings.volume}
           columns={settings.columns}
           fontSize={settings.fontSize}
           onVoiceChange={(v) => updateSetting("voiceName", v)}
-          onRateChange={(r) => updateSetting("rate", r)}
-          onPitchChange={(p) => updateSetting("pitch", p)}
+          onVoicePresetChange={applyVoicePreset}
+          onRateChange={(r) =>
+            setSettings((prev) => ({ ...prev, rate: r, voicePreset: "custom" }))
+          }
+          onPitchChange={(p) =>
+            setSettings((prev) => ({ ...prev, pitch: p, voicePreset: "custom" }))
+          }
+          onVolumeChange={(v) => updateSetting("volume", v)}
           onColumnsChange={(c) => updateSetting("columns", c)}
           onFontSizeChange={(f) => updateSetting("fontSize", f)}
           onClose={() => setShowSettings(false)}

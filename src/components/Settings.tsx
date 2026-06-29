@@ -5,13 +5,17 @@ import "./Settings.css";
 interface SettingsProps {
   voices: VoiceOption[];
   selectedVoice: string;
+  voicePreset: string;
   rate: number;
   pitch: number;
+  volume: number;
   columns: number;
   fontSize: number;
   onVoiceChange: (name: string) => void;
+  onVoicePresetChange: (preset: string) => void;
   onRateChange: (rate: number) => void;
   onPitchChange: (pitch: number) => void;
+  onVolumeChange: (volume: number) => void;
   onColumnsChange: (cols: number) => void;
   onFontSizeChange: (size: number) => void;
   onClose: () => void;
@@ -20,13 +24,17 @@ interface SettingsProps {
 export function Settings({
   voices,
   selectedVoice,
+  voicePreset,
   rate,
   pitch,
+  volume,
   columns,
   fontSize,
   onVoiceChange,
+  onVoicePresetChange,
   onRateChange,
   onPitchChange,
+  onVolumeChange,
   onColumnsChange,
   onFontSizeChange,
   onClose,
@@ -91,6 +99,25 @@ export function Settings({
             )}
           </div>
 
+          {/* Voice profile */}
+          <div className="settings-field">
+            <label className="settings-field__label" htmlFor="voice-preset-select">
+              🎼 Vocal style (traditional)
+            </label>
+            <select
+              id="voice-preset-select"
+              className="settings-field__select"
+              value={voicePreset}
+              onChange={(e) => onVoicePresetChange(e.target.value)}
+            >
+              <option value="custom">Custom / Natural</option>
+              <option value="baritone">Baritone</option>
+              <option value="alto">Alto</option>
+              <option value="soprano">Soprano</option>
+              <option value="bass">Bass</option>
+            </select>
+          </div>
+
           {/* Rate */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="rate-range">
@@ -141,6 +168,27 @@ export function Settings({
             <div className="settings-field__range-labels">
               <span>Lower</span>
               <span>Higher</span>
+            </div>
+          </div>
+
+          {/* Volume */}
+          <div className="settings-field">
+            <label className="settings-field__label" htmlFor="volume-range">
+              🔊 Volume: <strong>{Math.round(volume * 100)}%</strong>
+            </label>
+            <input
+              id="volume-range"
+              type="range"
+              className="settings-field__range"
+              min={0.2}
+              max={1}
+              step={0.1}
+              value={volume}
+              onChange={(e) => onVolumeChange(Number(e.target.value))}
+            />
+            <div className="settings-field__range-labels">
+              <span>Softer</span>
+              <span>Louder</span>
             </div>
           </div>
 
