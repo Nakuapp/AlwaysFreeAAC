@@ -182,7 +182,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                     placeholder={t(language, "tileIconFilterPlaceholder")}
                   />
                 </div>
-                <div className="add-tile-tabs" role="radiogroup" aria-label={t(language, "tileIconStyle")}>
+                <div className="add-tile-tabs" role="group" aria-label={t(language, "tileIconStyle")}>
                   <button
                     type="button"
                     className={`add-tile-tabs__btn${selectedIconStyle === "outline" ? " add-tile-tabs__btn--active" : ""}`}
