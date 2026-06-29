@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { VoiceOption } from "../hooks/useSpeech";
+import { LANGUAGE_OPTIONS, t, type Language, type Theme } from "../i18n";
 import "./Settings.css";
 
 interface SettingsProps {
@@ -11,6 +12,8 @@ interface SettingsProps {
   volume: number;
   columns: number;
   fontSize: number;
+  language: Language;
+  theme: Theme;
   onVoiceChange: (name: string) => void;
   onVoicePresetChange: (preset: string) => void;
   onRateChange: (rate: number) => void;
@@ -18,6 +21,8 @@ interface SettingsProps {
   onVolumeChange: (volume: number) => void;
   onColumnsChange: (cols: number) => void;
   onFontSizeChange: (size: number) => void;
+  onLanguageChange: (language: Language) => void;
+  onThemeChange: (theme: Theme) => void;
   onClose: () => void;
 }
 
@@ -30,6 +35,8 @@ export function Settings({
   volume,
   columns,
   fontSize,
+  language,
+  theme,
   onVoiceChange,
   onVoicePresetChange,
   onRateChange,
@@ -37,6 +44,8 @@ export function Settings({
   onVolumeChange,
   onColumnsChange,
   onFontSizeChange,
+  onLanguageChange,
+  onThemeChange,
   onClose,
 }: SettingsProps) {
   useEffect(() => {
@@ -51,19 +60,14 @@ export function Settings({
   }, [onClose]);
 
   return (
-    <div
-      className="settings-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Settings"
-    >
+    <div className="settings-overlay" role="dialog" aria-modal="true" aria-label={t(language, "settings")}>
       <div className="settings-panel">
         <div className="settings-panel__header">
-          <h2 className="settings-panel__title">⚙️ Settings</h2>
+          <h2 className="settings-panel__title">⚙️ {t(language, "settings")}</h2>
           <button
             className="settings-panel__close"
             onClick={onClose}
-            aria-label="Close settings"
+            aria-label={t(language, "closeSettings")}
             type="button"
             autoFocus
           >
@@ -72,16 +76,45 @@ export function Settings({
         </div>
 
         <div className="settings-panel__body">
-          {/* Voice */}
+          <div className="settings-field">
+            <label className="settings-field__label" htmlFor="language-select">
+              🌍 {t(language, "language")}
+            </label>
+            <select
+              id="language-select"
+              className="settings-field__select"
+              value={language}
+              onChange={(e) => onLanguageChange(e.target.value as Language)}
+            >
+              {LANGUAGE_OPTIONS.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="settings-field">
+            <label className="settings-field__label" htmlFor="theme-select">
+              🌓 {t(language, "theme")}
+            </label>
+            <select
+              id="theme-select"
+              className="settings-field__select"
+              value={theme}
+              onChange={(e) => onThemeChange(e.target.value as Theme)}
+            >
+              <option value="light">{t(language, "light")}</option>
+              <option value="dark">{t(language, "dark")}</option>
+            </select>
+          </div>
+
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="voice-select">
-              🗣️ Voice
+              🗣️ {t(language, "voice")}
             </label>
             {voices.length === 0 ? (
-              <p className="settings-field__hint">
-                No voices available — your browser may not support speech
-                synthesis.
-              </p>
+              <p className="settings-field__hint">{t(language, "noVoices")}</p>
             ) : (
               <select
                 id="voice-select"
@@ -89,7 +122,7 @@ export function Settings({
                 value={selectedVoice}
                 onChange={(e) => onVoiceChange(e.target.value)}
               >
-                <option value="">Default voice</option>
+                <option value="">{t(language, "defaultVoice")}</option>
                 {voices.map((v) => (
                   <option key={v.name} value={v.name}>
                     {v.name} ({v.lang})
@@ -99,10 +132,9 @@ export function Settings({
             )}
           </div>
 
-          {/* Voice profile */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="voice-preset-select">
-              🎼 Vocal style (traditional)
+              🎼 {t(language, "vocalStyle")}
             </label>
             <select
               id="voice-preset-select"
@@ -110,21 +142,17 @@ export function Settings({
               value={voicePreset}
               onChange={(e) => onVoicePresetChange(e.target.value)}
             >
-              <option value="custom">Custom / Natural</option>
-              <option value="baritone">Baritone</option>
-              <option value="alto">Alto</option>
-              <option value="soprano">Soprano</option>
-              <option value="bass">Bass</option>
+              <option value="custom">{t(language, "customNatural")}</option>
+              <option value="baritone">{t(language, "baritone")}</option>
+              <option value="alto">{t(language, "alto")}</option>
+              <option value="soprano">{t(language, "soprano")}</option>
+              <option value="bass">{t(language, "bass")}</option>
             </select>
           </div>
 
-          {/* Rate */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="rate-range">
-              ⏱️ Speed:{" "}
-              <strong>
-                {rate === 1 ? "Normal" : rate < 1 ? "Slow" : "Fast"} ({rate}×)
-              </strong>
+              ⏱️ {t(language, "speed")}: <strong>{rate === 1 ? t(language, "normal") : rate < 1 ? t(language, "slow") : t(language, "fast")} ({rate}×)</strong>
             </label>
             <input
               id="rate-range"
@@ -137,23 +165,14 @@ export function Settings({
               onChange={(e) => onRateChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
-              <span>Slower</span>
-              <span>Faster</span>
+              <span>{t(language, "slower")}</span>
+              <span>{t(language, "faster")}</span>
             </div>
           </div>
 
-          {/* Pitch */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="pitch-range">
-              🎵 Pitch:{" "}
-              <strong>
-                {pitch === 1
-                  ? "Normal"
-                  : pitch < 1
-                    ? "Lower"
-                    : "Higher"}{" "}
-                ({pitch})
-              </strong>
+              🎵 {t(language, "pitch")}: <strong>{pitch === 1 ? t(language, "normal") : pitch < 1 ? t(language, "lower") : t(language, "higher")} ({pitch})</strong>
             </label>
             <input
               id="pitch-range"
@@ -166,15 +185,14 @@ export function Settings({
               onChange={(e) => onPitchChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
-              <span>Lower</span>
-              <span>Higher</span>
+              <span>{t(language, "lower")}</span>
+              <span>{t(language, "higher")}</span>
             </div>
           </div>
 
-          {/* Volume */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="volume-range">
-              🔊 Volume: <strong>{Math.round(volume * 100)}%</strong>
+              🔊 {t(language, "volume")}: <strong>{Math.round(volume * 100)}%</strong>
             </label>
             <input
               id="volume-range"
@@ -187,15 +205,14 @@ export function Settings({
               onChange={(e) => onVolumeChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
-              <span>Softer</span>
-              <span>Louder</span>
+              <span>{t(language, "softer")}</span>
+              <span>{t(language, "louder")}</span>
             </div>
           </div>
 
-          {/* Grid columns */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="columns-range">
-              ⊞ Grid size: <strong>{columns} columns</strong>
+              ⊞ {t(language, "gridSize")}: <strong>{columns} {t(language, "columns")}</strong>
             </label>
             <input
               id="columns-range"
@@ -208,15 +225,14 @@ export function Settings({
               onChange={(e) => onColumnsChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
-              <span>Fewer (larger)</span>
-              <span>More (smaller)</span>
+              <span>{t(language, "fewerLarger")}</span>
+              <span>{t(language, "moreSmaller")}</span>
             </div>
           </div>
 
-          {/* Font size */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="font-range">
-              🔤 Text size: <strong>{fontSize}px</strong>
+              🔤 {t(language, "textSize")}: <strong>{fontSize}px</strong>
             </label>
             <input
               id="font-range"
@@ -229,19 +245,15 @@ export function Settings({
               onChange={(e) => onFontSizeChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
-              <span>Smaller</span>
-              <span>Larger</span>
+              <span>{t(language, "smaller")}</span>
+              <span>{t(language, "larger")}</span>
             </div>
           </div>
         </div>
 
         <div className="settings-panel__footer">
-          <button
-            className="settings-panel__done"
-            onClick={onClose}
-            type="button"
-          >
-            Done
+          <button className="settings-panel__done" onClick={onClose} type="button">
+            {t(language, "done")}
           </button>
         </div>
       </div>

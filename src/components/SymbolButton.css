@@ -13,7 +13,7 @@
   width: 100%;
   transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
-  color: #1a1a1a;
+  color: var(--text-primary);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -30,7 +30,7 @@
 }
 
 .symbol-btn:focus-visible {
-  outline: 4px solid #005fcc;
+  outline: 4px solid var(--button-focus);
   outline-offset: 2px;
 }
 

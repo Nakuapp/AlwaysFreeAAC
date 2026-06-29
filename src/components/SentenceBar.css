@@ -2,8 +2,8 @@
   display: flex;
   align-items: stretch;
   gap: 0.5rem;
-  background: #fff;
-  border-bottom: 3px solid #e0e0e0;
+  background: var(--bg-surface);
+  border-bottom: 3px solid var(--border-soft);
   padding: 0.5rem;
   min-height: 70px;
   flex-shrink: 0;
@@ -18,14 +18,14 @@
   overflow-y: auto;
   max-height: 120px;
   padding: 0.25rem;
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-soft);
   border-radius: 8px;
-  background: #f9f9f9;
+  background: var(--bg-subtle);
   min-height: 52px;
 }
 
 .sentence-bar__placeholder {
-  color: #888;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-style: italic;
   padding: 0 0.5rem;
@@ -35,8 +35,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: #e8f0fe;
-  border: 2px solid #4a90d9;
+  background: color-mix(in srgb, var(--header-bg) 14%, var(--bg-surface));
+  border: 2px solid color-mix(in srgb, var(--header-bg) 65%, transparent);
   border-radius: 20px;
   padding: 0.2rem 0.6rem;
   font-size: 0.85rem;
@@ -44,15 +44,15 @@
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.1s ease;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .sentence-bar__word:hover {
-  background: #d0e3fa;
+  background: color-mix(in srgb, var(--header-bg) 22%, var(--bg-surface));
 }
 
 .sentence-bar__word:focus-visible {
-  outline: 3px solid #005fcc;
+  outline: 3px solid var(--button-focus);
   outline-offset: 2px;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .sentence-bar__btn:focus-visible {
-  outline: 3px solid #005fcc;
+  outline: 3px solid var(--button-focus);
   outline-offset: 2px;
 }
 

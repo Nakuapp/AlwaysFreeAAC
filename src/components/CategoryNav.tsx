@@ -1,15 +1,22 @@
 import type { Category } from "../data/vocabulary";
+import { t, type Language } from "../i18n";
 import "./CategoryNav.css";
 
 interface CategoryNavProps {
   categories: Category[];
   activeId: string;
   onSelect: (id: string) => void;
+  language: Language;
 }
 
-export function CategoryNav({ categories, activeId, onSelect }: CategoryNavProps) {
+export function CategoryNav({
+  categories,
+  activeId,
+  onSelect,
+  language,
+}: CategoryNavProps) {
   return (
-    <nav className="category-nav" aria-label="Symbol categories">
+    <nav className="category-nav" aria-label={t(language, "symbolCategories")}>
       <ul className="category-nav__list" role="list">
         {categories.map((cat) => (
           <li key={cat.id} role="none">
@@ -17,7 +24,7 @@ export function CategoryNav({ categories, activeId, onSelect }: CategoryNavProps
               className={`category-nav__btn${activeId === cat.id ? " category-nav__btn--active" : ""}`}
               onClick={() => onSelect(cat.id)}
               aria-pressed={activeId === cat.id}
-              aria-label={`${cat.label} category`}
+              aria-label={`${cat.label} ${t(language, "categorySuffix")}`}
               type="button"
             >
               <span className="category-nav__emoji" aria-hidden="true">

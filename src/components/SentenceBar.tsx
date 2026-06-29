@@ -1,4 +1,5 @@
 import type { Symbol } from "../data/vocabulary";
+import { t, type Language } from "../i18n";
 import "./SentenceBar.css";
 
 interface SentenceBarProps {
@@ -8,6 +9,7 @@ interface SentenceBarProps {
   onClear: () => void;
   onRemoveLast: () => void;
   onSpeakWord: (symbol: Symbol) => void;
+  language: Language;
 }
 
 export function SentenceBar({
@@ -17,20 +19,19 @@ export function SentenceBar({
   onClear,
   onRemoveLast,
   onSpeakWord,
+  language,
 }: SentenceBarProps) {
   return (
-    <div className="sentence-bar" role="region" aria-label="Sentence builder">
+    <div className="sentence-bar" role="region" aria-label={t(language, "sentenceBuilder")}>
       <div
         className="sentence-bar__words"
         role="list"
-        aria-label="Current sentence"
+        aria-label={t(language, "currentSentence")}
         aria-live="polite"
         aria-atomic="false"
       >
         {sentence.length === 0 ? (
-          <span className="sentence-bar__placeholder">
-            Tap symbols below to build a sentence…
-          </span>
+          <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
         ) : (
           sentence.map((sym, idx) => (
             <button
@@ -38,7 +39,7 @@ export function SentenceBar({
               className="sentence-bar__word"
               role="listitem"
               onClick={() => onSpeakWord(sym)}
-              aria-label={`Speak: ${sym.speak ?? sym.label}`}
+              aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
               type="button"
             >
               <span aria-hidden="true">{sym.emoji}</span>
@@ -53,18 +54,18 @@ export function SentenceBar({
           className="sentence-bar__btn sentence-bar__btn--speak"
           onClick={onSpeak}
           disabled={sentence.length === 0 || speaking}
-          aria-label={speaking ? "Speaking…" : "Speak sentence"}
+          aria-label={speaking ? t(language, "speaking") : t(language, "speakSentence")}
           type="button"
         >
           {speaking ? (
             <>
               <span aria-hidden="true">🔊</span>
-              <span>Speaking…</span>
+              <span>{t(language, "speaking")}</span>
             </>
           ) : (
             <>
               <span aria-hidden="true">▶️</span>
-              <span>Speak</span>
+              <span>{t(language, "speak")}</span>
             </>
           )}
         </button>
@@ -73,22 +74,22 @@ export function SentenceBar({
           className="sentence-bar__btn sentence-bar__btn--backspace"
           onClick={onRemoveLast}
           disabled={sentence.length === 0}
-          aria-label="Remove last word"
+          aria-label={t(language, "removeLastWord")}
           type="button"
         >
           <span aria-hidden="true">⌫</span>
-          <span className="sr-only">Backspace</span>
+          <span className="sr-only">{t(language, "backspace")}</span>
         </button>
 
         <button
           className="sentence-bar__btn sentence-bar__btn--clear"
           onClick={onClear}
           disabled={sentence.length === 0}
-          aria-label="Clear sentence"
+          aria-label={t(language, "clearSentence")}
           type="button"
         >
           <span aria-hidden="true">🗑️</span>
-          <span className="sr-only">Clear</span>
+          <span className="sr-only">{t(language, "clear")}</span>
         </button>
       </div>
     </div>

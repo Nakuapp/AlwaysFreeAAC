@@ -10,7 +10,8 @@
 }
 
 .settings-panel {
-  background: #fff;
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border-radius: 16px;
   width: 100%;
   max-width: 480px;
@@ -26,7 +27,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--border-soft);
 }
 
 .settings-panel__title {
@@ -36,7 +37,7 @@
 }
 
 .settings-panel__close {
-  background: #f0f0f0;
+  background: var(--bg-subtle);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -47,15 +48,15 @@
   align-items: center;
   justify-content: center;
   transition: background 0.15s ease;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .settings-panel__close:hover {
-  background: #e0e0e0;
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
 }
 
 .settings-panel__close:focus-visible {
-  outline: 3px solid #005fcc;
+  outline: 3px solid var(--button-focus);
   outline-offset: 2px;
 }
 
@@ -77,26 +78,27 @@
 .settings-field__label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .settings-field__select {
   padding: 0.5rem;
-  border: 2px solid #ccc;
+  border: 2px solid var(--border-medium);
   border-radius: 8px;
   font-size: 0.9rem;
-  background: #fff;
+  background: var(--bg-surface);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .settings-field__select:focus {
-  outline: 3px solid #005fcc;
-  border-color: #005fcc;
+  outline: 3px solid var(--button-focus);
+  border-color: var(--button-focus);
 }
 
 .settings-field__range {
   width: 100%;
-  accent-color: #005fcc;
+  accent-color: var(--header-bg);
   cursor: pointer;
   height: 6px;
 }
@@ -105,24 +107,24 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.75rem;
-  color: #777;
+  color: var(--text-muted);
 }
 
 .settings-field__hint {
   font-size: 0.85rem;
-  color: #777;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .settings-panel__footer {
   padding: 1rem 1.25rem;
-  border-top: 2px solid #f0f0f0;
+  border-top: 2px solid var(--border-soft);
 }
 
 .settings-panel__done {
   width: 100%;
-  background: #005fcc;
-  color: #fff;
+  background: var(--header-bg);
+  color: var(--header-text);
   border: none;
   border-radius: 10px;
   padding: 0.75rem;
@@ -133,7 +135,7 @@
 }
 
 .settings-panel__done:hover {
-  background: #0047a3;
+  filter: brightness(0.92);
 }
 
 .settings-panel__done:focus-visible {
