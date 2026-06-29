@@ -25,9 +25,11 @@
   list-style: none;
 }
 
-/* Make list items layout-transparent so buttons are direct flex children */
-.sentence-bar__words > li {
-  display: contents;
+.sentence-bar__placeholder-item,
+.sentence-bar__word-item {
+  list-style: none;
+  display: flex;
+  align-items: center;
 }
 
 .sentence-bar__placeholder {

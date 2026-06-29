@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import type { Category } from "../data/vocabulary";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { t, type Language } from "../i18n";
 import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../icons";
 import { IconVisual } from "./IconVisual";
@@ -29,6 +30,8 @@ export function ManageBoardsDialog({
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [newBoardIcon, setNewBoardIcon] = useState("pen-square");
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef);
 
   function handleCreateBoard() {
     const name = newBoardName.trim();
@@ -65,13 +68,13 @@ export function ManageBoardsDialog({
       aria-modal="true"
       aria-label={t(language, "manageBoards")}
     >
-      <div className="manage-boards-panel">
+      <div className="manage-boards-panel" ref={panelRef}>
         <div className="manage-boards-panel__header">
           <h2 className="manage-boards-panel__title">{t(language, "manageBoards")}</h2>
           <button
             className="manage-boards-panel__close"
             onClick={onClose}
-            aria-label={t(language, "cancel")}
+            aria-label={t(language, "close")}
             type="button"
           >
             <X className="manage-boards-panel__close-icon" aria-hidden="true" focusable="false" />

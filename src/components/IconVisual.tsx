@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { getAppIcon, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl } from "../icons";
 
 interface IconVisualProps {
@@ -6,8 +7,27 @@ interface IconVisualProps {
 }
 
 export function IconVisual({ value, className }: IconVisualProps) {
-  if (isRasterImageDataUrl(value) || isExternalImageUrl(value)) {
-    return <img className={`${className} ${className}--img`} src={value} alt="" draggable={false} />;
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [value]);
+
+  const isImage = isRasterImageDataUrl(value) || isExternalImageUrl(value);
+
+  if (isImage && !imageFailed) {
+    return (
+      <img
+        className={`${className} ${className}--img`}
+        src={value}
+        alt=""
+        draggable={false}
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        onError={() => setImageFailed(true)}
+      />
+    );
   }
 
   const Icon = getAppIcon(value);

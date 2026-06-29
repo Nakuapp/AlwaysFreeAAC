@@ -33,12 +33,12 @@ export function SentenceBar({
         aria-atomic="false"
       >
         {sentence.length === 0 ? (
-          <li role="none">
+          <li className="sentence-bar__placeholder-item">
             <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
           </li>
         ) : (
           sentence.map((sym, idx) => (
-            <li key={`${sym.id}-${idx}`} role="none">
+            <li key={`${sym.id}-${idx}`} className="sentence-bar__word-item">
               <button
                 className="sentence-bar__word"
                 onClick={() => onSpeakWord(sym)}

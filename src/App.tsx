@@ -179,7 +179,7 @@ function loadUserBoards(): UserBoard[] {
             {
               id: "my-words",
               label: "My Words",
-              emoji: "icon:pen-square:outline",
+              emoji: "pen-square",
               symbols,
             },
           ];
