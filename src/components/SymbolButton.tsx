@@ -23,7 +23,8 @@ const COLOR_MAP: Record<string, string> = {
 };
 
 function isDataUrl(value: string) {
-  return value.startsWith("data:");
+  // Only raster image data URLs — no SVG which can embed scripts
+  return /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(value);
 }
 
 export function SymbolButton({ symbol, onClick, size = "normal", onDelete }: SymbolButtonProps) {

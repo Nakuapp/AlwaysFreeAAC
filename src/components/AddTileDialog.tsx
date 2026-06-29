@@ -15,6 +15,11 @@ const COLOR_OPTIONS = [
   { value: "gray", bg: "#e0e0e0" },
 ];
 
+function isImageDataUrl(value: string) {
+  // Allow only raster image data URLs (not SVG, which can embed scripts)
+  return /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(value);
+}
+
 interface AddTileDialogProps {
   language: Language;
   onSave: (symbol: Omit<Symbol, "id">) => void;
@@ -49,7 +54,11 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      setImageDataUrl(ev.target?.result as string);
+      const result = ev.target?.result as string;
+      // Only accept raster image data URLs (no SVG which can embed scripts)
+      if (result && /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(result)) {
+        setImageDataUrl(result);
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -89,7 +98,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
           {/* Preview */}
           <div className="add-tile-preview" style={{ background: `var(--color-${color}, var(--color-default))` }}>
             <span className="add-tile-preview__icon" aria-hidden="true">
-              {previewIcon.startsWith("data:") ? (
+              {isImageDataUrl(previewIcon) ? (
                 <img src={previewIcon} alt="" className="add-tile-preview__img" />
               ) : (
                 previewIcon
@@ -158,7 +167,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
                   className="add-tile-image-upload__input"
                   onChange={handleImageUpload}
                   aria-hidden="true"
