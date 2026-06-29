@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react";
+import { X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
+import { IconVisual } from "./IconVisual";
 import "./SymbolButton.css";
 
 interface SymbolButtonProps {
@@ -24,11 +26,6 @@ const COLOR_MAP: Record<string, string> = {
   gray: "var(--color-gray)",
 };
 
-function isDataUrl(value: string) {
-  // Only raster image data URLs — no SVG which can embed scripts
-  return /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(value);
-}
-
 export function SymbolButton({
   symbol,
   onClick,
@@ -49,18 +46,7 @@ export function SymbolButton({
         disabled={disabled}
         type="button"
       >
-        <span className="symbol-btn__emoji" aria-hidden="true">
-          {isDataUrl(symbol.emoji) ? (
-            <img
-              className="symbol-btn__img"
-              src={symbol.emoji}
-              alt=""
-              draggable={false}
-            />
-          ) : (
-            symbol.emoji
-          )}
-        </span>
+        <IconVisual value={symbol.emoji} className="symbol-btn__icon" />
         <span className="symbol-btn__label">{symbol.label}</span>
       </button>
       {onDelete && (
@@ -70,7 +56,8 @@ export function SymbolButton({
           onClick={() => onDelete(symbol)}
           aria-label={deleteAriaLabel?.(symbol) ?? `Delete ${symbol.label}`}
         >
-          ✕
+          <X className="symbol-btn__delete-icon" aria-hidden="true" focusable="false" />
+          <span className="sr-only">{deleteAriaLabel?.(symbol) ?? `Delete ${symbol.label}`}</span>
         </button>
       )}
     </div>

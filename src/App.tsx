@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { Settings as SettingsIcon } from "lucide-react";
 import { CATEGORIES } from "./data/vocabulary";
 import type { Symbol } from "./data/vocabulary";
 import { useSpeech } from "./hooks/useSpeech";
@@ -109,17 +110,26 @@ function loadCustomTiles(): Symbol[] {
     if (raw) {
       const parsed: unknown = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
-      return parsed.filter(
-        (tile): tile is Symbol => {
+      return parsed
+        .filter((tile): tile is Record<string, unknown> => {
           if (typeof tile !== "object" || tile === null) return false;
           const candidate = tile as Record<string, unknown>;
           return (
             typeof candidate.id === "string" &&
             typeof candidate.label === "string" &&
-            typeof candidate.emoji === "string"
+            (typeof candidate.emoji === "string" || typeof candidate.icon === "string")
           );
-        }
-      );
+        })
+        .map(
+          (tile): Symbol => ({
+            id: tile.id as string,
+            label: tile.label as string,
+            emoji: (tile.emoji as string) || (tile.icon as string),
+            speak: typeof tile.speak === "string" ? tile.speak : undefined,
+            color: typeof tile.color === "string" ? tile.color : undefined,
+            isCustom: true,
+          })
+        );
     }
   } catch {
     // ignore
@@ -151,7 +161,7 @@ export default function App() {
       {
         id: MY_WORDS_CATEGORY_ID,
         label: t(settings.language, "myWords"),
-        emoji: "✏️",
+        emoji: "pen-square",
         symbols: customTiles,
       },
     ];
@@ -286,9 +296,7 @@ export default function App() {
     <div className="app" aria-label={t(settings.language, "appName")}>
       <header className="app-header">
         <div className="app-header__brand">
-          <span className="app-header__icon" aria-hidden="true">
-            💬
-          </span>
+          <img src="/app-logo.svg" className="app-header__logo" alt="" aria-hidden="true" />
           <span className="app-header__title">{t(settings.language, "appName")}</span>
         </div>
         <button
@@ -298,7 +306,7 @@ export default function App() {
           aria-haspopup="dialog"
           type="button"
         >
-          <span aria-hidden="true">⚙️</span>
+          <SettingsIcon className="app-header__settings-icon" aria-hidden="true" focusable="false" />
           <span className="app-header__settings-label">{t(settings.language, "settings")}</span>
         </button>
       </header>

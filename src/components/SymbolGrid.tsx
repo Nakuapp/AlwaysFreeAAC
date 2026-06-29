@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { Check, Pencil, Plus } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { SymbolButton } from "./SymbolButton";
@@ -40,6 +41,11 @@ export function SymbolGrid({
               className={`symbol-grid-toolbar__btn${isEditMode ? " symbol-grid-toolbar__btn--active" : ""}`}
               onClick={onToggleEditMode}
             >
+              {isEditMode ? (
+                <Check className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
+              ) : (
+                <Pencil className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
+              )}
               {isEditMode ? t(language, "doneTiles") : t(language, "editTiles")}
             </button>
           )}
@@ -70,7 +76,7 @@ export function SymbolGrid({
             onClick={onAddWord}
             aria-label={t(language, "addWord")}
           >
-            <span className="symbol-grid__add-icon" aria-hidden="true">＋</span>
+            <Plus className="symbol-grid__add-icon" aria-hidden="true" focusable="false" />
             <span className="symbol-grid__add-label">{t(language, "addWord")}</span>
           </button>
         )}

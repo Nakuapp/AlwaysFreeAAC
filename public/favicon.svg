@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#005fcc"/>
-  <text x="50" y="68" font-size="55" text-anchor="middle" fill="white">💬</text>
+  <rect width="100" height="100" rx="22" fill="#005fcc" />
+  <path fill="#ffffff" d="M26 24h48c6.6 0 12 5.4 12 12v22c0 6.6-5.4 12-12 12H54L36 83c-3.5 2.7-8.5-.1-8.5-4.5V70H26c-6.6 0-12-5.4-12-12V36c0-6.6 5.4-12 12-12z" />
+  <path fill="#005fcc" d="M37 47h26a3 3 0 1 0 0-6H37a3 3 0 1 0 0 6m0 10h16a3 3 0 1 0 0-6H37a3 3 0 1 0 0 6" />
 </svg>

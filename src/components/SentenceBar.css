@@ -47,6 +47,17 @@
   color: var(--text-primary);
 }
 
+.sentence-bar__word-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.sentence-bar__word-icon--img {
+  object-fit: cover;
+  border-radius: 3px;
+}
+
 .sentence-bar__word:hover {
   background: color-mix(in srgb, var(--header-bg) 22%, var(--bg-surface));
 }
@@ -78,6 +89,12 @@
   transition: filter 0.1s ease, transform 0.1s ease;
   color: #fff;
   flex: 1;
+}
+
+.sentence-bar__btn-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
 }
 
 .sentence-bar__btn:disabled {

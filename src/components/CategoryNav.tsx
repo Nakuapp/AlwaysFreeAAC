@@ -1,5 +1,6 @@
 import type { Category } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
+import { IconVisual } from "./IconVisual";
 import "./CategoryNav.css";
 
 interface CategoryNavProps {
@@ -27,9 +28,7 @@ export function CategoryNav({
               aria-label={`${cat.label} ${t(language, "categorySuffix")}`}
               type="button"
             >
-              <span className="category-nav__emoji" aria-hidden="true">
-                {cat.emoji}
-              </span>
+              <IconVisual value={cat.emoji} className="category-nav__icon" />
               <span className="category-nav__label">{cat.label}</span>
             </button>
           </li>

@@ -76,6 +76,9 @@ type UiStringKey =
   | "tileIconEmoji"
   | "tileIconImage"
   | "tileIconEmojiPlaceholder"
+  | "tileIconFilterLabel"
+  | "tileIconFilterPlaceholder"
+  | "tileIconFilterNoMatch"
   | "tileColor"
   | "tileColorGreen"
   | "tileColorBlue"
@@ -165,6 +168,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconEmoji: "Emoji",
     tileIconImage: "Image",
     tileIconEmojiPlaceholder: "Paste or type an emoji…",
+    tileIconFilterLabel: "Filter icons",
+    tileIconFilterPlaceholder: "Search icons…",
+    tileIconFilterNoMatch: "No icons match your search.",
     tileColor: "Color",
     tileColorGreen: "Green",
     tileColorBlue: "Blue",
@@ -253,6 +259,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconEmoji: "Emoji",
     tileIconImage: "Imagen",
     tileIconEmojiPlaceholder: "Pega o escribe un emoji…",
+    tileIconFilterLabel: "Filtrar íconos",
+    tileIconFilterPlaceholder: "Buscar íconos…",
+    tileIconFilterNoMatch: "Ningún ícono coincide con tu búsqueda.",
     tileColor: "Color",
     tileColorGreen: "Verde",
     tileColorBlue: "Azul",
@@ -341,6 +350,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconEmoji: "Emoji",
     tileIconImage: "Image",
     tileIconEmojiPlaceholder: "Coller ou saisir un emoji…",
+    tileIconFilterLabel: "Filtrer les icônes",
+    tileIconFilterPlaceholder: "Rechercher des icônes…",
+    tileIconFilterNoMatch: "Aucune icône ne correspond à votre recherche.",
     tileColor: "Couleur",
     tileColorGreen: "Vert",
     tileColorBlue: "Bleu",

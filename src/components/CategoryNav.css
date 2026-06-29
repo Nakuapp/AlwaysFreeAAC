@@ -53,9 +53,11 @@
   font-weight: 700;
 }
 
-.category-nav__emoji {
+.category-nav__icon {
   font-size: 1.3rem;
   line-height: 1;
+  width: 1.3rem;
+  height: 1.3rem;
 }
 
 .category-nav__label {
@@ -69,8 +71,10 @@
     min-width: 70px;
   }
 
-  .category-nav__emoji {
+  .category-nav__icon {
     font-size: 1.4rem;
+    width: 1.4rem;
+    height: 1.4rem;
   }
 
   .category-nav__label {

@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent } from "react";
+import { ImageIcon, Search, Upload, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
+import { type AppIconName, CUSTOM_TILE_ICON_OPTIONS } from "../icons";
+import { IconVisual } from "./IconVisual";
 import "./AddTileDialog.css";
 
 type ColorLabelKey =
@@ -27,11 +30,6 @@ const COLOR_OPTIONS = [
   { value: "gray", bg: "#e0e0e0", labelKey: "tileColorGray" },
 ] as const satisfies ReadonlyArray<{ value: string; bg: string; labelKey: ColorLabelKey }>;
 
-function isImageDataUrl(value: string) {
-  // Allow only raster image data URLs (not SVG, which can embed scripts)
-  return /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(value);
-}
-
 interface AddTileDialogProps {
   language: Language;
   onSave: (symbol: Omit<Symbol, "id">) => void;
@@ -41,8 +39,9 @@ interface AddTileDialogProps {
 export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps) {
   const [label, setLabel] = useState("");
   const [speakOverride, setSpeakOverride] = useState("");
-  const [iconMode, setIconMode] = useState<"emoji" | "image">("emoji");
-  const [emoji, setEmoji] = useState("⭐");
+  const [iconMode, setIconMode] = useState<"icon" | "image">("icon");
+  const [iconFilter, setIconFilter] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState<AppIconName>("star");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [color, setColor] = useState("blue");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,7 +77,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   function handleSave() {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
-    const icon = iconMode === "image" && imageDataUrl ? imageDataUrl : emoji;
+    const icon = iconMode === "image" && imageDataUrl ? imageDataUrl : selectedIcon;
     onSave({
       label: trimmedLabel,
       emoji: icon,
@@ -88,21 +87,31 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
     });
   }
 
-  const isValid = label.trim().length > 0 && (iconMode === "emoji" ? emoji.trim().length > 0 : imageDataUrl !== null);
-  const previewIcon = iconMode === "image" && imageDataUrl ? imageDataUrl : emoji;
+  const normalizedIconFilter = iconFilter.trim().toLowerCase();
+  const filteredIcons = normalizedIconFilter
+    ? CUSTOM_TILE_ICON_OPTIONS.filter(
+        (icon) =>
+          icon.label.toLowerCase().includes(normalizedIconFilter) ||
+          icon.value.toLowerCase().includes(normalizedIconFilter) ||
+          icon.keywords.some((keyword) => keyword.includes(normalizedIconFilter))
+      )
+    : CUSTOM_TILE_ICON_OPTIONS;
+
+  const isValid = label.trim().length > 0 && (iconMode === "icon" ? Boolean(selectedIcon) : imageDataUrl !== null);
+  const previewIcon = iconMode === "image" && imageDataUrl ? imageDataUrl : selectedIcon;
 
   return (
     <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
       <div className="add-tile-panel">
         <div className="add-tile-panel__header">
-          <h2 className="add-tile-panel__title">✨ {t(language, "addTileTitle")}</h2>
+          <h2 className="add-tile-panel__title">{t(language, "addTileTitle")}</h2>
           <button
             className="add-tile-panel__close"
             onClick={onClose}
             aria-label={t(language, "cancel")}
             type="button"
           >
-            ✕
+            <X className="add-tile-panel__close-icon" aria-hidden="true" focusable="false" />
           </button>
         </div>
 
@@ -110,11 +119,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
           {/* Preview */}
           <div className="add-tile-preview" style={{ background: `var(--color-${color}, var(--color-default))` }}>
             <span className="add-tile-preview__icon" aria-hidden="true">
-              {isImageDataUrl(previewIcon) ? (
-                <img src={previewIcon} alt="" className="add-tile-preview__img" />
-              ) : (
-                previewIcon
-              )}
+              <IconVisual value={previewIcon} className="add-tile-preview__icon-value" />
             </span>
             <span className="add-tile-preview__label">{label || "…"}</span>
           </div>
@@ -142,28 +147,55 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
             <div className="add-tile-tabs">
               <button
                 type="button"
-                className={`add-tile-tabs__btn${iconMode === "emoji" ? " add-tile-tabs__btn--active" : ""}`}
-                onClick={() => setIconMode("emoji")}
+                className={`add-tile-tabs__btn${iconMode === "icon" ? " add-tile-tabs__btn--active" : ""}`}
+                onClick={() => setIconMode("icon")}
               >
-                {t(language, "tileIconEmoji")}
+                {t(language, "tileIcon")}
               </button>
               <button
                 type="button"
                 className={`add-tile-tabs__btn${iconMode === "image" ? " add-tile-tabs__btn--active" : ""}`}
                 onClick={() => setIconMode("image")}
               >
+                <ImageIcon className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
                 {t(language, "tileIconImage")}
               </button>
             </div>
-            {iconMode === "emoji" ? (
-              <input
-                type="text"
-                className="add-tile-field__input"
-                value={emoji}
-                onChange={(e) => setEmoji(e.target.value)}
-                placeholder={t(language, "tileIconEmojiPlaceholder")}
-                maxLength={8}
-              />
+            {iconMode === "icon" ? (
+              <>
+                <label className="add-tile-field__sr-only" htmlFor="tile-icon-filter">
+                  {t(language, "tileIconFilterLabel")}
+                </label>
+                <div className="add-tile-icon-search">
+                  <Search className="add-tile-icon-search__icon" aria-hidden="true" focusable="false" />
+                  <input
+                    id="tile-icon-filter"
+                    type="search"
+                    className="add-tile-field__input add-tile-field__input--search"
+                    value={iconFilter}
+                    onChange={(e) => setIconFilter(e.target.value)}
+                    placeholder={t(language, "tileIconFilterPlaceholder")}
+                  />
+                </div>
+                <div className="add-tile-icon-grid" role="listbox" aria-label={t(language, "tileIcon")}>
+                  {filteredIcons.map((icon) => (
+                    <button
+                      key={icon.value}
+                      type="button"
+                      className={`add-tile-icon-grid__btn${selectedIcon === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
+                      onClick={() => setSelectedIcon(icon.value)}
+                      aria-label={icon.label}
+                      aria-selected={selectedIcon === icon.value}
+                      role="option"
+                    >
+                      <IconVisual value={icon.value} className="add-tile-icon-grid__icon" />
+                    </button>
+                  ))}
+                </div>
+                {filteredIcons.length === 0 && (
+                  <p className="add-tile-field__hint">{t(language, "tileIconFilterNoMatch")}</p>
+                )}
+              </>
             ) : (
               <div className="add-tile-image-upload">
                 {imageDataUrl && (
@@ -174,6 +206,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   className="add-tile-image-upload__btn"
                   onClick={() => fileInputRef.current?.click()}
                 >
+                  <Upload className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
                   {imageDataUrl ? t(language, "changeImage") : t(language, "uploadImage")}
                 </button>
                 <input

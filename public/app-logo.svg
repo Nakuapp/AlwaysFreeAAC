@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="AlwaysFreeAAC logo">
+  <rect width="128" height="128" rx="28" fill="#005fcc" />
+  <path fill="#ffffff" d="M34 32h60c7.7 0 14 6.3 14 14v28c0 7.7-6.3 14-14 14H68l-22 17c-4.1 3.1-10-0.1-10-5.3V88h-2c-7.7 0-14-6.3-14-14V46c0-7.7 6.3-14 14-14z" />
+  <path fill="#005fcc" d="M48 56h32a4 4 0 1 0 0-8H48a4 4 0 1 0 0 8m0 14h20a4 4 0 1 0 0-8H48a4 4 0 1 0 0 8" />
+</svg>

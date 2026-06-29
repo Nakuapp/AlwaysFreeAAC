@@ -1,5 +1,7 @@
 import type { Symbol } from "../data/vocabulary";
+import { Delete, Play, Trash2, Volume2 } from "lucide-react";
 import { t, type Language } from "../i18n";
+import { IconVisual } from "./IconVisual";
 import "./SentenceBar.css";
 
 interface SentenceBarProps {
@@ -42,7 +44,7 @@ export function SentenceBar({
               aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
               type="button"
             >
-              <span aria-hidden="true">{sym.emoji}</span>
+              <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
               <span>{sym.label}</span>
             </button>
           ))
@@ -59,12 +61,12 @@ export function SentenceBar({
         >
           {speaking ? (
             <>
-              <span aria-hidden="true">🔊</span>
+              <Volume2 className="sentence-bar__btn-icon" aria-hidden="true" focusable="false" />
               <span>{t(language, "speaking")}</span>
             </>
           ) : (
             <>
-              <span aria-hidden="true">▶️</span>
+              <Play className="sentence-bar__btn-icon" aria-hidden="true" focusable="false" />
               <span>{t(language, "speak")}</span>
             </>
           )}
@@ -77,7 +79,7 @@ export function SentenceBar({
           aria-label={t(language, "removeLastWord")}
           type="button"
         >
-          <span aria-hidden="true">⌫</span>
+          <Delete className="sentence-bar__btn-icon" aria-hidden="true" focusable="false" />
           <span className="sr-only">{t(language, "backspace")}</span>
         </button>
 
@@ -88,7 +90,7 @@ export function SentenceBar({
           aria-label={t(language, "clearSentence")}
           type="button"
         >
-          <span aria-hidden="true">🗑️</span>
+          <Trash2 className="sentence-bar__btn-icon" aria-hidden="true" focusable="false" />
           <span className="sr-only">{t(language, "clear")}</span>
         </button>
       </div>

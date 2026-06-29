@@ -1,7 +1,7 @@
 export interface Symbol {
   id: string;
   label: string;
-  /** Emoji character, or a data: URL for a custom uploaded image */
+  /** Icon key, emoji character, or a data: URL for a custom uploaded image */
   emoji: string;
   speak?: string; // override spoken text if different from label
   color?: string; // background color category
@@ -20,7 +20,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "core",
     label: "Core",
-    emoji: "⭐",
+    emoji: "star",
     symbols: [
       { id: "yes", label: "Yes", emoji: "✅", color: "green" },
       { id: "no", label: "No", emoji: "❌", color: "red" },
@@ -43,7 +43,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "people",
     label: "People",
-    emoji: "👨‍👩‍👧",
+    emoji: "users",
     symbols: [
       { id: "me", label: "Me", emoji: "🙋", speak: "me", color: "blue" },
       { id: "you", label: "You", emoji: "👉", speak: "you", color: "blue" },
@@ -62,7 +62,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "actions",
     label: "Actions",
-    emoji: "🏃",
+    emoji: "activity",
     symbols: [
       { id: "eat", label: "Eat", emoji: "🍽️", color: "orange" },
       { id: "drink", label: "Drink", emoji: "🥤", color: "teal" },
@@ -85,7 +85,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "feelings",
     label: "Feelings",
-    emoji: "😊",
+    emoji: "smile",
     symbols: [
       { id: "happy", label: "Happy", emoji: "😊", color: "yellow" },
       { id: "sad", label: "Sad", emoji: "😢", color: "blue" },
@@ -108,7 +108,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "food",
     label: "Food & Drink",
-    emoji: "🍎",
+    emoji: "apple",
     symbols: [
       { id: "water", label: "Water", emoji: "💧", color: "teal" },
       { id: "milk", label: "Milk", emoji: "🥛", color: "blue" },
@@ -131,7 +131,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "places",
     label: "Places",
-    emoji: "🏠",
+    emoji: "home",
     symbols: [
       { id: "home", label: "Home", emoji: "🏠", color: "yellow" },
       { id: "school", label: "School", emoji: "🏫", color: "blue" },
@@ -150,7 +150,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "describe",
     label: "Describe",
-    emoji: "🔤",
+    emoji: "file-text",
     symbols: [
       { id: "big", label: "Big", emoji: "🔺", color: "orange" },
       { id: "small", label: "Small", emoji: "🔻", color: "blue" },
@@ -173,7 +173,7 @@ export const CATEGORIES: Category[] = [
   {
     id: "social",
     label: "Social",
-    emoji: "👋",
+    emoji: "handshake",
     symbols: [
       { id: "hello", label: "Hello", emoji: "👋", color: "yellow" },
       { id: "goodbye", label: "Goodbye", emoji: "👋", speak: "Goodbye", color: "orange" },

@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'app-logo.svg', 'app-icon.svg', 'app-icon-192.png', 'app-icon-512.png'],
       manifest: {
         name: 'AlwaysFreeAAC',
         short_name: 'AAC',
@@ -20,7 +20,25 @@ export default defineConfig({
         lang: 'en',
         icons: [
           {
-            src: 'favicon.svg',
+            src: 'app-icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'app-icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'app-icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+          {
+            src: 'app-icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any',
