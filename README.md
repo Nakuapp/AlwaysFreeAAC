@@ -35,7 +35,7 @@ npm run lint       # Lint source files
 ## Releases
 
 - Run the `Release Apps` GitHub Actions workflow with a version number such as `1.2.3` or `v1.2.3`.
-- The workflow normalizes the version tag, builds the web zip, Android debug APK, and iOS simulator app zip, then publishes one GitHub release with generated release notes and all artifacts.
+- The workflow normalizes the version tag, builds the web zip, Android debug APK, and iOS IPA, then publishes one GitHub release with generated release notes and all artifacts.
 
 ---
 
