@@ -23,6 +23,7 @@ interface SettingsProps {
   onFontSizeChange: (size: number) => void;
   onLanguageChange: (language: Language) => void;
   onThemeChange: (theme: Theme) => void;
+  onPreviewVoice: (voiceId: string) => void;
   onClose: () => void;
 }
 
@@ -46,6 +47,7 @@ export function Settings({
   onFontSizeChange,
   onLanguageChange,
   onThemeChange,
+  onPreviewVoice,
   onClose,
 }: SettingsProps) {
   useEffect(() => {
@@ -116,19 +118,43 @@ export function Settings({
             {voices.length === 0 ? (
               <p className="settings-field__hint">{t(language, "noVoices")}</p>
             ) : (
-              <select
-                id="voice-select"
-                className="settings-field__select"
-                value={selectedVoice}
-                onChange={(e) => onVoiceChange(e.target.value)}
-              >
-                <option value="">{t(language, "defaultVoice")}</option>
-                {voices.map((v) => (
-                  <option key={v.name} value={v.name}>
-                    {v.name} ({v.lang})
-                  </option>
-                ))}
-              </select>
+              <div className="settings-field__voice-row">
+                <select
+                  id="voice-select"
+                  className="settings-field__select settings-field__select--voice"
+                  value={selectedVoice}
+                  onChange={(e) => onVoiceChange(e.target.value)}
+                >
+                  <option value="">{t(language, "defaultVoice")}</option>
+                  {Array.from(
+                    voices.reduce((groups, v) => {
+                      const lang = v.lang.split("-")[0].toUpperCase();
+                      if (!groups.has(lang)) groups.set(lang, []);
+                      groups.get(lang)!.push(v);
+                      return groups;
+                    }, new Map<string, VoiceOption[]>()),
+                    ([lang, group]) => (
+                      <optgroup key={lang} label={lang}>
+                        {group.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name}
+                            {v.isNetworkConnectionRequired ? " 🌐" : ""}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )
+                  )}
+                </select>
+                <button
+                  type="button"
+                  className="settings-field__preview-btn"
+                  onClick={() => onPreviewVoice(selectedVoice || (voices[0]?.id ?? ""))}
+                  aria-label={t(language, "previewVoice")}
+                  title={t(language, "previewVoice")}
+                >
+                  🔊
+                </button>
+              </div>
             )}
           </div>
 

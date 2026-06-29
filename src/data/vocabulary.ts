@@ -1,9 +1,12 @@
 export interface Symbol {
   id: string;
   label: string;
+  /** Emoji character, or a data: URL for a custom uploaded image */
   emoji: string;
   speak?: string; // override spoken text if different from label
   color?: string; // background color category
+  /** When true this tile was created by the user and can be deleted */
+  isCustom?: boolean;
 }
 
 export interface Category {
