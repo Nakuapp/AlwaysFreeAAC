@@ -1,6 +1,6 @@
 .category-nav {
-  background: #f0f0f0;
-  border-bottom: 2px solid #ccc;
+  background: var(--bg-subtle);
+  border-bottom: 2px solid var(--border-medium);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -34,22 +34,22 @@
   white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease;
   min-width: 60px;
-  color: #444;
+  color: var(--text-secondary);
 }
 
 .category-nav__btn:hover {
-  background: #e0e0e0;
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
 }
 
 .category-nav__btn:focus-visible {
-  outline: 3px solid #005fcc;
+  outline: 3px solid var(--button-focus);
   outline-offset: -2px;
 }
 
 .category-nav__btn--active {
-  background: #fff;
-  border-bottom-color: #005fcc;
-  color: #005fcc;
+  background: var(--bg-surface);
+  border-bottom-color: var(--header-bg);
+  color: var(--header-bg);
   font-weight: 700;
 }
 

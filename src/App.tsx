@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { CATEGORIES } from "./data/vocabulary";
 import type { Symbol } from "./data/vocabulary";
 import { useSpeech } from "./hooks/useSpeech";
@@ -6,6 +6,7 @@ import { SentenceBar } from "./components/SentenceBar";
 import { CategoryNav } from "./components/CategoryNav";
 import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
+import { localizeCategories, t, type Language, type Theme } from "./i18n";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
@@ -18,6 +19,8 @@ interface AppSettings {
   volume: number;
   columns: number;
   fontSize: number;
+  language: Language;
+  theme: Theme;
 }
 
 function defaultSettings(): AppSettings {
@@ -29,6 +32,8 @@ function defaultSettings(): AppSettings {
     volume: 1,
     columns: 4,
     fontSize: 14,
+    language: "en",
+    theme: "light",
   };
 }
 
@@ -47,6 +52,9 @@ const VALID_VOICE_PRESETS = new Set<AppSettings["voicePreset"]>([
   "bass",
 ]);
 
+const VALID_LANGUAGES = new Set<Language>(["en", "es", "fr"]);
+const VALID_THEMES = new Set<Theme>(["light", "dark"]);
+
 function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
   if (typeof preset !== "string") return "custom";
   const mapped = LEGACY_VOICE_PRESET_MAP[preset] ?? preset;
@@ -61,11 +69,21 @@ function loadSettings(): AppSettings {
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<AppSettings>;
       const normalizedPreset = normalizeVoicePreset(parsed.voicePreset);
+      const normalizedLanguage =
+        typeof parsed.language === "string" && VALID_LANGUAGES.has(parsed.language as Language)
+          ? (parsed.language as Language)
+          : "en";
+      const normalizedTheme =
+        typeof parsed.theme === "string" && VALID_THEMES.has(parsed.theme as Theme)
+          ? (parsed.theme as Theme)
+          : "light";
 
       return {
         ...defaultSettings(),
         ...parsed,
         voicePreset: normalizedPreset,
+        language: normalizedLanguage,
+        theme: normalizedTheme,
       };
     }
   } catch {
@@ -88,6 +106,14 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
 
+  const categories = useMemo(
+    () => localizeCategories(settings.language, CATEGORIES),
+    [settings.language]
+  );
+
+  const activeCategory =
+    categories.find((c) => c.id === activeCategoryId) ?? categories[0];
+
   const { speak, speaking, voices } = useSpeech({
     rate: settings.rate,
     pitch: settings.pitch,
@@ -95,12 +121,10 @@ export default function App() {
     voiceName: settings.voiceName || undefined,
   });
 
-  // Persist settings whenever they change
   useEffect(() => {
     saveSettings(settings);
   }, [settings]);
 
-  // Apply font-size to root
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--app-font-size",
@@ -108,8 +132,9 @@ export default function App() {
     );
   }, [settings.fontSize]);
 
-  const activeCategory =
-    CATEGORIES.find((c) => c.id === activeCategoryId) ?? CATEGORIES[0];
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", settings.theme);
+  }, [settings.theme]);
 
   const handleSymbolSelect = useCallback((sym: Symbol) => {
     setSentence((prev) => [...prev, sym]);
@@ -190,28 +215,26 @@ export default function App() {
   };
 
   return (
-    <div className="app" aria-label="AlwaysFreeAAC">
-      {/* Header */}
+    <div className="app" aria-label={t(settings.language, "appName")}>
       <header className="app-header">
         <div className="app-header__brand">
           <span className="app-header__icon" aria-hidden="true">
             💬
           </span>
-          <span className="app-header__title">AlwaysFreeAAC</span>
+          <span className="app-header__title">{t(settings.language, "appName")}</span>
         </div>
         <button
           className="app-header__settings-btn"
           onClick={() => setShowSettings(true)}
-          aria-label="Open settings"
+          aria-label={t(settings.language, "openSettings")}
           aria-haspopup="dialog"
           type="button"
         >
           <span aria-hidden="true">⚙️</span>
-          <span className="app-header__settings-label">Settings</span>
+          <span className="app-header__settings-label">{t(settings.language, "settings")}</span>
         </button>
       </header>
 
-      {/* Sentence builder */}
       <SentenceBar
         sentence={sentence}
         speaking={speaking}
@@ -219,23 +242,23 @@ export default function App() {
         onClear={handleClear}
         onRemoveLast={handleRemoveLast}
         onSpeakWord={handleSpeakWord}
+        language={settings.language}
       />
 
-      {/* Category navigation */}
       <CategoryNav
-        categories={CATEGORIES}
+        categories={categories}
         activeId={activeCategoryId}
         onSelect={setActiveCategoryId}
+        language={settings.language}
       />
 
-      {/* Symbol grid */}
       <SymbolGrid
         symbols={activeCategory.symbols}
         columns={settings.columns}
         onSelect={handleSymbolSelect}
+        language={settings.language}
       />
 
-      {/* Settings panel */}
       {showSettings && (
         <Settings
           voices={voices}
@@ -246,6 +269,8 @@ export default function App() {
           volume={settings.volume}
           columns={settings.columns}
           fontSize={settings.fontSize}
+          language={settings.language}
+          theme={settings.theme}
           onVoiceChange={(v) => updateSetting("voiceName", v)}
           onVoicePresetChange={applyVoicePreset}
           onRateChange={(r) =>
@@ -257,6 +282,8 @@ export default function App() {
           onVolumeChange={(v) => updateSetting("volume", v)}
           onColumnsChange={(c) => updateSetting("columns", c)}
           onFontSizeChange={(f) => updateSetting("fontSize", f)}
+          onLanguageChange={(language) => updateSetting("language", language)}
+          onThemeChange={(theme) => updateSetting("theme", theme)}
           onClose={() => setShowSettings(false)}
         />
       )}
