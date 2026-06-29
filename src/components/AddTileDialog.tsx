@@ -3,7 +3,7 @@ import type { ChangeEvent } from "react";
 import { ImageIcon, Search, Upload, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
-import { type AppIconName, CUSTOM_TILE_ICON_OPTIONS } from "../icons";
+import { type AppIconName, type AppIconStyle, CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../icons";
 import { IconVisual } from "./IconVisual";
 import "./AddTileDialog.css";
 
@@ -41,7 +41,8 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   const [speakOverride, setSpeakOverride] = useState("");
   const [iconMode, setIconMode] = useState<"icon" | "image">("icon");
   const [iconFilter, setIconFilter] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState<AppIconName>("star");
+  const [selectedIconName, setSelectedIconName] = useState<AppIconName>("star");
+  const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>("outline");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [color, setColor] = useState("blue");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,7 +78,9 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   function handleSave() {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
-    const icon = iconMode === "image" && imageDataUrl ? imageDataUrl : selectedIcon;
+    const icon = iconMode === "image" && imageDataUrl
+      ? imageDataUrl
+      : toAppIconValue(selectedIconName, selectedIconStyle);
     onSave({
       label: trimmedLabel,
       emoji: icon,
@@ -97,8 +100,10 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
       )
     : CUSTOM_TILE_ICON_OPTIONS;
 
-  const isValid = label.trim().length > 0 && (iconMode === "icon" ? Boolean(selectedIcon) : imageDataUrl !== null);
-  const previewIcon = iconMode === "image" && imageDataUrl ? imageDataUrl : selectedIcon;
+  const isValid = label.trim().length > 0 && (iconMode === "icon" ? Boolean(selectedIconName) : imageDataUrl !== null);
+  const previewIcon = iconMode === "image" && imageDataUrl
+    ? imageDataUrl
+    : toAppIconValue(selectedIconName, selectedIconStyle);
 
   return (
     <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
@@ -177,18 +182,36 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                     placeholder={t(language, "tileIconFilterPlaceholder")}
                   />
                 </div>
+                <div className="add-tile-tabs" role="group" aria-label={t(language, "tileIconStyle")}>
+                  <button
+                    type="button"
+                    className={`add-tile-tabs__btn${selectedIconStyle === "outline" ? " add-tile-tabs__btn--active" : ""}`}
+                    onClick={() => setSelectedIconStyle("outline")}
+                    aria-pressed={selectedIconStyle === "outline"}
+                  >
+                    {t(language, "tileIconStyleOutline")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`add-tile-tabs__btn${selectedIconStyle === "filled" ? " add-tile-tabs__btn--active" : ""}`}
+                    onClick={() => setSelectedIconStyle("filled")}
+                    aria-pressed={selectedIconStyle === "filled"}
+                  >
+                    {t(language, "tileIconStyleFilled")}
+                  </button>
+                </div>
                 <div className="add-tile-icon-grid" role="listbox" aria-label={t(language, "tileIcon")}>
                   {filteredIcons.map((icon) => (
                     <button
                       key={icon.value}
                       type="button"
-                      className={`add-tile-icon-grid__btn${selectedIcon === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
-                      onClick={() => setSelectedIcon(icon.value)}
+                      className={`add-tile-icon-grid__btn${selectedIconName === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
+                      onClick={() => setSelectedIconName(icon.value)}
                       aria-label={icon.label}
-                      aria-selected={selectedIcon === icon.value}
+                      aria-selected={selectedIconName === icon.value}
                       role="option"
                     >
-                      <IconVisual value={icon.value} className="add-tile-icon-grid__icon" />
+                      <IconVisual value={toAppIconValue(icon.value, selectedIconStyle)} className="add-tile-icon-grid__icon" />
                     </button>
                   ))}
                 </div>

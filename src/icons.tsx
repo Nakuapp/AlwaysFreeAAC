@@ -146,6 +146,9 @@ export const APP_ICONS = {
 } as const satisfies Record<string, LucideIcon>;
 
 export type AppIconName = keyof typeof APP_ICONS;
+export type AppIconStyle = "outline" | "filled";
+
+const FILLED_ICON_SUFFIX = "-filled";
 
 export interface IconOption {
   value: AppIconName;
@@ -216,10 +219,28 @@ export function isRasterImageDataUrl(value: string) {
 }
 
 export function getAppIcon(value: string): LucideIcon | undefined {
-  if (!Object.hasOwn(APP_ICONS, value)) return undefined;
-  return APP_ICONS[value as AppIconName];
+  const key = getAppIconName(value);
+  if (!key) return undefined;
+  return APP_ICONS[key];
 }
 
 export function isAppIconName(value: string): value is AppIconName {
   return Object.hasOwn(APP_ICONS, value);
+}
+
+export function getAppIconName(value: string): AppIconName | undefined {
+  if (isAppIconName(value)) return value;
+  if (value.endsWith(FILLED_ICON_SUFFIX)) {
+    const base = value.slice(0, -FILLED_ICON_SUFFIX.length);
+    if (isAppIconName(base)) return base;
+  }
+  return undefined;
+}
+
+export function getAppIconStyle(value: string): AppIconStyle {
+  return value.endsWith(FILLED_ICON_SUFFIX) ? "filled" : "outline";
+}
+
+export function toAppIconValue(name: AppIconName, style: AppIconStyle): string {
+  return style === "filled" ? `${name}${FILLED_ICON_SUFFIX}` : name;
 }

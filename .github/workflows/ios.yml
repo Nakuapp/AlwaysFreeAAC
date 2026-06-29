@@ -46,6 +46,9 @@ jobs:
             npx cap add ios
           fi
 
+      - name: Generate native iOS app icon
+        run: npx @capacitor/assets generate --ios
+
       - name: Sync web assets to iOS
         run: npx cap sync ios
 
