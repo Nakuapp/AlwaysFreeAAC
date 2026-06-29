@@ -14,6 +14,8 @@ Use AlwaysFreeAAC instantly in your browser — no download or account required:
 
 The web app works on any device and can be added to your home screen for quick access.
 
+> **More voices on native apps:** The Android and iOS apps have access to a wider range of voices and speech synthesizers built into the device, and also support third-party text-to-speech apps (such as Acapela, Vocalizer, or any TTS engine installed on your device). If voice variety matters, the native apps are the best choice.
+
 ---
 
 ## Features
