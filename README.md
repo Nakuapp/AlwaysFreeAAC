@@ -6,37 +6,34 @@ AlwaysFreeAAC helps people with communication difficulties express themselves us
 
 ---
 
+## 🌐 Try It Now
+
+Use AlwaysFreeAAC instantly in your browser — no download or account required:
+
+**[https://nakuapp.github.io/AlwaysFreeAAC/](https://nakuapp.github.io/AlwaysFreeAAC/)**
+
+The web app works on any device and can be added to your home screen for quick access.
+
+---
+
 ## Features
 
 - **Symbol boards** — 8 categories with 100+ symbols using emoji visuals and clear text labels
 - **Sentence builder** — tap symbols to compose sentences in the display bar
-- **Text-to-speech** — native speech on Android/iOS with web fallback
+- **Text-to-speech** — speaks sentences aloud using your device's built-in voice
 - **Category navigation** — Core, People, Actions, Feelings, Food & Drink, Places, Describe, Social
-- **Responsive design** — works on any screen size (mobile, tablet, desktop)
-- **PWA installable** — install on any device for offline-capable use
-- **Accessible** — ARIA labels, keyboard navigation, and `prefers-reduced-motion` support
-- **Customisable** — adjust voice, speech rate/pitch, grid size, font size, language/theme, and custom tiles
-- **Icon picker modes** — choose outlined or filled icon styles for custom tiles
-- **Persistent settings** — preferences saved to localStorage
-
----
-
-## Getting Started
-
-```bash
-npm install
-npm run dev        # Start development server
-npm run build      # Production build
-npm run preview    # Preview production build
-npm run lint       # Lint source files
-```
+- **Works everywhere** — mobile, tablet, and desktop
+- **Install on your device** — add to home screen for offline use (no app store needed)
+- **Accessible** — works with screen readers, keyboard navigation, and respects reduced-motion preferences
+- **Customisable** — adjust voice, speech rate/pitch, grid size, font size, language, theme, and custom tiles
+- **Icon styles** — choose outlined or filled icon styles for custom tiles
+- **Your preferences are saved** — settings are remembered between sessions
 
 ---
 
 ## Releases
 
-- Run the `Release Apps` GitHub Actions workflow with a version number such as `1.2.3` or `v1.2.3`.
-- The workflow normalizes the version tag, builds the web zip, Android debug APK, and iOS IPA, then publishes one GitHub release with generated release notes and all artifacts.
+Download the latest Android APK or iOS IPA from the [Releases](../../releases) page.
 
 ---
 
@@ -83,19 +80,32 @@ iOS requires every app to be code-signed before it can be installed on a device.
 
 ---
 
-## Web App & GitHub Pages
+## Self-Hosting (Web App)
 
-The web build (`npm run build`) is a fully static PWA — no server required. You can host it anywhere that serves static files.
+Want to host your own copy? The app is a fully static PWA — no server or database required.
 
-**GitHub Pages** is an easy free option and is perfectly within GitHub's [Acceptable Use Policy](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies) for an open-source accessibility app like this.
+**GitHub Pages** is a free, simple option. A `Deploy to GitHub Pages` workflow is already included in this repository:
 
-The `Deploy to GitHub Pages` workflow (`.github/workflows/pages.yml`) is already included in this repository. To enable it:
+1. Fork this repository on GitHub.
+2. Go to **Settings → Pages** in your forked repository.
+3. Under *Source*, select **GitHub Actions**.
+4. The workflow runs automatically on every push to `main` and publishes the app to `https://<your-username>.github.io/AlwaysFreeAAC/`.
 
-1. Go to **Settings → Pages** in your GitHub repository.
-2. Under *Source*, select **GitHub Actions**.
-3. The workflow runs automatically on every push to `main` and deploys the built app to `https://nakuapp.github.io/AlwaysFreeAAC/`.
+The workflow automatically sets the correct base URL for the deployment.
 
-The workflow automatically sets the correct `base` URL for the sub-path deployment.
+---
+
+## Developer Setup
+
+```bash
+npm install
+npm run dev        # Start development server
+npm run build      # Production build
+npm run preview    # Preview production build
+npm run lint       # Lint source files
+```
+
+To publish a new release, run the `Release Apps` GitHub Actions workflow with a version number (e.g. `1.2.3`). It builds the web zip, Android APK, and iOS IPA and publishes a GitHub release with all artifacts.
 
 ---
 
