@@ -106,12 +106,19 @@ type UiStringKey =
   | "exportBoard"
   | "importBoard"
   | "importBoardError"
-  | "openSymbols"
-  | "searchOpenSymbolsPlaceholder"
-  | "openSymbolsLoading"
-  | "openSymbolsError"
-  | "openSymbolsEmpty"
-  | "openSymbolsAttribution";
+  | "manageBoards"
+  | "newBoard"
+  | "boardName"
+  | "boardNamePlaceholder"
+  | "createBoard"
+  | "deleteBoard"
+  | "confirmDeleteBoard"
+  | "moveUp"
+  | "moveDown"
+  | "showBoard"
+  | "hideBoard"
+  | "userBoards"
+  | "builtInBoards";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -211,12 +218,19 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportBoard: "Export (.obf)",
     importBoard: "Import (.obf)",
     importBoardError: "Could not import board. Please select a valid .obf file.",
-    openSymbols: "Symbols",
-    searchOpenSymbolsPlaceholder: "Search AAC symbols…",
-    openSymbolsLoading: "Searching…",
-    openSymbolsError: "Could not load symbols. Check your connection and try again.",
-    openSymbolsEmpty: "No symbols found. Try a different keyword.",
-    openSymbolsAttribution: "Symbols from OpenSymbols.org (ARASAAC, Mulberry, and others)",
+    manageBoards: "Manage Boards",
+    newBoard: "New Board",
+    boardName: "Board Name",
+    boardNamePlaceholder: "e.g. School, Home…",
+    createBoard: "Create Board",
+    deleteBoard: "Delete Board",
+    confirmDeleteBoard: "Delete this board and all its tiles?",
+    moveUp: "Move up",
+    moveDown: "Move down",
+    showBoard: "Show board",
+    hideBoard: "Hide board",
+    userBoards: "My Boards",
+    builtInBoards: "Built-in Boards",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -315,12 +329,19 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportBoard: "Exportar (.obf)",
     importBoard: "Importar (.obf)",
     importBoardError: "No se pudo importar el tablero. Selecciona un archivo .obf válido.",
-    openSymbols: "Símbolos",
-    searchOpenSymbolsPlaceholder: "Buscar símbolos CAA…",
-    openSymbolsLoading: "Buscando…",
-    openSymbolsError: "No se pudieron cargar los símbolos. Verifica tu conexión.",
-    openSymbolsEmpty: "No se encontraron símbolos. Prueba con otra palabra.",
-    openSymbolsAttribution: "Símbolos de OpenSymbols.org (ARASAAC, Mulberry y otros)",
+    manageBoards: "Gestionar tableros",
+    newBoard: "Nuevo tablero",
+    boardName: "Nombre del tablero",
+    boardNamePlaceholder: "Ej. Escuela, Casa…",
+    createBoard: "Crear tablero",
+    deleteBoard: "Eliminar tablero",
+    confirmDeleteBoard: "¿Eliminar este tablero y todos sus mosaicos?",
+    moveUp: "Mover arriba",
+    moveDown: "Mover abajo",
+    showBoard: "Mostrar tablero",
+    hideBoard: "Ocultar tablero",
+    userBoards: "Mis tableros",
+    builtInBoards: "Tableros predeterminados",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -419,12 +440,19 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportBoard: "Exporter (.obf)",
     importBoard: "Importer (.obf)",
     importBoardError: "Impossible d'importer le tableau. Sélectionnez un fichier .obf valide.",
-    openSymbols: "Symboles",
-    searchOpenSymbolsPlaceholder: "Rechercher des symboles CAA…",
-    openSymbolsLoading: "Recherche…",
-    openSymbolsError: "Impossible de charger les symboles. Vérifiez votre connexion.",
-    openSymbolsEmpty: "Aucun symbole trouvé. Essayez un autre mot-clé.",
-    openSymbolsAttribution: "Symboles d'OpenSymbols.org (ARASAAC, Mulberry et autres)",
+    manageBoards: "Gérer les tableaux",
+    newBoard: "Nouveau tableau",
+    boardName: "Nom du tableau",
+    boardNamePlaceholder: "Ex. École, Maison…",
+    createBoard: "Créer le tableau",
+    deleteBoard: "Supprimer le tableau",
+    confirmDeleteBoard: "Supprimer ce tableau et toutes ses fiches ?",
+    moveUp: "Monter",
+    moveDown: "Descendre",
+    showBoard: "Afficher le tableau",
+    hideBoard: "Masquer le tableau",
+    userBoards: "Mes tableaux",
+    builtInBoards: "Tableaux intégrés",
   },
 };
 

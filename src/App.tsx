@@ -8,13 +8,22 @@ import { CategoryNav } from "./components/CategoryNav";
 import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
+import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
 import { localizeCategories, t, type Language, type Theme } from "./i18n";
 import { exportCategoryToOBF, downloadOBF, readOBFFile, importOBFToSymbols } from "./utils/openboard";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
-const CUSTOM_TILES_KEY = "aac_custom_tiles";
-const MY_WORDS_CATEGORY_ID = "my-words";
+const LEGACY_CUSTOM_TILES_KEY = "aac_custom_tiles";
+const USER_BOARDS_KEY = "aac_user_boards";
+const HIDDEN_BUILTIN_KEY = "aac_hidden_builtin";
+
+export interface UserBoard {
+  id: string;
+  label: string;
+  emoji: string;
+  symbols: Symbol[];
+}
 
 interface AppSettings {
   voiceName: string;
@@ -105,42 +114,111 @@ function saveSettings(s: AppSettings) {
   }
 }
 
-function loadCustomTiles(): Symbol[] {
+function isValidSymbol(tile: unknown): tile is Record<string, unknown> {
+  if (typeof tile !== "object" || tile === null) return false;
+  const candidate = tile as Record<string, unknown>;
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.label === "string" &&
+    (typeof candidate.emoji === "string" || typeof candidate.icon === "string")
+  );
+}
+
+function parseSymbol(tile: Record<string, unknown>): Symbol {
+  return {
+    id: tile.id as string,
+    label: tile.label as string,
+    emoji: (tile.emoji as string) || (tile.icon as string),
+    speak: typeof tile.speak === "string" ? tile.speak : undefined,
+    color: typeof tile.color === "string" ? tile.color : undefined,
+    isCustom: true,
+  };
+}
+
+function loadUserBoards(): UserBoard[] {
   try {
-    const raw = localStorage.getItem(CUSTOM_TILES_KEY);
+    const raw = localStorage.getItem(USER_BOARDS_KEY);
     if (raw) {
       const parsed: unknown = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
       return parsed
-        .filter((tile): tile is Record<string, unknown> => {
-          if (typeof tile !== "object" || tile === null) return false;
-          const candidate = tile as Record<string, unknown>;
+        .filter((board): board is Record<string, unknown> => {
+          if (typeof board !== "object" || board === null) return false;
+          const b = board as Record<string, unknown>;
           return (
-            typeof candidate.id === "string" &&
-            typeof candidate.label === "string" &&
-            (typeof candidate.emoji === "string" || typeof candidate.icon === "string")
+            typeof b.id === "string" &&
+            typeof b.label === "string" &&
+            typeof b.emoji === "string" &&
+            Array.isArray(b.symbols)
           );
         })
         .map(
-          (tile): Symbol => ({
-            id: tile.id as string,
-            label: tile.label as string,
-            emoji: (tile.emoji as string) || (tile.icon as string),
-            speak: typeof tile.speak === "string" ? tile.speak : undefined,
-            color: typeof tile.color === "string" ? tile.color : undefined,
-            isCustom: true,
+          (board): UserBoard => ({
+            id: board.id as string,
+            label: board.label as string,
+            emoji: board.emoji as string,
+            symbols: (board.symbols as unknown[])
+              .filter(isValidSymbol)
+              .map(parseSymbol),
           })
         );
     }
   } catch {
     // ignore
   }
+
+  // Migrate from legacy aac_custom_tiles key
+  try {
+    const legacy = localStorage.getItem(LEGACY_CUSTOM_TILES_KEY);
+    if (legacy) {
+      const tiles: unknown = JSON.parse(legacy);
+      if (Array.isArray(tiles)) {
+        const symbols = tiles.filter(isValidSymbol).map(parseSymbol);
+        if (symbols.length > 0) {
+          return [
+            {
+              id: "my-words",
+              label: "My Words",
+              emoji: "icon:pen-square:outline",
+              symbols,
+            },
+          ];
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+
   return [];
 }
 
-function saveCustomTiles(tiles: Symbol[]) {
+function saveUserBoards(boards: UserBoard[]) {
   try {
-    localStorage.setItem(CUSTOM_TILES_KEY, JSON.stringify(tiles));
+    localStorage.setItem(USER_BOARDS_KEY, JSON.stringify(boards));
+  } catch {
+    // ignore
+  }
+}
+
+function loadHiddenBuiltinIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(HIDDEN_BUILTIN_KEY);
+    if (raw) {
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return new Set(parsed.filter((x): x is string => typeof x === "string"));
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return new Set();
+}
+
+function saveHiddenBuiltinIds(ids: Set<string>) {
+  try {
+    localStorage.setItem(HIDDEN_BUILTIN_KEY, JSON.stringify([...ids]));
   } catch {
     // ignore
   }
@@ -148,28 +226,42 @@ function saveCustomTiles(tiles: Symbol[]) {
 
 export default function App() {
   const [sentence, setSentence] = useState<Symbol[]>([]);
-  const [activeCategoryId, setActiveCategoryId] = useState(CATEGORIES[0].id);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
-  const [customTiles, setCustomTiles] = useState<Symbol[]>(loadCustomTiles);
+  const [userBoards, setUserBoards] = useState<UserBoard[]>(loadUserBoards);
+  const [hiddenBuiltinIds, setHiddenBuiltinIds] = useState<Set<string>>(loadHiddenBuiltinIds);
   const [showAddTile, setShowAddTile] = useState(false);
+  const [showManageBoards, setShowManageBoards] = useState(false);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
 
-  const categories = useMemo(() => {
-    const base = localizeCategories(settings.language, CATEGORIES);
-    return [
-      ...base,
-      {
-        id: MY_WORDS_CATEGORY_ID,
-        label: t(settings.language, "myWords"),
-        emoji: "pen-square",
-        symbols: customTiles,
-      },
-    ];
-  }, [settings.language, customTiles]);
+  // Localized built-in categories (minus hidden ones)
+  const localizedBuiltIn = useMemo(
+    () => localizeCategories(settings.language, CATEGORIES),
+    [settings.language]
+  );
+
+  // All categories: user boards first, then visible built-in boards
+  const allCategories = useMemo(() => {
+    const visible = localizedBuiltIn.filter((c) => !hiddenBuiltinIds.has(c.id));
+    return [...userBoards, ...visible];
+  }, [userBoards, localizedBuiltIn, hiddenBuiltinIds]);
+
+  const [activeCategoryId, setActiveCategoryId] = useState<string>(() => {
+    const boards = loadUserBoards();
+    return boards.length > 0 ? boards[0].id : (CATEGORIES[0]?.id ?? "");
+  });
+
+  // Keep activeCategoryId valid when boards change
+  useEffect(() => {
+    if (allCategories.length > 0 && !allCategories.find((c) => c.id === activeCategoryId)) {
+      setActiveCategoryId(allCategories[0].id);
+    }
+  }, [allCategories, activeCategoryId]);
 
   const activeCategory =
-    categories.find((c) => c.id === activeCategoryId) ?? categories[0];
+    allCategories.find((c) => c.id === activeCategoryId) ?? allCategories[0];
+
+  const isUserBoard = userBoards.some((b) => b.id === activeCategoryId);
 
   const { speak, previewVoice, speaking, voices } = useSpeech({
     rate: settings.rate,
@@ -183,8 +275,12 @@ export default function App() {
   }, [settings]);
 
   useEffect(() => {
-    saveCustomTiles(customTiles);
-  }, [customTiles]);
+    saveUserBoards(userBoards);
+  }, [userBoards]);
+
+  useEffect(() => {
+    saveHiddenBuiltinIds(hiddenBuiltinIds);
+  }, [hiddenBuiltinIds]);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
@@ -222,48 +318,85 @@ export default function App() {
     setSentence((prev) => prev.slice(0, -1));
   }, []);
 
-  const handleAddCustomTile = useCallback((tile: Omit<Symbol, "id">) => {
-    const newTile: Symbol = {
-      ...tile,
-      id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    };
-    setCustomTiles((prev) => [...prev, newTile]);
-    setShowAddTile(false);
-  }, []);
+  const handleAddCustomTile = useCallback(
+    (tile: Omit<Symbol, "id">) => {
+      const newTile: Symbol = {
+        ...tile,
+        id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      };
+      setUserBoards((prev) =>
+        prev.map((b) =>
+          b.id === activeCategoryId ? { ...b, symbols: [...b.symbols, newTile] } : b
+        )
+      );
+      setShowAddTile(false);
+    },
+    [activeCategoryId]
+  );
 
-  const handleDeleteCustomTile = useCallback((sym: Symbol) => {
-    setCustomTiles((prev) => prev.filter((t) => t.id !== sym.id));
-  }, []);
+  const handleDeleteCustomTile = useCallback(
+    (sym: Symbol) => {
+      setUserBoards((prev) =>
+        prev.map((b) =>
+          b.id === activeCategoryId
+            ? { ...b, symbols: b.symbols.filter((t) => t.id !== sym.id) }
+            : b
+        )
+      );
+    },
+    [activeCategoryId]
+  );
 
   const handleExportBoard = useCallback(() => {
-    const myWordsCategory = {
-      id: MY_WORDS_CATEGORY_ID,
-      label: t(settings.language, "myWords"),
-      emoji: "pen-square",
-      symbols: customTiles,
-    };
-    const board = exportCategoryToOBF(myWordsCategory, settings.language);
+    if (!activeCategory) return;
+    const board = exportCategoryToOBF(activeCategory, settings.language);
     downloadOBF(board);
-  }, [customTiles, settings.language]);
+  }, [activeCategory, settings.language]);
 
-  const handleImportBoard = useCallback(async (file: File) => {
-    try {
-      const board = await readOBFFile(file);
-      const imported = importOBFToSymbols(board);
-      if (imported.length === 0) {
+  const handleImportBoard = useCallback(
+    async (file: File) => {
+      try {
+        const board = await readOBFFile(file);
+        const imported = importOBFToSymbols(board);
+        if (imported.length === 0) {
+          alert(t(settings.language, "importBoardError"));
+          return;
+        }
+        setUserBoards((prev) =>
+          prev.map((b) =>
+            b.id === activeCategoryId ? { ...b, symbols: [...b.symbols, ...imported] } : b
+          )
+        );
+      } catch {
         alert(t(settings.language, "importBoardError"));
-        return;
       }
-      setCustomTiles((prev) => [...prev, ...imported]);
-    } catch {
-      alert(t(settings.language, "importBoardError"));
-    }
-  }, [settings.language]);
+    },
+    [activeCategoryId, settings.language]
+  );
 
-  const handlePreviewVoice = useCallback((voiceId: string) => {
-    const sampleText = t(settings.language, "appName");
-    previewVoice(voiceId, sampleText);
-  }, [previewVoice, settings.language]);
+  const handleUpdateUserBoards = useCallback((boards: UserBoard[]) => {
+    setUserBoards(boards);
+  }, []);
+
+  const handleToggleBuiltIn = useCallback((id: string) => {
+    setHiddenBuiltinIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handlePreviewVoice = useCallback(
+    (voiceId: string) => {
+      const sampleText = t(settings.language, "appName");
+      previewVoice(voiceId, sampleText);
+    },
+    [previewVoice, settings.language]
+  );
 
   const updateSetting = <K extends keyof AppSettings>(
     key: K,
@@ -348,26 +481,27 @@ export default function App() {
       />
 
       <CategoryNav
-        categories={categories}
+        categories={allCategories}
         activeId={activeCategoryId}
         onSelect={(id) => {
           setActiveCategoryId(id);
           setIsEditingTiles(false);
         }}
+        onManageBoards={() => setShowManageBoards(true)}
         language={settings.language}
       />
 
       <SymbolGrid
-        symbols={activeCategory.symbols}
+        symbols={activeCategory?.symbols ?? []}
         columns={settings.columns}
         onSelect={handleSymbolSelect}
         language={settings.language}
-        onAddWord={activeCategoryId === MY_WORDS_CATEGORY_ID ? () => setShowAddTile(true) : undefined}
-        onDeleteSymbol={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleDeleteCustomTile : undefined}
+        onAddWord={isUserBoard ? () => setShowAddTile(true) : undefined}
+        onDeleteSymbol={isUserBoard ? handleDeleteCustomTile : undefined}
         isEditMode={isEditingTiles}
         onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
-        onExportBoard={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleExportBoard : undefined}
-        onImportBoard={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleImportBoard : undefined}
+        onExportBoard={isUserBoard ? handleExportBoard : undefined}
+        onImportBoard={isUserBoard ? handleImportBoard : undefined}
       />
 
       {showSettings && (
@@ -405,6 +539,18 @@ export default function App() {
           language={settings.language}
           onSave={handleAddCustomTile}
           onClose={() => setShowAddTile(false)}
+        />
+      )}
+
+      {showManageBoards && (
+        <ManageBoardsDialog
+          language={settings.language}
+          userBoards={userBoards}
+          builtInCategories={localizedBuiltIn}
+          hiddenBuiltinIds={hiddenBuiltinIds}
+          onUpdateUserBoards={handleUpdateUserBoards}
+          onToggleBuiltIn={handleToggleBuiltIn}
+          onClose={() => setShowManageBoards(false)}
         />
       )}
     </div>
