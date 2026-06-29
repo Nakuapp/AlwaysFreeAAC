@@ -102,7 +102,16 @@ type UiStringKey =
   | "voiceFilterNoMatch"
   | "onlineVoiceSuffix"
   | "moreVoicesTipAndroid"
-  | "moreVoicesTipWeb";
+  | "moreVoicesTipWeb"
+  | "exportBoard"
+  | "importBoard"
+  | "importBoardError"
+  | "openSymbols"
+  | "searchOpenSymbolsPlaceholder"
+  | "openSymbolsLoading"
+  | "openSymbolsError"
+  | "openSymbolsEmpty"
+  | "openSymbolsAttribution";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -199,6 +208,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     onlineVoiceSuffix: "(Online)",
     moreVoicesTipAndroid: "Tip: For more diverse voices, open your device Settings and look for Accessibility → Text-to-Speech to install additional voice packs.",
     moreVoicesTipWeb: "Tip: Voice quality and variety depend on your browser and OS. Chrome and Edge on desktop typically offer the most options.",
+    exportBoard: "Export (.obf)",
+    importBoard: "Import (.obf)",
+    importBoardError: "Could not import board. Please select a valid .obf file.",
+    openSymbols: "Symbols",
+    searchOpenSymbolsPlaceholder: "Search AAC symbols…",
+    openSymbolsLoading: "Searching…",
+    openSymbolsError: "Could not load symbols. Check your connection and try again.",
+    openSymbolsEmpty: "No symbols found. Try a different keyword.",
+    openSymbolsAttribution: "Symbols from OpenSymbols.org (ARASAAC, Mulberry, and others)",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -294,6 +312,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     onlineVoiceSuffix: "(En línea)",
     moreVoicesTipAndroid: "Consejo: Para más voces, abre Ajustes en tu dispositivo y busca Accesibilidad → Texto a voz para instalar paquetes de voces adicionales.",
     moreVoicesTipWeb: "Consejo: La calidad y variedad de voces dependen de tu navegador y sistema operativo. Chrome y Edge en escritorio suelen ofrecer más opciones.",
+    exportBoard: "Exportar (.obf)",
+    importBoard: "Importar (.obf)",
+    importBoardError: "No se pudo importar el tablero. Selecciona un archivo .obf válido.",
+    openSymbols: "Símbolos",
+    searchOpenSymbolsPlaceholder: "Buscar símbolos CAA…",
+    openSymbolsLoading: "Buscando…",
+    openSymbolsError: "No se pudieron cargar los símbolos. Verifica tu conexión.",
+    openSymbolsEmpty: "No se encontraron símbolos. Prueba con otra palabra.",
+    openSymbolsAttribution: "Símbolos de OpenSymbols.org (ARASAAC, Mulberry y otros)",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -389,6 +416,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     onlineVoiceSuffix: "(En ligne)",
     moreVoicesTipAndroid: "Conseil : Pour plus de voix, ouvrez les Paramètres de votre appareil et cherchez Accessibilité → Synthèse vocale pour installer des packs de voix supplémentaires.",
     moreVoicesTipWeb: "Conseil : La qualité et la variété des voix dépendent de votre navigateur et de votre système d'exploitation. Chrome et Edge sur ordinateur offrent généralement le plus d'options.",
+    exportBoard: "Exporter (.obf)",
+    importBoard: "Importer (.obf)",
+    importBoardError: "Impossible d'importer le tableau. Sélectionnez un fichier .obf valide.",
+    openSymbols: "Symboles",
+    searchOpenSymbolsPlaceholder: "Rechercher des symboles CAA…",
+    openSymbolsLoading: "Recherche…",
+    openSymbolsError: "Impossible de charger les symboles. Vérifiez votre connexion.",
+    openSymbolsEmpty: "Aucun symbole trouvé. Essayez un autre mot-clé.",
+    openSymbolsAttribution: "Symboles d'OpenSymbols.org (ARASAAC, Mulberry et autres)",
   },
 };
 

@@ -9,6 +9,7 @@ import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
 import { localizeCategories, t, type Language, type Theme } from "./i18n";
+import { exportCategoryToOBF, downloadOBF, readOBFFile, importOBFToSymbols } from "./utils/openboard";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
@@ -234,6 +235,31 @@ export default function App() {
     setCustomTiles((prev) => prev.filter((t) => t.id !== sym.id));
   }, []);
 
+  const handleExportBoard = useCallback(() => {
+    const myWordsCategory = {
+      id: MY_WORDS_CATEGORY_ID,
+      label: t(settings.language, "myWords"),
+      emoji: "pen-square",
+      symbols: customTiles,
+    };
+    const board = exportCategoryToOBF(myWordsCategory, settings.language);
+    downloadOBF(board);
+  }, [customTiles, settings.language]);
+
+  const handleImportBoard = useCallback(async (file: File) => {
+    try {
+      const board = await readOBFFile(file);
+      const imported = importOBFToSymbols(board);
+      if (imported.length === 0) {
+        alert(t(settings.language, "importBoardError"));
+        return;
+      }
+      setCustomTiles((prev) => [...prev, ...imported]);
+    } catch {
+      alert(t(settings.language, "importBoardError"));
+    }
+  }, [settings.language]);
+
   const handlePreviewVoice = useCallback((voiceId: string) => {
     const sampleText = t(settings.language, "appName");
     previewVoice(voiceId, sampleText);
@@ -340,6 +366,8 @@ export default function App() {
         onDeleteSymbol={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleDeleteCustomTile : undefined}
         isEditMode={isEditingTiles}
         onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
+        onExportBoard={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleExportBoard : undefined}
+        onImportBoard={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleImportBoard : undefined}
       />
 
       {showSettings && (

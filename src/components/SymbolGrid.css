@@ -48,6 +48,10 @@
   outline-offset: 2px;
 }
 
+.symbol-grid-toolbar__import-input {
+  display: none;
+}
+
 .symbol-grid {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns, 4), 1fr);

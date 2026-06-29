@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import type { ChangeEvent } from "react";
-import { ImageIcon, Search, Upload, X } from "lucide-react";
+import { Globe, ImageIcon, Search, Upload, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { type AppIconName, type AppIconStyle, CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../icons";
 import { IconVisual } from "./IconVisual";
+import { searchOpenSymbols, type OpenSymbolResult } from "../utils/openSymbols";
 import "./AddTileDialog.css";
 
 type ColorLabelKey =
@@ -39,7 +40,7 @@ interface AddTileDialogProps {
 export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps) {
   const [label, setLabel] = useState("");
   const [speakOverride, setSpeakOverride] = useState("");
-  const [iconMode, setIconMode] = useState<"icon" | "image">("icon");
+  const [iconMode, setIconMode] = useState<"icon" | "image" | "symbols">("icon");
   const [iconFilter, setIconFilter] = useState("");
   const [selectedIconName, setSelectedIconName] = useState<AppIconName>("star");
   const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>("outline");
@@ -47,6 +48,46 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   const [color, setColor] = useState("blue");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
+
+  // OpenSymbols state
+  const [symbolQuery, setSymbolQuery] = useState("");
+  const [symbolResults, setSymbolResults] = useState<OpenSymbolResult[]>([]);
+  const [symbolLoading, setSymbolLoading] = useState(false);
+  const [symbolError, setSymbolError] = useState<string | null>(null);
+  const [selectedSymbolUrl, setSelectedSymbolUrl] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const runSymbolSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSymbolResults([]);
+      setSymbolError(null);
+      return;
+    }
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setSymbolLoading(true);
+    setSymbolError(null);
+    try {
+      const results = await searchOpenSymbols(query, controller.signal);
+      setSymbolResults(results);
+    } catch (err) {
+      if ((err as { name?: string }).name !== "AbortError") {
+        setSymbolError(t(language, "openSymbolsError"));
+      }
+    } finally {
+      setSymbolLoading(false);
+    }
+  }, [language]);
+
+  // Debounce symbol search
+  useEffect(() => {
+    const timer = setTimeout(() => { void runSymbolSearch(symbolQuery); }, 500);
+    return () => clearTimeout(timer);
+  }, [symbolQuery, runSymbolSearch]);
+
+  // Cleanup abort on unmount
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -78,9 +119,14 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   function handleSave() {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
-    const icon = iconMode === "image" && imageDataUrl
-      ? imageDataUrl
-      : toAppIconValue(selectedIconName, selectedIconStyle);
+    let icon: string;
+    if (iconMode === "image" && imageDataUrl) {
+      icon = imageDataUrl;
+    } else if (iconMode === "symbols" && selectedSymbolUrl) {
+      icon = selectedSymbolUrl;
+    } else {
+      icon = toAppIconValue(selectedIconName, selectedIconStyle);
+    }
     onSave({
       label: trimmedLabel,
       emoji: icon,
@@ -100,10 +146,20 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
       )
     : CUSTOM_TILE_ICON_OPTIONS;
 
-  const isValid = label.trim().length > 0 && (iconMode === "icon" ? Boolean(selectedIconName) : imageDataUrl !== null);
-  const previewIcon = iconMode === "image" && imageDataUrl
-    ? imageDataUrl
-    : toAppIconValue(selectedIconName, selectedIconStyle);
+  const isValid =
+    label.trim().length > 0 &&
+    (iconMode === "icon"
+      ? Boolean(selectedIconName)
+      : iconMode === "image"
+      ? imageDataUrl !== null
+      : selectedSymbolUrl !== null);
+
+  const previewIcon =
+    iconMode === "image" && imageDataUrl
+      ? imageDataUrl
+      : iconMode === "symbols" && selectedSymbolUrl
+      ? selectedSymbolUrl
+      : toAppIconValue(selectedIconName, selectedIconStyle);
 
   return (
     <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
@@ -156,6 +212,14 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                 onClick={() => setIconMode("icon")}
               >
                 {t(language, "tileIcon")}
+              </button>
+              <button
+                type="button"
+                className={`add-tile-tabs__btn${iconMode === "symbols" ? " add-tile-tabs__btn--active" : ""}`}
+                onClick={() => setIconMode("symbols")}
+              >
+                <Globe className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
+                {t(language, "openSymbols")}
               </button>
               <button
                 type="button"
@@ -219,6 +283,55 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   <p className="add-tile-field__hint">{t(language, "tileIconFilterNoMatch")}</p>
                 )}
               </>
+            ) : iconMode === "symbols" ? (
+              <div className="add-tile-symbols">
+                <div className="add-tile-icon-search">
+                  <Search className="add-tile-icon-search__icon" aria-hidden="true" focusable="false" />
+                  <input
+                    type="search"
+                    className="add-tile-field__input add-tile-field__input--search"
+                    value={symbolQuery}
+                    onChange={(e) => setSymbolQuery(e.target.value)}
+                    placeholder={t(language, "searchOpenSymbolsPlaceholder")}
+                    aria-label={t(language, "openSymbols")}
+                  />
+                </div>
+                {symbolLoading && (
+                  <p className="add-tile-field__hint">{t(language, "openSymbolsLoading")}</p>
+                )}
+                {!symbolLoading && symbolError && (
+                  <p className="add-tile-field__hint add-tile-field__hint--error">{symbolError}</p>
+                )}
+                {!symbolLoading && !symbolError && symbolQuery.trim() && symbolResults.length === 0 && (
+                  <p className="add-tile-field__hint">{t(language, "openSymbolsEmpty")}</p>
+                )}
+                {symbolResults.length > 0 && (
+                  <div className="add-tile-symbol-grid" role="listbox" aria-label={t(language, "openSymbols")}>
+                    {symbolResults.map((sym) => (
+                      <button
+                        key={sym.id}
+                        type="button"
+                        className={`add-tile-symbol-grid__btn${selectedSymbolUrl === sym.image_url ? " add-tile-symbol-grid__btn--selected" : ""}`}
+                        onClick={() => setSelectedSymbolUrl(sym.image_url)}
+                        aria-label={sym.name}
+                        aria-selected={selectedSymbolUrl === sym.image_url}
+                        role="option"
+                        title={sym.name}
+                      >
+                        <img
+                          src={sym.image_url}
+                          alt={sym.name}
+                          className="add-tile-symbol-grid__img"
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <p className="add-tile-field__hint add-tile-field__hint--attribution">
+                  {t(language, "openSymbolsAttribution")}
+                </p>
+              </div>
             ) : (
               <div className="add-tile-image-upload">
                 {imageDataUrl && (

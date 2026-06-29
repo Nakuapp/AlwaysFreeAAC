@@ -1,4 +1,4 @@
-import { getAppIcon, getAppIconStyle, isRasterImageDataUrl } from "../icons";
+import { getAppIcon, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl } from "../icons";
 
 interface IconVisualProps {
   value: string;
@@ -6,7 +6,7 @@ interface IconVisualProps {
 }
 
 export function IconVisual({ value, className }: IconVisualProps) {
-  if (isRasterImageDataUrl(value)) {
+  if (isRasterImageDataUrl(value) || isExternalImageUrl(value)) {
     return <img className={`${className} ${className}--img`} src={value} alt="" draggable={false} />;
   }
 
