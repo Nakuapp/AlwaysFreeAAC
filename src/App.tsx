@@ -196,6 +196,10 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", settings.theme);
   }, [settings.theme]);
 
+  useEffect(() => {
+    document.documentElement.lang = settings.language;
+  }, [settings.language]);
+
   const handleSymbolSelect = useCallback((sym: Symbol) => {
     setSentence((prev) => [...prev, sym]);
   }, []);
@@ -294,6 +298,9 @@ export default function App() {
 
   return (
     <div className="app" aria-label={t(settings.language, "appName")}>
+      <a href="#main-content" className="skip-link">
+        {t(settings.language, "skipToMain")}
+      </a>
       <header className="app-header">
         <div className="app-header__brand">
           <img src="/app-logo.svg" className="app-header__logo" alt="" aria-hidden="true" />

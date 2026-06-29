@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import { ImageIcon, Search, Upload, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { type AppIconName, type AppIconStyle, CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../icons";
 import { IconVisual } from "./IconVisual";
 import "./AddTileDialog.css";
@@ -47,6 +48,8 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   const [color, setColor] = useState("blue");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -107,13 +110,13 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
 
   return (
     <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
-      <div className="add-tile-panel">
+      <div className="add-tile-panel" ref={panelRef}>
         <div className="add-tile-panel__header">
           <h2 className="add-tile-panel__title">{t(language, "addTileTitle")}</h2>
           <button
             className="add-tile-panel__close"
             onClick={onClose}
-            aria-label={t(language, "cancel")}
+            aria-label={t(language, "close")}
             type="button"
           >
             <X className="add-tile-panel__close-icon" aria-hidden="true" focusable="false" />
@@ -149,11 +152,12 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
           {/* Icon */}
           <div className="add-tile-field">
             <span className="add-tile-field__label">{t(language, "tileIcon")}</span>
-            <div className="add-tile-tabs">
+            <div className="add-tile-tabs" role="group" aria-label={t(language, "tileIcon")}>
               <button
                 type="button"
                 className={`add-tile-tabs__btn${iconMode === "icon" ? " add-tile-tabs__btn--active" : ""}`}
                 onClick={() => setIconMode("icon")}
+                aria-pressed={iconMode === "icon"}
               >
                 {t(language, "tileIcon")}
               </button>
@@ -161,6 +165,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                 type="button"
                 className={`add-tile-tabs__btn${iconMode === "image" ? " add-tile-tabs__btn--active" : ""}`}
                 onClick={() => setIconMode("image")}
+                aria-pressed={iconMode === "image"}
               >
                 <ImageIcon className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
                 {t(language, "tileIconImage")}

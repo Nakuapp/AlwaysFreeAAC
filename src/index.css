@@ -28,7 +28,7 @@
   --border-medium: #cccccc;
   --text-primary: #1a1a1a;
   --text-secondary: #444444;
-  --text-muted: #777777;
+  --text-muted: #666666;
   --header-bg: #005fcc;
   --header-text: #ffffff;
   --button-focus: #005fcc;
@@ -98,6 +98,26 @@ button {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Skip-to-main link — visible only on keyboard focus (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0.5rem;
+  z-index: 9999;
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 8px 8px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
