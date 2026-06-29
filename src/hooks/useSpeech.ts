@@ -1,17 +1,22 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Capacitor } from "@capacitor/core";
-import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import { SpeechSynthesis } from "@capgo/capacitor-speech-synthesis";
+import type { VoiceInfo } from "@capgo/capacitor-speech-synthesis";
 
 export interface VoiceOption {
+  /** Voice identifier – used as the value for voiceName setting */
+  id: string;
   name: string;
   lang: string;
-  voice: SpeechSynthesisVoice;
+  /** true when the voice needs a network connection (native) */
+  isNetworkConnectionRequired?: boolean;
 }
 
 export interface UseSpeechOptions {
   rate?: number;
   pitch?: number;
   volume?: number;
+  /** Matches VoiceOption.id */
   voiceName?: string;
 }
 
@@ -21,17 +26,22 @@ export function useSpeech(options: UseSpeechOptions = {}) {
   const [supported, setSupported] = useState(false);
   const optionsRef = useRef(options);
   optionsRef.current = options;
-  const nativeVoicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const nativeVoicesRef = useRef<VoiceInfo[]>([]);
   const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
     if (isNative) {
       setSupported(true);
-      TextToSpeech.getSupportedVoices()
+      SpeechSynthesis.getVoices()
         .then(({ voices: nativeVoices }) => {
           nativeVoicesRef.current = nativeVoices;
           setVoices(
-            nativeVoices.map((v) => ({ name: v.name, lang: v.lang, voice: v }))
+            nativeVoices.map((v) => ({
+              id: v.id,
+              name: v.name,
+              lang: v.language,
+              isNetworkConnectionRequired: v.isNetworkConnectionRequired,
+            }))
           );
         })
         .catch(() => {
@@ -47,7 +57,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       const available = window.speechSynthesis.getVoices();
       if (available.length === 0) return;
       setVoices(
-        available.map((v) => ({ name: v.name, lang: v.lang, voice: v }))
+        available.map((v) => ({ id: v.name, name: v.name, lang: v.lang }))
       );
     };
 
@@ -58,22 +68,24 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     };
   }, [isNative]);
 
-  const speak = useCallback(
-    (text: string) => {
+  const speakText = useCallback(
+    (text: string, overrideOptions?: UseSpeechOptions) => {
       if (!text.trim()) return;
+      const merged = { ...optionsRef.current, ...overrideOptions };
+      const { rate = 1, pitch = 1, volume = 1, voiceName } = merged;
 
       if (isNative) {
-        const { rate = 1, pitch = 1, volume = 1, voiceName } = optionsRef.current;
-        const idx = voiceName
-          ? nativeVoicesRef.current.findIndex((v) => v.name === voiceName)
-          : -1;
+        const voiceInfo = voiceName
+          ? nativeVoicesRef.current.find((v) => v.id === voiceName)
+          : undefined;
         setSpeaking(true);
-        TextToSpeech.speak({
+        SpeechSynthesis.speak({
           text,
           rate,
           pitch,
           volume,
-          ...(idx >= 0 && { voice: idx }),
+          queueStrategy: "Flush",
+          ...(voiceInfo && { voiceId: voiceInfo.id, language: voiceInfo.language }),
         })
           .then(() => setSpeaking(false))
           .catch(() => setSpeaking(false));
@@ -85,8 +97,6 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      const { rate = 1, pitch = 1, volume = 1, voiceName } = optionsRef.current;
-
       utterance.rate = rate;
       utterance.pitch = pitch;
       utterance.volume = volume;
@@ -107,9 +117,23 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     [isNative]
   );
 
+  // Convenience wrapper that keeps the public API name "speak"
+  const speak = useCallback(
+    (text: string) => speakText(text),
+    [speakText]
+  );
+
+  /** Preview a specific voice without changing the current settings */
+  const previewVoice = useCallback(
+    (voiceId: string, sampleText: string) => {
+      speakText(sampleText, { voiceName: voiceId });
+    },
+    [speakText]
+  );
+
   const cancel = useCallback(() => {
     if (isNative) {
-      TextToSpeech.stop()
+      SpeechSynthesis.cancel()
         .then(() => setSpeaking(false))
         .catch(() => setSpeaking(false));
       return;
@@ -120,5 +144,5 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     }
   }, [isNative]);
 
-  return { speak, cancel, speaking, voices, supported };
+  return { speak, previewVoice, cancel, speaking, voices, supported };
 }

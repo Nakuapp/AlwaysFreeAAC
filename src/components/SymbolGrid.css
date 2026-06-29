@@ -1,3 +1,45 @@
+.symbol-grid-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.symbol-grid-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.3rem 0.5rem 0;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.symbol-grid-toolbar__btn {
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s ease;
+}
+
+.symbol-grid-toolbar__btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+}
+
+.symbol-grid-toolbar__btn--active {
+  background: var(--header-bg);
+  border-color: var(--header-bg);
+  color: var(--header-text);
+}
+
+.symbol-grid-toolbar__btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
 .symbol-grid {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns, 4), 1fr);
@@ -8,10 +50,60 @@
   align-content: start;
 }
 
+.symbol-grid__empty {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.symbol-grid__add-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: var(--bg-subtle);
+  border: 3px dashed var(--border-medium);
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 0.5rem 0.25rem;
+  min-height: 80px;
+  width: 100%;
+  color: var(--text-muted);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.symbol-grid__add-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 80%, var(--header-bg));
+  border-color: var(--header-bg);
+  color: var(--header-bg);
+}
+
+.symbol-grid__add-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.symbol-grid__add-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.symbol-grid__add-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 @media (min-width: 600px) {
   .symbol-grid {
     gap: 0.6rem;
     padding: 0.6rem;
+  }
+
+  .symbol-grid__add-btn {
+    min-height: 90px;
   }
 }
 
@@ -19,5 +111,9 @@
   .symbol-grid {
     gap: 0.75rem;
     padding: 0.75rem;
+  }
+
+  .symbol-grid__add-btn {
+    min-height: 100px;
   }
 }

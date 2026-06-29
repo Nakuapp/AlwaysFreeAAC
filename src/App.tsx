@@ -6,10 +6,13 @@ import { SentenceBar } from "./components/SentenceBar";
 import { CategoryNav } from "./components/CategoryNav";
 import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
+import { AddTileDialog } from "./components/AddTileDialog";
 import { localizeCategories, t, type Language, type Theme } from "./i18n";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
+const CUSTOM_TILES_KEY = "aac_custom_tiles";
+const MY_WORDS_CATEGORY_ID = "my-words";
 
 interface AppSettings {
   voiceName: string;
@@ -100,21 +103,50 @@ function saveSettings(s: AppSettings) {
   }
 }
 
+function loadCustomTiles(): Symbol[] {
+  try {
+    const raw = localStorage.getItem(CUSTOM_TILES_KEY);
+    if (raw) return JSON.parse(raw) as Symbol[];
+  } catch {
+    // ignore
+  }
+  return [];
+}
+
+function saveCustomTiles(tiles: Symbol[]) {
+  try {
+    localStorage.setItem(CUSTOM_TILES_KEY, JSON.stringify(tiles));
+  } catch {
+    // ignore
+  }
+}
+
 export default function App() {
   const [sentence, setSentence] = useState<Symbol[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState(CATEGORIES[0].id);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
+  const [customTiles, setCustomTiles] = useState<Symbol[]>(loadCustomTiles);
+  const [showAddTile, setShowAddTile] = useState(false);
+  const [isEditingTiles, setIsEditingTiles] = useState(false);
 
-  const categories = useMemo(
-    () => localizeCategories(settings.language, CATEGORIES),
-    [settings.language]
-  );
+  const categories = useMemo(() => {
+    const base = localizeCategories(settings.language, CATEGORIES);
+    return [
+      ...base,
+      {
+        id: MY_WORDS_CATEGORY_ID,
+        label: t(settings.language, "myWords"),
+        emoji: "✏️",
+        symbols: customTiles,
+      },
+    ];
+  }, [settings.language, customTiles]);
 
   const activeCategory =
     categories.find((c) => c.id === activeCategoryId) ?? categories[0];
 
-  const { speak, speaking, voices } = useSpeech({
+  const { speak, previewVoice, speaking, voices } = useSpeech({
     rate: settings.rate,
     pitch: settings.pitch,
     volume: settings.volume,
@@ -124,6 +156,10 @@ export default function App() {
   useEffect(() => {
     saveSettings(settings);
   }, [settings]);
+
+  useEffect(() => {
+    saveCustomTiles(customTiles);
+  }, [customTiles]);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
@@ -160,6 +196,24 @@ export default function App() {
   const handleRemoveLast = useCallback(() => {
     setSentence((prev) => prev.slice(0, -1));
   }, []);
+
+  const handleAddCustomTile = useCallback((tile: Omit<Symbol, "id">) => {
+    const newTile: Symbol = {
+      ...tile,
+      id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    };
+    setCustomTiles((prev) => [...prev, newTile]);
+    setShowAddTile(false);
+  }, []);
+
+  const handleDeleteCustomTile = useCallback((sym: Symbol) => {
+    setCustomTiles((prev) => prev.filter((t) => t.id !== sym.id));
+  }, []);
+
+  const handlePreviewVoice = useCallback((voiceId: string) => {
+    const sampleText = t(settings.language, "appName");
+    previewVoice(voiceId, sampleText);
+  }, [previewVoice, settings.language]);
 
   const updateSetting = <K extends keyof AppSettings>(
     key: K,
@@ -248,7 +302,10 @@ export default function App() {
       <CategoryNav
         categories={categories}
         activeId={activeCategoryId}
-        onSelect={setActiveCategoryId}
+        onSelect={(id) => {
+          setActiveCategoryId(id);
+          setIsEditingTiles(false);
+        }}
         language={settings.language}
       />
 
@@ -257,6 +314,10 @@ export default function App() {
         columns={settings.columns}
         onSelect={handleSymbolSelect}
         language={settings.language}
+        onAddWord={activeCategoryId === MY_WORDS_CATEGORY_ID ? () => setShowAddTile(true) : undefined}
+        onDeleteSymbol={activeCategoryId === MY_WORDS_CATEGORY_ID ? handleDeleteCustomTile : undefined}
+        isEditMode={isEditingTiles}
+        onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
       />
 
       {showSettings && (
@@ -284,7 +345,16 @@ export default function App() {
           onFontSizeChange={(f) => updateSetting("fontSize", f)}
           onLanguageChange={(language) => updateSetting("language", language)}
           onThemeChange={(theme) => updateSetting("theme", theme)}
+          onPreviewVoice={handlePreviewVoice}
           onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {showAddTile && (
+        <AddTileDialog
+          language={settings.language}
+          onSave={handleAddCustomTile}
+          onClose={() => setShowAddTile(false)}
         />
       )}
     </div>

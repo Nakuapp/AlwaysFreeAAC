@@ -31,6 +31,7 @@ type UiStringKey =
   | "voice"
   | "noVoices"
   | "defaultVoice"
+  | "previewVoice"
   | "vocalStyle"
   | "customNatural"
   | "baritone"
@@ -60,7 +61,27 @@ type UiStringKey =
   | "language"
   | "theme"
   | "light"
-  | "dark";
+  | "dark"
+  | "myWords"
+  | "addWord"
+  | "editTiles"
+  | "doneTiles"
+  | "deleteTile"
+  | "addTileTitle"
+  | "tileLabel"
+  | "tileLabelPlaceholder"
+  | "tileSpeak"
+  | "tileSpeakPlaceholder"
+  | "tileIcon"
+  | "tileIconEmoji"
+  | "tileIconImage"
+  | "tileIconEmojiPlaceholder"
+  | "tileColor"
+  | "uploadImage"
+  | "changeImage"
+  | "cancel"
+  | "save"
+  | "noCustomTiles";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -115,6 +136,27 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     theme: "Theme",
     light: "Light",
     dark: "Dark",
+    previewVoice: "Preview voice",
+    myWords: "My Words",
+    addWord: "+ Add Word",
+    editTiles: "Edit",
+    doneTiles: "Done",
+    deleteTile: "Delete tile",
+    addTileTitle: "Add Word Tile",
+    tileLabel: "Word / Label",
+    tileLabelPlaceholder: "e.g. Cat",
+    tileSpeak: "Spoken text (optional)",
+    tileSpeakPlaceholder: "Defaults to label",
+    tileIcon: "Icon",
+    tileIconEmoji: "Emoji",
+    tileIconImage: "Image",
+    tileIconEmojiPlaceholder: "Paste or type an emoji…",
+    tileColor: "Color",
+    uploadImage: "Upload Image",
+    changeImage: "Change Image",
+    cancel: "Cancel",
+    save: "Save",
+    noCustomTiles: "No custom tiles yet. Tap \"+ Add Word\" to create one.",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -168,6 +210,27 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     theme: "Tema",
     light: "Claro",
     dark: "Oscuro",
+    previewVoice: "Previsualizar voz",
+    myWords: "Mis palabras",
+    addWord: "+ Agregar palabra",
+    editTiles: "Editar",
+    doneTiles: "Listo",
+    deleteTile: "Eliminar ficha",
+    addTileTitle: "Agregar ficha",
+    tileLabel: "Palabra / Etiqueta",
+    tileLabelPlaceholder: "Ej. Gato",
+    tileSpeak: "Texto hablado (opcional)",
+    tileSpeakPlaceholder: "Por defecto, la etiqueta",
+    tileIcon: "Ícono",
+    tileIconEmoji: "Emoji",
+    tileIconImage: "Imagen",
+    tileIconEmojiPlaceholder: "Pega o escribe un emoji…",
+    tileColor: "Color",
+    uploadImage: "Subir imagen",
+    changeImage: "Cambiar imagen",
+    cancel: "Cancelar",
+    save: "Guardar",
+    noCustomTiles: "Aún no hay fichas. Toca \"+ Agregar palabra\" para crear una.",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -221,6 +284,27 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     theme: "Thème",
     light: "Clair",
     dark: "Sombre",
+    previewVoice: "Aperçu de la voix",
+    myWords: "Mes mots",
+    addWord: "+ Ajouter un mot",
+    editTiles: "Modifier",
+    doneTiles: "Terminé",
+    deleteTile: "Supprimer la fiche",
+    addTileTitle: "Ajouter une fiche",
+    tileLabel: "Mot / Étiquette",
+    tileLabelPlaceholder: "Ex. Chat",
+    tileSpeak: "Texte parlé (optionnel)",
+    tileSpeakPlaceholder: "Par défaut, l'étiquette",
+    tileIcon: "Icône",
+    tileIconEmoji: "Emoji",
+    tileIconImage: "Image",
+    tileIconEmojiPlaceholder: "Coller ou saisir un emoji…",
+    tileColor: "Couleur",
+    uploadImage: "Télécharger une image",
+    changeImage: "Changer l'image",
+    cancel: "Annuler",
+    save: "Enregistrer",
+    noCustomTiles: "Aucune fiche pour l'instant. Appuyez sur \"+ Ajouter un mot\" pour en créer une.",
   },
 };
 

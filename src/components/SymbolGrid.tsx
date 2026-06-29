@@ -9,18 +9,70 @@ interface SymbolGridProps {
   columns: number;
   onSelect: (symbol: Symbol) => void;
   language: Language;
+  /** When provided, shows an "Add Word" button at the end of the grid */
+  onAddWord?: () => void;
+  /** When provided, shows delete badges on tiles and calls this on delete */
+  onDeleteSymbol?: (symbol: Symbol) => void;
+  /** Toggles between normal and edit mode for the custom category */
+  isEditMode?: boolean;
+  onToggleEditMode?: () => void;
 }
 
-export function SymbolGrid({ symbols, columns, onSelect, language }: SymbolGridProps) {
+export function SymbolGrid({
+  symbols,
+  columns,
+  onSelect,
+  language,
+  onAddWord,
+  onDeleteSymbol,
+  isEditMode,
+  onToggleEditMode,
+}: SymbolGridProps) {
+  const showAddControls = onAddWord !== undefined;
+
   return (
-    <main
-      className="symbol-grid"
-      style={{ "--grid-columns": columns } as CSSProperties}
-      aria-label={t(language, "symbolGrid")}
-    >
-      {symbols.map((sym) => (
-        <SymbolButton key={sym.id} symbol={sym} onClick={onSelect} />
-      ))}
-    </main>
+    <div className="symbol-grid-container">
+      {showAddControls && (
+        <div className="symbol-grid-toolbar">
+          {onToggleEditMode && symbols.length > 0 && (
+            <button
+              type="button"
+              className={`symbol-grid-toolbar__btn${isEditMode ? " symbol-grid-toolbar__btn--active" : ""}`}
+              onClick={onToggleEditMode}
+            >
+              {isEditMode ? t(language, "doneTiles") : t(language, "editTiles")}
+            </button>
+          )}
+        </div>
+      )}
+      <main
+        className="symbol-grid"
+        style={{ "--grid-columns": columns } as CSSProperties}
+        aria-label={t(language, "symbolGrid")}
+      >
+        {symbols.length === 0 && showAddControls && (
+          <p className="symbol-grid__empty">{t(language, "noCustomTiles")}</p>
+        )}
+        {symbols.map((sym) => (
+          <SymbolButton
+            key={sym.id}
+            symbol={sym}
+            onClick={isEditMode ? () => {} : onSelect}
+            onDelete={isEditMode && onDeleteSymbol ? onDeleteSymbol : undefined}
+          />
+        ))}
+        {showAddControls && (
+          <button
+            type="button"
+            className="symbol-grid__add-btn"
+            onClick={onAddWord}
+            aria-label={t(language, "addWord")}
+          >
+            <span className="symbol-grid__add-icon" aria-hidden="true">＋</span>
+            <span className="symbol-grid__add-label">{t(language, "addWord")}</span>
+          </button>
+        )}
+      </main>
+    </div>
   );
 }

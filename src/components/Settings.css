@@ -116,6 +116,40 @@
   margin: 0;
 }
 
+.settings-field__voice-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.settings-field__select--voice {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-field__preview-btn {
+  flex-shrink: 0;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 0 0.7rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  color: var(--text-primary);
+}
+
+.settings-field__preview-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+}
+
+.settings-field__preview-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+
+
 .settings-panel__footer {
   padding: 1rem 1.25rem;
   border-top: 2px solid var(--border-soft);
