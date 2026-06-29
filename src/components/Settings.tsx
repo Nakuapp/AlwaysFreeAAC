@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import type { VoiceOption } from "../hooks/useSpeech";
 import { LANGUAGE_OPTIONS, t, type Language, type Theme } from "../i18n";
 import "./Settings.css";
@@ -50,6 +51,17 @@ export function Settings({
   onPreviewVoice,
   onClose,
 }: SettingsProps) {
+  const [voiceFilter, setVoiceFilter] = useState("");
+  const platform = Capacitor.getPlatform();
+
+  const filteredVoices = voiceFilter.trim()
+    ? voices.filter(
+        (v) =>
+          v.name.toLowerCase().includes(voiceFilter.toLowerCase()) ||
+          v.lang.toLowerCase().includes(voiceFilter.toLowerCase())
+      )
+    : voices;
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -118,43 +130,68 @@ export function Settings({
             {voices.length === 0 ? (
               <p className="settings-field__hint">{t(language, "noVoices")}</p>
             ) : (
-              <div className="settings-field__voice-row">
-                <select
-                  id="voice-select"
-                  className="settings-field__select settings-field__select--voice"
-                  value={selectedVoice}
-                  onChange={(e) => onVoiceChange(e.target.value)}
-                >
-                  <option value="">{t(language, "defaultVoice")}</option>
-                  {Array.from(
-                    voices.reduce((groups, v) => {
-                      const lang = v.lang.split("-")[0].toUpperCase();
-                      if (!groups.has(lang)) groups.set(lang, []);
-                      groups.get(lang)!.push(v);
-                      return groups;
-                    }, new Map<string, VoiceOption[]>()),
-                    ([lang, group]) => (
-                      <optgroup key={lang} label={lang}>
-                        {group.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {v.name}
-                            {v.isNetworkConnectionRequired ? " 🌐" : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )
-                  )}
-                </select>
-                <button
-                  type="button"
-                  className="settings-field__preview-btn"
-                  onClick={() => onPreviewVoice(selectedVoice || (voices[0]?.id ?? ""))}
-                  aria-label={t(language, "previewVoice")}
-                  title={t(language, "previewVoice")}
-                >
-                  🔊
-                </button>
-              </div>
+              <>
+                <input
+                  id="voice-filter"
+                  type="search"
+                  className="settings-field__search"
+                  placeholder={t(language, "voiceFilterPlaceholder")}
+                  aria-label={t(language, "voiceFilterLabel")}
+                  value={voiceFilter}
+                  onChange={(e) => setVoiceFilter(e.target.value)}
+                />
+                <div className="settings-field__voice-row">
+                  <select
+                    id="voice-select"
+                    className="settings-field__select settings-field__select--voice"
+                    value={selectedVoice}
+                    onChange={(e) => onVoiceChange(e.target.value)}
+                  >
+                    <option value="">{t(language, "defaultVoice")}</option>
+                    {Array.from(
+                      filteredVoices.reduce((groups, v) => {
+                        const lang = v.lang.split("-")[0].toUpperCase();
+                        if (!groups.has(lang)) groups.set(lang, []);
+                        groups.get(lang)!.push(v);
+                        return groups;
+                      }, new Map<string, VoiceOption[]>()),
+                      ([lang, group]) => (
+                        <optgroup key={lang} label={lang}>
+                          {group.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.name}
+                              {v.isNetworkConnectionRequired ? " 🌐" : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )
+                    )}
+                  </select>
+                  <button
+                    type="button"
+                    className="settings-field__preview-btn"
+                    onClick={() => onPreviewVoice(selectedVoice || (voices[0]?.id ?? ""))}
+                    aria-label={t(language, "previewVoice")}
+                    title={t(language, "previewVoice")}
+                  >
+                    🔊
+                  </button>
+                </div>
+                {filteredVoices.length === 0 && voiceFilter.trim() && (
+                  <p className="settings-field__hint">{t(language, "voiceFilterNoMatch")}</p>
+                )}
+                {platform !== "ios" && (
+                  <p className="settings-field__tip">
+                    ℹ️{" "}
+                    {t(
+                      language,
+                      platform === "android"
+                        ? "moreVoicesTipAndroid"
+                        : "moreVoicesTipWeb"
+                    )}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
