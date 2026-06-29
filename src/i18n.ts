@@ -77,6 +77,15 @@ type UiStringKey =
   | "tileIconImage"
   | "tileIconEmojiPlaceholder"
   | "tileColor"
+  | "tileColorGreen"
+  | "tileColorBlue"
+  | "tileColorOrange"
+  | "tileColorYellow"
+  | "tileColorRed"
+  | "tileColorPurple"
+  | "tileColorPink"
+  | "tileColorTeal"
+  | "tileColorGray"
   | "uploadImage"
   | "changeImage"
   | "cancel"
@@ -152,6 +161,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconImage: "Image",
     tileIconEmojiPlaceholder: "Paste or type an emoji…",
     tileColor: "Color",
+    tileColorGreen: "Green",
+    tileColorBlue: "Blue",
+    tileColorOrange: "Orange",
+    tileColorYellow: "Yellow",
+    tileColorRed: "Red",
+    tileColorPurple: "Purple",
+    tileColorPink: "Pink",
+    tileColorTeal: "Teal",
+    tileColorGray: "Gray",
     uploadImage: "Upload Image",
     changeImage: "Change Image",
     cancel: "Cancel",
@@ -226,6 +244,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconImage: "Imagen",
     tileIconEmojiPlaceholder: "Pega o escribe un emoji…",
     tileColor: "Color",
+    tileColorGreen: "Verde",
+    tileColorBlue: "Azul",
+    tileColorOrange: "Naranja",
+    tileColorYellow: "Amarillo",
+    tileColorRed: "Rojo",
+    tileColorPurple: "Morado",
+    tileColorPink: "Rosa",
+    tileColorTeal: "Turquesa",
+    tileColorGray: "Gris",
     uploadImage: "Subir imagen",
     changeImage: "Cambiar imagen",
     cancel: "Cancelar",
@@ -300,6 +327,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconImage: "Image",
     tileIconEmojiPlaceholder: "Coller ou saisir un emoji…",
     tileColor: "Couleur",
+    tileColorGreen: "Vert",
+    tileColorBlue: "Bleu",
+    tileColorOrange: "Orange",
+    tileColorYellow: "Jaune",
+    tileColorRed: "Rouge",
+    tileColorPurple: "Violet",
+    tileColorPink: "Rose",
+    tileColorTeal: "Sarcelle",
+    tileColorGray: "Gris",
     uploadImage: "Télécharger une image",
     changeImage: "Changer l'image",
     cancel: "Annuler",

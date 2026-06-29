@@ -57,8 +57,10 @@ export function SymbolGrid({
           <SymbolButton
             key={sym.id}
             symbol={sym}
-            onClick={isEditMode ? () => {} : onSelect}
+            onClick={onSelect}
+            disabled={Boolean(isEditMode)}
             onDelete={isEditMode && onDeleteSymbol ? onDeleteSymbol : undefined}
+            deleteAriaLabel={(symbol) => `${t(language, "deleteTile")}: ${symbol.label}`}
           />
         ))}
         {showAddControls && (

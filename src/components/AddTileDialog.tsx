@@ -1,19 +1,31 @@
 import { useState, useRef, useEffect } from "react";
+import type { ChangeEvent } from "react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import "./AddTileDialog.css";
 
+type ColorLabelKey =
+  | "tileColorGreen"
+  | "tileColorBlue"
+  | "tileColorOrange"
+  | "tileColorYellow"
+  | "tileColorRed"
+  | "tileColorPurple"
+  | "tileColorPink"
+  | "tileColorTeal"
+  | "tileColorGray";
+
 const COLOR_OPTIONS = [
-  { value: "green", bg: "#c8e6c9" },
-  { value: "blue", bg: "#bbdefb" },
-  { value: "orange", bg: "#ffe0b2" },
-  { value: "yellow", bg: "#fff9c4" },
-  { value: "red", bg: "#ffcdd2" },
-  { value: "purple", bg: "#e1bee7" },
-  { value: "pink", bg: "#fce4ec" },
-  { value: "teal", bg: "#b2dfdb" },
-  { value: "gray", bg: "#e0e0e0" },
-];
+  { value: "green", bg: "#c8e6c9", labelKey: "tileColorGreen" },
+  { value: "blue", bg: "#bbdefb", labelKey: "tileColorBlue" },
+  { value: "orange", bg: "#ffe0b2", labelKey: "tileColorOrange" },
+  { value: "yellow", bg: "#fff9c4", labelKey: "tileColorYellow" },
+  { value: "red", bg: "#ffcdd2", labelKey: "tileColorRed" },
+  { value: "purple", bg: "#e1bee7", labelKey: "tileColorPurple" },
+  { value: "pink", bg: "#fce4ec", labelKey: "tileColorPink" },
+  { value: "teal", bg: "#b2dfdb", labelKey: "tileColorTeal" },
+  { value: "gray", bg: "#e0e0e0", labelKey: "tileColorGray" },
+] as const satisfies ReadonlyArray<{ value: string; bg: string; labelKey: ColorLabelKey }>;
 
 function isImageDataUrl(value: string) {
   // Allow only raster image data URLs (not SVG, which can embed scripts)
@@ -49,7 +61,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
     labelInputRef.current?.focus();
   }, []);
 
-  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -188,7 +200,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   className={`add-tile-colors__swatch${color === opt.value ? " add-tile-colors__swatch--selected" : ""}`}
                   style={{ background: opt.bg }}
                   onClick={() => setColor(opt.value)}
-                  aria-label={opt.value}
+                  aria-label={t(language, opt.labelKey)}
                   aria-pressed={color === opt.value}
                 />
               ))}
@@ -198,7 +210,11 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
           {/* Spoken text override */}
           <details className="add-tile-advanced">
             <summary className="add-tile-advanced__summary">{t(language, "tileSpeak")}</summary>
+            <label className="add-tile-field__label" htmlFor="tile-speak-override">
+              {t(language, "tileSpeak")}
+            </label>
             <input
+              id="tile-speak-override"
               type="text"
               className="add-tile-field__input"
               value={speakOverride}

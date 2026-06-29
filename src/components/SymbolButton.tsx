@@ -6,8 +6,10 @@ interface SymbolButtonProps {
   symbol: Symbol;
   onClick: (symbol: Symbol) => void;
   size?: "normal" | "large";
+  disabled?: boolean;
   /** When provided, renders a delete badge that calls this handler */
   onDelete?: (symbol: Symbol) => void;
+  deleteAriaLabel?: (symbol: Symbol) => string;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -27,7 +29,14 @@ function isDataUrl(value: string) {
   return /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(value);
 }
 
-export function SymbolButton({ symbol, onClick, size = "normal", onDelete }: SymbolButtonProps) {
+export function SymbolButton({
+  symbol,
+  onClick,
+  size = "normal",
+  disabled = false,
+  onDelete,
+  deleteAriaLabel,
+}: SymbolButtonProps) {
   const bg = symbol.color ? (COLOR_MAP[symbol.color] ?? "var(--color-default)") : "var(--color-default)";
 
   return (
@@ -37,6 +46,7 @@ export function SymbolButton({ symbol, onClick, size = "normal", onDelete }: Sym
         style={{ "--symbol-bg": bg } as CSSProperties}
         onClick={() => onClick(symbol)}
         aria-label={symbol.speak ?? symbol.label}
+        disabled={disabled}
         type="button"
       >
         <span className="symbol-btn__emoji" aria-hidden="true">
@@ -58,7 +68,7 @@ export function SymbolButton({ symbol, onClick, size = "normal", onDelete }: Sym
           type="button"
           className="symbol-btn__delete"
           onClick={() => onDelete(symbol)}
-          aria-label={`Delete ${symbol.label}`}
+          aria-label={deleteAriaLabel?.(symbol) ?? `Delete ${symbol.label}`}
         >
           ✕
         </button>

@@ -106,7 +106,21 @@ function saveSettings(s: AppSettings) {
 function loadCustomTiles(): Symbol[] {
   try {
     const raw = localStorage.getItem(CUSTOM_TILES_KEY);
-    if (raw) return JSON.parse(raw) as Symbol[];
+    if (raw) {
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter(
+        (tile): tile is Symbol => {
+          if (typeof tile !== "object" || tile === null) return false;
+          const candidate = tile as Record<string, unknown>;
+          return (
+            typeof candidate.id === "string" &&
+            typeof candidate.label === "string" &&
+            typeof candidate.emoji === "string"
+          );
+        }
+      );
+    }
   } catch {
     // ignore
   }
