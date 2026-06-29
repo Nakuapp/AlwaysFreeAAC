@@ -79,6 +79,9 @@ type UiStringKey =
   | "tileIconFilterLabel"
   | "tileIconFilterPlaceholder"
   | "tileIconFilterNoMatch"
+  | "tileIconStyle"
+  | "tileIconStyleOutline"
+  | "tileIconStyleFilled"
   | "tileColor"
   | "tileColorGreen"
   | "tileColorBlue"
@@ -172,6 +175,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconFilterLabel: "Filter icons",
     tileIconFilterPlaceholder: "Search icons…",
     tileIconFilterNoMatch: "No icons match your search.",
+    tileIconStyle: "Icon style",
+    tileIconStyleOutline: "Outline",
+    tileIconStyleFilled: "Filled",
     tileColor: "Color",
     tileColorGreen: "Green",
     tileColorBlue: "Blue",
@@ -264,6 +270,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconFilterLabel: "Filtrar íconos",
     tileIconFilterPlaceholder: "Buscar íconos…",
     tileIconFilterNoMatch: "Ningún ícono coincide con tu búsqueda.",
+    tileIconStyle: "Estilo de ícono",
+    tileIconStyleOutline: "Contorno",
+    tileIconStyleFilled: "Relleno",
     tileColor: "Color",
     tileColorGreen: "Verde",
     tileColorBlue: "Azul",
@@ -356,6 +365,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconFilterLabel: "Filtrer les icônes",
     tileIconFilterPlaceholder: "Rechercher des icônes…",
     tileIconFilterNoMatch: "Aucune icône ne correspond à votre recherche.",
+    tileIconStyle: "Style d'icône",
+    tileIconStyleOutline: "Contour",
+    tileIconStyleFilled: "Plein",
     tileColor: "Couleur",
     tileColorGreen: "Vert",
     tileColorBlue: "Bleu",

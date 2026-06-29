@@ -1,4 +1,4 @@
-import { getAppIcon, isRasterImageDataUrl } from "../icons";
+import { getAppIcon, getAppIconStyle, isRasterImageDataUrl } from "../icons";
 
 interface IconVisualProps {
   value: string;
@@ -12,7 +12,16 @@ export function IconVisual({ value, className }: IconVisualProps) {
 
   const Icon = getAppIcon(value);
   if (Icon) {
-    return <Icon className={className} aria-hidden="true" focusable="false" strokeWidth={2.2} />;
+    const style = getAppIconStyle(value);
+    return (
+      <Icon
+        className={className}
+        aria-hidden="true"
+        focusable="false"
+        strokeWidth={style === "filled" ? 1.8 : 2.2}
+        fill={style === "filled" ? "currentColor" : "none"}
+      />
+    );
   }
 
   return <span className={className} aria-hidden="true">{value}</span>;
