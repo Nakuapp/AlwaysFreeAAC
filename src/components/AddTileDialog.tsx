@@ -4,6 +4,17 @@ import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import "./AddTileDialog.css";
 
+type ColorLabelKey =
+  | "tileColorGreen"
+  | "tileColorBlue"
+  | "tileColorOrange"
+  | "tileColorYellow"
+  | "tileColorRed"
+  | "tileColorPurple"
+  | "tileColorPink"
+  | "tileColorTeal"
+  | "tileColorGray";
+
 const COLOR_OPTIONS = [
   { value: "green", bg: "#c8e6c9", labelKey: "tileColorGreen" },
   { value: "blue", bg: "#bbdefb", labelKey: "tileColorBlue" },
@@ -14,7 +25,7 @@ const COLOR_OPTIONS = [
   { value: "pink", bg: "#fce4ec", labelKey: "tileColorPink" },
   { value: "teal", bg: "#b2dfdb", labelKey: "tileColorTeal" },
   { value: "gray", bg: "#e0e0e0", labelKey: "tileColorGray" },
-];
+] as const satisfies ReadonlyArray<{ value: string; bg: string; labelKey: ColorLabelKey }>;
 
 function isImageDataUrl(value: string) {
   // Allow only raster image data URLs (not SVG, which can embed scripts)
