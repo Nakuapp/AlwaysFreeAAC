@@ -4,13 +4,13 @@ on:
   workflow_call:
     inputs:
       version:
-        description: Version tag for release assets.
+        description: Label for generated build artifacts.
         required: true
         type: string
   workflow_dispatch:
     inputs:
       version:
-        description: Version tag for release assets.
+        description: Label for generated build artifacts.
         required: true
         type: string
 
@@ -63,8 +63,8 @@ jobs:
             -derivedDataPath ios/build \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Normalize version name
-        id: version
+      - name: Normalize build label
+        id: label
         run: |
           RAW_VERSION="${{ inputs.version }}"
           SAFE_TAG="$(echo "${RAW_VERSION}" | tr '/' '-' | tr -cd '[:alnum:]._-')"
@@ -80,11 +80,11 @@ jobs:
           fi
           mkdir -p Payload
           cp -R "${APP_PATH}" Payload/
-          ditto -ck --sequesterRsrc --keepParent Payload "alwaysfreeaac-${{ steps.version.outputs.safe_tag }}-ios.ipa"
+          ditto -ck --sequesterRsrc --keepParent Payload "alwaysfreeaac-${{ steps.label.outputs.safe_tag }}-ios.ipa"
           rm -rf Payload
 
       - name: Upload iOS artifact
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          name: alwaysfreeaac-ios-${{ steps.version.outputs.safe_tag }}
-          path: alwaysfreeaac-${{ steps.version.outputs.safe_tag }}-ios.ipa
+          name: alwaysfreeaac-ios-${{ steps.label.outputs.safe_tag }}
+          path: alwaysfreeaac-${{ steps.label.outputs.safe_tag }}-ios.ipa

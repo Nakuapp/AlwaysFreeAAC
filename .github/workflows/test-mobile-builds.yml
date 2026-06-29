@@ -1,0 +1,63 @@
+name: Test Mobile Builds
+
+run-name: Test ${{ inputs.platform }} build from ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Mobile platform(s) to build.
+        required: true
+        default: both
+        type: choice
+        options:
+          - android
+          - ios
+          - both
+      label:
+        description: Optional label for generated artifacts.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare Build Label
+    runs-on: ubuntu-latest
+    outputs:
+      build_label: ${{ steps.label.outputs.build_label }}
+
+    steps:
+      - name: Normalize build label
+        id: label
+        run: |
+          RAW_LABEL="${{ inputs.label }}"
+
+          if [ -n "${RAW_LABEL}" ]; then
+            SOURCE_LABEL="${RAW_LABEL}"
+          else
+            SOURCE_LABEL="${{ github.ref_name }}-${{ github.run_number }}"
+          fi
+
+          SAFE_LABEL="$(printf '%s' "${SOURCE_LABEL}" | tr '/' '-' | tr -cd '[:alnum:]._-')"
+          if [ -z "${SAFE_LABEL}" ]; then SAFE_LABEL="test-build"; fi
+
+          echo "build_label=${SAFE_LABEL}" >> "${GITHUB_OUTPUT}"
+
+  android:
+    name: Build Android Test App
+    if: ${{ inputs.platform == 'android' || inputs.platform == 'both' }}
+    needs: prepare
+    uses: ./.github/workflows/android.yml
+    with:
+      version: ${{ needs.prepare.outputs.build_label }}
+
+  ios:
+    name: Build iOS Test App
+    if: ${{ inputs.platform == 'ios' || inputs.platform == 'both' }}
+    needs: prepare
+    uses: ./.github/workflows/ios.yml
+    with:
+      version: ${{ needs.prepare.outputs.build_label }}
