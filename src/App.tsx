@@ -35,7 +35,25 @@ function defaultSettings(): AppSettings {
 function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...defaultSettings(), ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<AppSettings>;
+      const voicePresetMap: Record<string, string> = {
+        male: "baritone",
+        female: "alto",
+        child: "soprano",
+        deep: "bass",
+      };
+      const normalizedPreset =
+        parsed.voicePreset && voicePresetMap[parsed.voicePreset]
+          ? voicePresetMap[parsed.voicePreset]
+          : parsed.voicePreset;
+
+      return {
+        ...defaultSettings(),
+        ...parsed,
+        ...(normalizedPreset ? { voicePreset: normalizedPreset } : {}),
+      };
+    }
   } catch {
     // ignore
   }
@@ -113,34 +131,38 @@ export default function App() {
 
   const applyVoicePreset = (preset: string) => {
     switch (preset) {
+      case "baritone":
       case "male":
         setSettings((prev) => ({
           ...prev,
-          voicePreset: preset,
+          voicePreset: "baritone",
           rate: 0.95,
           pitch: 0.75,
         }));
         return;
+      case "alto":
       case "female":
         setSettings((prev) => ({
           ...prev,
-          voicePreset: preset,
+          voicePreset: "alto",
           rate: 1.05,
           pitch: 1.25,
         }));
         return;
+      case "soprano":
       case "child":
         setSettings((prev) => ({
           ...prev,
-          voicePreset: preset,
+          voicePreset: "soprano",
           rate: 1.15,
           pitch: 1.45,
         }));
         return;
+      case "bass":
       case "deep":
         setSettings((prev) => ({
           ...prev,
-          voicePreset: preset,
+          voicePreset: "bass",
           rate: 0.85,
           pitch: 0.6,
         }));

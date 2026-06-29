@@ -102,7 +102,7 @@ export function Settings({
           {/* Voice profile */}
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="voice-preset-select">
-              🎭 Voice profile
+              🎼 Vocal style (traditional)
             </label>
             <select
               id="voice-preset-select"
@@ -111,10 +111,10 @@ export function Settings({
               onChange={(e) => onVoicePresetChange(e.target.value)}
             >
               <option value="custom">Custom / Natural</option>
-              <option value="male">Masculine</option>
-              <option value="female">Feminine</option>
-              <option value="child">Child-like</option>
-              <option value="deep">Deep</option>
+              <option value="baritone">Baritone</option>
+              <option value="alto">Alto</option>
+              <option value="soprano">Soprano</option>
+              <option value="bass">Bass</option>
             </select>
           </div>
 
