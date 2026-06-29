@@ -216,9 +216,10 @@ export function isRasterImageDataUrl(value: string) {
 }
 
 export function getAppIcon(value: string): LucideIcon | undefined {
+  if (!Object.hasOwn(APP_ICONS, value)) return undefined;
   return APP_ICONS[value as AppIconName];
 }
 
 export function isAppIconName(value: string): value is AppIconName {
-  return value in APP_ICONS;
+  return Object.hasOwn(APP_ICONS, value);
 }

@@ -179,7 +179,7 @@ export function Settings({
                           {group.map((v) => (
                             <option key={v.id} value={v.id}>
                               {v.name}
-                              {v.isNetworkConnectionRequired ? " (Online)" : ""}
+                              {v.isNetworkConnectionRequired ? ` ${t(language, "onlineVoiceSuffix")}` : ""}
                             </option>
                           ))}
                         </optgroup>
