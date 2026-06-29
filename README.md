@@ -93,7 +93,7 @@ The `Deploy to GitHub Pages` workflow (`.github/workflows/pages.yml`) is already
 
 1. Go to **Settings → Pages** in your GitHub repository.
 2. Under *Source*, select **GitHub Actions**.
-3. The workflow runs automatically on every push to `main` and deploys the built app to `https://<your-org>.github.io/<repo-name>/`.
+3. The workflow runs automatically on every push to `main` and deploys the built app to `https://nakuapp.github.io/AlwaysFreeAAC/`.
 
 The workflow automatically sets the correct `base` URL for the sub-path deployment.
 
