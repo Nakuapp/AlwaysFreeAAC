@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import {
   Grid3X3,
@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import type { VoiceOption } from "../hooks/useSpeech";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { LANGUAGE_OPTIONS, t, type Language, type Theme } from "../i18n";
 import "./Settings.css";
 
@@ -65,6 +66,8 @@ export function Settings({
 }: SettingsProps) {
   const [voiceFilter, setVoiceFilter] = useState("");
   const platform = Capacitor.getPlatform();
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef);
 
   const normalizedFilter = voiceFilter.trim().toLowerCase();
   const filteredVoices = normalizedFilter
@@ -88,7 +91,7 @@ export function Settings({
 
   return (
     <div className="settings-overlay" role="dialog" aria-modal="true" aria-label={t(language, "settings")}>
-      <div className="settings-panel">
+      <div className="settings-panel" ref={panelRef}>
         <div className="settings-panel__header">
           <h2 className="settings-panel__title">
             <SettingsIcon className="settings-panel__title-icon" aria-hidden="true" focusable="false" />
@@ -245,6 +248,7 @@ export function Settings({
               max={2}
               step={0.1}
               value={rate}
+              aria-valuetext={`${rate === 1 ? t(language, "normal") : rate < 1 ? t(language, "slow") : t(language, "fast")} (${rate}×)`}
               onChange={(e) => onRateChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
@@ -265,6 +269,7 @@ export function Settings({
               max={2}
               step={0.1}
               value={pitch}
+              aria-valuetext={`${pitch === 1 ? t(language, "normal") : pitch < 1 ? t(language, "lower") : t(language, "higher")} (${pitch})`}
               onChange={(e) => onPitchChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
@@ -285,6 +290,7 @@ export function Settings({
               max={1}
               step={0.1}
               value={volume}
+              aria-valuetext={`${Math.round(volume * 100)}%`}
               onChange={(e) => onVolumeChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
@@ -305,6 +311,7 @@ export function Settings({
               max={8}
               step={1}
               value={columns}
+              aria-valuetext={`${columns} ${t(language, "columns")}`}
               onChange={(e) => onColumnsChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">
@@ -325,6 +332,7 @@ export function Settings({
               max={24}
               step={1}
               value={fontSize}
+              aria-valuetext={`${fontSize}px`}
               onChange={(e) => onFontSizeChange(Number(e.target.value))}
             />
             <div className="settings-field__range-labels">

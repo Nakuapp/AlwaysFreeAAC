@@ -22,6 +22,12 @@
   border-radius: 8px;
   background: var(--bg-subtle);
   min-height: 52px;
+  list-style: none;
+}
+
+/* Make list items layout-transparent so buttons are direct flex children */
+.sentence-bar__words > li {
+  display: contents;
 }
 
 .sentence-bar__placeholder {

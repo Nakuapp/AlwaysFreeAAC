@@ -96,6 +96,8 @@ type UiStringKey =
   | "changeImage"
   | "cancel"
   | "save"
+  | "close"
+  | "skipToMain"
   | "noCustomTiles"
   | "voiceFilterLabel"
   | "voiceFilterPlaceholder"
@@ -208,6 +210,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeImage: "Change Image",
     cancel: "Cancel",
     save: "Save",
+    close: "Close",
+    skipToMain: "Skip to main content",
     noCustomTiles: "No custom tiles yet. Tap \"+ Add Word\" to create one.",
     voiceFilterLabel: "Filter voices",
     voiceFilterPlaceholder: "Search by name or language…",
@@ -319,6 +323,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeImage: "Cambiar imagen",
     cancel: "Cancelar",
     save: "Guardar",
+    close: "Cerrar",
+    skipToMain: "Saltar al contenido principal",
     noCustomTiles: "Aún no hay fichas. Toca \"+ Agregar palabra\" para crear una.",
     voiceFilterLabel: "Filtrar voces",
     voiceFilterPlaceholder: "Buscar por nombre o idioma…",
@@ -430,6 +436,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeImage: "Changer l'image",
     cancel: "Annuler",
     save: "Enregistrer",
+    close: "Fermer",
+    skipToMain: "Passer au contenu principal",
     noCustomTiles: "Aucune fiche pour l'instant. Appuyez sur \"+ Ajouter un mot\" pour en créer une.",
     voiceFilterLabel: "Filtrer les voix",
     voiceFilterPlaceholder: "Rechercher par nom ou langue…",

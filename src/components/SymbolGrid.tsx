@@ -89,6 +89,7 @@ export function SymbolGrid({
               type="button"
               className={`symbol-grid-toolbar__btn${isEditMode ? " symbol-grid-toolbar__btn--active" : ""}`}
               onClick={onToggleEditMode}
+              aria-pressed={Boolean(isEditMode)}
             >
               {isEditMode ? (
                 <Check className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
@@ -101,6 +102,7 @@ export function SymbolGrid({
         </div>
       )}
       <main
+        id="main-content"
         className="symbol-grid"
         style={{ "--grid-columns": columns } as CSSProperties}
         aria-label={t(language, "symbolGrid")}

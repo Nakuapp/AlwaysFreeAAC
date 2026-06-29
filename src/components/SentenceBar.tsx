@@ -25,7 +25,7 @@ export function SentenceBar({
 }: SentenceBarProps) {
   return (
     <div className="sentence-bar" role="region" aria-label={t(language, "sentenceBuilder")}>
-      <div
+      <ul
         className="sentence-bar__words"
         role="list"
         aria-label={t(language, "currentSentence")}
@@ -33,23 +33,25 @@ export function SentenceBar({
         aria-atomic="false"
       >
         {sentence.length === 0 ? (
-          <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
+          <li role="none">
+            <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
+          </li>
         ) : (
           sentence.map((sym, idx) => (
-            <button
-              key={`${sym.id}-${idx}`}
-              className="sentence-bar__word"
-              role="listitem"
-              onClick={() => onSpeakWord(sym)}
-              aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
-              type="button"
-            >
-              <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
-              <span>{sym.label}</span>
-            </button>
+            <li key={`${sym.id}-${idx}`} role="none">
+              <button
+                className="sentence-bar__word"
+                onClick={() => onSpeakWord(sym)}
+                aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
+                type="button"
+              >
+                <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
+                <span>{sym.label}</span>
+              </button>
+            </li>
           ))
         )}
-      </div>
+      </ul>
 
       <div className="sentence-bar__controls">
         <button
