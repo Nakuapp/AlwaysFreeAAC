@@ -144,5 +144,32 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     }
   }, [isNative]);
 
-  return { speak, previewVoice, cancel, speaking, voices, supported };
+  const pause = useCallback(() => {
+    if (isNative) {
+      SpeechSynthesis.pause()
+        .catch(() => {
+          // ignore
+        });
+      return;
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.pause();
+    }
+  }, [isNative]);
+
+  const resume = useCallback(() => {
+    if (isNative) {
+      SpeechSynthesis.resume()
+        .catch(() => {
+          // ignore
+        });
+      return;
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.resume();
+      if (window.speechSynthesis.speaking) setSpeaking(true);
+    }
+  }, [isNative]);
+
+  return { speak, previewVoice, cancel, pause, resume, speaking, voices, supported };
 }
