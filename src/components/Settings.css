@@ -31,9 +31,17 @@
 }
 
 .settings-panel__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
+}
+
+.settings-panel__title-icon {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .settings-panel__close {
@@ -49,6 +57,11 @@
   justify-content: center;
   transition: background 0.15s ease;
   color: var(--text-secondary);
+}
+
+.settings-panel__close-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 .settings-panel__close:hover {
@@ -76,9 +89,18 @@
 }
 
 .settings-field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-secondary);
+}
+
+.settings-field__label-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
 }
 
 .settings-field__select {
@@ -139,6 +161,9 @@
 }
 
 .settings-field__tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
   font-size: 0.8rem;
   color: var(--text-muted);
   background: var(--bg-subtle);
@@ -147,6 +172,13 @@
   padding: 0.5rem 0.6rem;
   margin: 0;
   line-height: 1.4;
+}
+
+.settings-field__tip-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
 }
 
 .settings-field__select--voice {
@@ -164,6 +196,11 @@
   cursor: pointer;
   transition: background 0.15s ease;
   color: var(--text-primary);
+}
+
+.settings-field__preview-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 .settings-field__preview-btn:hover {

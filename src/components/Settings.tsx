@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import {
+  Grid3X3,
+  Info,
+  Languages,
+  MoonStar,
+  Music,
+  Settings as SettingsIcon,
+  SlidersHorizontal,
+  Type,
+  Volume2,
+  X,
+} from "lucide-react";
 import type { VoiceOption } from "../hooks/useSpeech";
 import { LANGUAGE_OPTIONS, t, type Language, type Theme } from "../i18n";
 import "./Settings.css";
@@ -78,7 +90,10 @@ export function Settings({
     <div className="settings-overlay" role="dialog" aria-modal="true" aria-label={t(language, "settings")}>
       <div className="settings-panel">
         <div className="settings-panel__header">
-          <h2 className="settings-panel__title">⚙️ {t(language, "settings")}</h2>
+          <h2 className="settings-panel__title">
+            <SettingsIcon className="settings-panel__title-icon" aria-hidden="true" focusable="false" />
+            {t(language, "settings")}
+          </h2>
           <button
             className="settings-panel__close"
             onClick={onClose}
@@ -86,14 +101,15 @@ export function Settings({
             type="button"
             autoFocus
           >
-            ✕
+            <X className="settings-panel__close-icon" aria-hidden="true" focusable="false" />
           </button>
         </div>
 
         <div className="settings-panel__body">
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="language-select">
-              🌍 {t(language, "language")}
+              <Languages className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+              {t(language, "language")}
             </label>
             <select
               id="language-select"
@@ -111,7 +127,8 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="theme-select">
-              🌓 {t(language, "theme")}
+              <MoonStar className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+              {t(language, "theme")}
             </label>
             <select
               id="theme-select"
@@ -126,7 +143,8 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="voice-select">
-              🗣️ {t(language, "voice")}
+              <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+              {t(language, "voice")}
             </label>
             {voices.length === 0 ? (
               <p className="settings-field__hint">{t(language, "noVoices")}</p>
@@ -161,7 +179,7 @@ export function Settings({
                           {group.map((v) => (
                             <option key={v.id} value={v.id}>
                               {v.name}
-                              {v.isNetworkConnectionRequired ? " 🌐" : ""}
+                              {v.isNetworkConnectionRequired ? ` ${t(language, "onlineVoiceSuffix")}` : ""}
                             </option>
                           ))}
                         </optgroup>
@@ -175,7 +193,7 @@ export function Settings({
                     aria-label={t(language, "previewVoice")}
                     title={t(language, "previewVoice")}
                   >
-                    🔊
+                    <Volume2 className="settings-field__preview-icon" aria-hidden="true" focusable="false" />
                   </button>
                 </div>
                 {filteredVoices.length === 0 && voiceFilter.trim() && (
@@ -183,7 +201,7 @@ export function Settings({
                 )}
                 {platform !== "ios" && (
                   <p className="settings-field__tip">
-                    ℹ️{" "}
+                    <Info className="settings-field__tip-icon" aria-hidden="true" focusable="false" />{" "}
                     {t(
                       language,
                       platform === "android"
@@ -198,7 +216,8 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="voice-preset-select">
-              🎼 {t(language, "vocalStyle")}
+              <Music className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+              {t(language, "vocalStyle")}
             </label>
             <select
               id="voice-preset-select"
@@ -216,7 +235,7 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="rate-range">
-              ⏱️ {t(language, "speed")}: <strong>{rate === 1 ? t(language, "normal") : rate < 1 ? t(language, "slow") : t(language, "fast")} ({rate}×)</strong>
+              <SlidersHorizontal className="settings-field__label-icon" aria-hidden="true" focusable="false" /> {t(language, "speed")}: <strong>{rate === 1 ? t(language, "normal") : rate < 1 ? t(language, "slow") : t(language, "fast")} ({rate}×)</strong>
             </label>
             <input
               id="rate-range"
@@ -236,7 +255,7 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="pitch-range">
-              🎵 {t(language, "pitch")}: <strong>{pitch === 1 ? t(language, "normal") : pitch < 1 ? t(language, "lower") : t(language, "higher")} ({pitch})</strong>
+              <Music className="settings-field__label-icon" aria-hidden="true" focusable="false" /> {t(language, "pitch")}: <strong>{pitch === 1 ? t(language, "normal") : pitch < 1 ? t(language, "lower") : t(language, "higher")} ({pitch})</strong>
             </label>
             <input
               id="pitch-range"
@@ -256,7 +275,7 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="volume-range">
-              🔊 {t(language, "volume")}: <strong>{Math.round(volume * 100)}%</strong>
+              <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" /> {t(language, "volume")}: <strong>{Math.round(volume * 100)}%</strong>
             </label>
             <input
               id="volume-range"
@@ -276,7 +295,7 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="columns-range">
-              ⊞ {t(language, "gridSize")}: <strong>{columns} {t(language, "columns")}</strong>
+              <Grid3X3 className="settings-field__label-icon" aria-hidden="true" focusable="false" /> {t(language, "gridSize")}: <strong>{columns} {t(language, "columns")}</strong>
             </label>
             <input
               id="columns-range"
@@ -296,7 +315,7 @@ export function Settings({
 
           <div className="settings-field">
             <label className="settings-field__label" htmlFor="font-range">
-              🔤 {t(language, "textSize")}: <strong>{fontSize}px</strong>
+              <Type className="settings-field__label-icon" aria-hidden="true" focusable="false" /> {t(language, "textSize")}: <strong>{fontSize}px</strong>
             </label>
             <input
               id="font-range"

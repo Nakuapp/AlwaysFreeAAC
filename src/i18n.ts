@@ -76,6 +76,9 @@ type UiStringKey =
   | "tileIconEmoji"
   | "tileIconImage"
   | "tileIconEmojiPlaceholder"
+  | "tileIconFilterLabel"
+  | "tileIconFilterPlaceholder"
+  | "tileIconFilterNoMatch"
   | "tileColor"
   | "tileColorGreen"
   | "tileColorBlue"
@@ -94,6 +97,7 @@ type UiStringKey =
   | "voiceFilterLabel"
   | "voiceFilterPlaceholder"
   | "voiceFilterNoMatch"
+  | "onlineVoiceSuffix"
   | "moreVoicesTipAndroid"
   | "moreVoicesTipWeb";
 
@@ -165,6 +169,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconEmoji: "Emoji",
     tileIconImage: "Image",
     tileIconEmojiPlaceholder: "Paste or type an emoji…",
+    tileIconFilterLabel: "Filter icons",
+    tileIconFilterPlaceholder: "Search icons…",
+    tileIconFilterNoMatch: "No icons match your search.",
     tileColor: "Color",
     tileColorGreen: "Green",
     tileColorBlue: "Blue",
@@ -183,6 +190,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     voiceFilterLabel: "Filter voices",
     voiceFilterPlaceholder: "Search by name or language…",
     voiceFilterNoMatch: "No voices match your search.",
+    onlineVoiceSuffix: "(Online)",
     moreVoicesTipAndroid: "Tip: For more diverse voices, open your device Settings and look for Accessibility → Text-to-Speech to install additional voice packs.",
     moreVoicesTipWeb: "Tip: Voice quality and variety depend on your browser and OS. Chrome and Edge on desktop typically offer the most options.",
   },
@@ -253,6 +261,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconEmoji: "Emoji",
     tileIconImage: "Imagen",
     tileIconEmojiPlaceholder: "Pega o escribe un emoji…",
+    tileIconFilterLabel: "Filtrar íconos",
+    tileIconFilterPlaceholder: "Buscar íconos…",
+    tileIconFilterNoMatch: "Ningún ícono coincide con tu búsqueda.",
     tileColor: "Color",
     tileColorGreen: "Verde",
     tileColorBlue: "Azul",
@@ -271,6 +282,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     voiceFilterLabel: "Filtrar voces",
     voiceFilterPlaceholder: "Buscar por nombre o idioma…",
     voiceFilterNoMatch: "Ninguna voz coincide con tu búsqueda.",
+    onlineVoiceSuffix: "(En línea)",
     moreVoicesTipAndroid: "Consejo: Para más voces, abre Ajustes en tu dispositivo y busca Accesibilidad → Texto a voz para instalar paquetes de voces adicionales.",
     moreVoicesTipWeb: "Consejo: La calidad y variedad de voces dependen de tu navegador y sistema operativo. Chrome y Edge en escritorio suelen ofrecer más opciones.",
   },
@@ -341,6 +353,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconEmoji: "Emoji",
     tileIconImage: "Image",
     tileIconEmojiPlaceholder: "Coller ou saisir un emoji…",
+    tileIconFilterLabel: "Filtrer les icônes",
+    tileIconFilterPlaceholder: "Rechercher des icônes…",
+    tileIconFilterNoMatch: "Aucune icône ne correspond à votre recherche.",
     tileColor: "Couleur",
     tileColorGreen: "Vert",
     tileColorBlue: "Bleu",
@@ -359,6 +374,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     voiceFilterLabel: "Filtrer les voix",
     voiceFilterPlaceholder: "Rechercher par nom ou langue…",
     voiceFilterNoMatch: "Aucune voix ne correspond à votre recherche.",
+    onlineVoiceSuffix: "(En ligne)",
     moreVoicesTipAndroid: "Conseil : Pour plus de voix, ouvrez les Paramètres de votre appareil et cherchez Accessibilité → Synthèse vocale pour installer des packs de voix supplémentaires.",
     moreVoicesTipWeb: "Conseil : La qualité et la variété des voix dépendent de votre navigateur et de votre système d'exploitation. Chrome et Edge sur ordinateur offrent généralement le plus d'options.",
   },
