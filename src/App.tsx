@@ -440,7 +440,7 @@ export default function App() {
       </a>
       <header className="app-header">
         <div className="app-header__brand">
-          <img src="/app-logo.png" className="app-header__logo" alt="" aria-hidden="true" />
+          <img src={import.meta.env.BASE_URL + 'app-logo.png'} className="app-header__logo" alt="" aria-hidden="true" />
           <span className="app-header__title">{t(settings.language, "appName")}</span>
         </div>
         <button
