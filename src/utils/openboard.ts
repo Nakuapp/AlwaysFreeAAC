@@ -374,7 +374,7 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
       //   1. Non-spec "path" key some producers add directly on the image entry
       //   2. manifest.paths.images[id] (OBZ spec)
       //   3. img.url when it is a relative path (not an absolute http/data URI)
-      const nonSpecPath = asString((img as Record<string, unknown>).path);
+      const nonSpecPath = asString((img as unknown as Record<string, unknown>).path);
       const imageId = asString(img.id);
       const manifestPath =
         imageId && typeof manifestImagePaths[imageId] === "string"
