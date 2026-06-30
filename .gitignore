@@ -16,7 +16,9 @@ dist-ssr
 android/
 ios/
 
-# Editor directories and files
+# Generated screenshots (produced by scripts/take-screenshots.mjs)
+screenshots/
+
 .vscode/*
 !.vscode/extensions.json
 .idea

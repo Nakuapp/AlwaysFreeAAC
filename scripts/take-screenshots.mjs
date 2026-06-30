@@ -5,7 +5,7 @@
  * Usage:
  *   node scripts/take-screenshots.mjs [base-url]
  *
- * Defaults to http://localhost:4173 (vite preview default).
+ * Defaults to http://127.0.0.1:4173 (vite preview default).
  * Screenshots are written to screenshots/ in the project root.
  */
 
@@ -14,7 +14,7 @@ import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-const BASE_URL = process.argv[2] ?? 'http://localhost:4173';
+const BASE_URL = process.argv[2] ?? 'http://127.0.0.1:4173';
 const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'screenshots');
 
 const VIEWPORTS = [
