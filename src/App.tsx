@@ -396,7 +396,7 @@ export default function App() {
 
   const handlePreviewVoice = useCallback(
     (voiceId: string) => {
-      const sampleText = t(settings.language, "appName");
+      const sampleText = t(settings.language, "voicePreviewSample");
       previewVoice(voiceId, sampleText);
     },
     [previewVoice, settings.language]
