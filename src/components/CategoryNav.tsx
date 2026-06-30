@@ -1,4 +1,4 @@
-import { Settings2 } from "lucide-react";
+import { ArrowUpDown, Settings2 } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { IconVisual } from "./IconVisual";
@@ -9,6 +9,7 @@ interface CategoryNavProps {
   activeId: string;
   onSelect: (id: string) => void;
   onManageBoards: () => void;
+  onImportExport: () => void;
   language: Language;
 }
 
@@ -17,6 +18,7 @@ export function CategoryNav({
   activeId,
   onSelect,
   onManageBoards,
+  onImportExport,
   language,
 }: CategoryNavProps) {
   return (
@@ -36,7 +38,16 @@ export function CategoryNav({
             </button>
           </li>
         ))}
-        <li role="none" className="category-nav__manage-item">
+        <li role="none" className="category-nav__actions">
+          <button
+            type="button"
+            className="category-nav__btn category-nav__btn--manage"
+            onClick={onImportExport}
+            aria-label={t(language, "importExport")}
+          >
+            <ArrowUpDown className="category-nav__icon" aria-hidden="true" focusable="false" />
+            <span className="category-nav__label">{t(language, "importExport")}</span>
+          </button>
           <button
             type="button"
             className="category-nav__btn category-nav__btn--manage"

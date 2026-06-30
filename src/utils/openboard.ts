@@ -1,10 +1,12 @@
 /**
- * Utilities for the Open Board Format (OBF) v0.1
+ * Utilities for the Open Board Format (OBF) v0.1 and Open Board Zip (OBZ) v0.2
  * Specification: https://www.openboardformat.org/docs
  *
- * OBF is the standard interchange format used by the open AAC ecosystem
- * (OpenAAC / OpenBoard). Boards exported by AlwaysFreeAAC can be opened in
- * any compatible AAC application (e.g. Cboard, CommunicoTot, etc.).
+ * OBF  — single-board JSON file.
+ * OBZ  — ZIP archive containing a manifest.json and one or more OBF board files.
+ *
+ * Boards exported by AlwaysFreeAAC can be opened in any compatible AAC
+ * application (e.g. Cboard, CommunicoTot, etc.).
  */
 
 import type { Category, Symbol } from "../data/vocabulary";
@@ -226,4 +228,123 @@ export function importOBFToSymbols(board: OBFBoard): Symbol[] {
       };
     })
     .filter((s): s is Symbol => s !== null);
+}
+
+// ── OBZ (Open Board Zip) ───────────────────────────────────────────────────
+
+export interface OBZManifest {
+  format: string;
+  root?: string;
+  paths: {
+    boards: Record<string, string>;
+    images?: Record<string, string>;
+    sounds?: Record<string, string>;
+  };
+}
+
+/**
+ * Package one or more categories as an OBZ archive (ZIP containing OBF boards
+ * and a manifest.json).  Returns the zip Blob and a suggested filename.
+ */
+export async function exportCategoriesToOBZ(
+  categories: Category[],
+  locale = "en"
+): Promise<{ blob: Blob; filename: string }> {
+  const { default: JSZip } = await import("jszip");
+  const zip = new JSZip();
+
+  const boardPaths: Record<string, string> = {};
+  let rootPath: string | undefined;
+
+  for (const category of categories) {
+    const board = exportCategoryToOBF(category, locale);
+    const safeId = category.id.replace(/[^a-z0-9_-]/gi, "_");
+    const boardPath = `boards/${safeId}.obf`;
+    zip.file(boardPath, JSON.stringify(board, null, 2));
+    boardPaths[boardPath] = boardPath;
+    if (!rootPath) rootPath = boardPath;
+  }
+
+  const manifest: OBZManifest = {
+    format: "open-board-0.2",
+    root: rootPath,
+    paths: { boards: boardPaths, images: {}, sounds: {} },
+  };
+  zip.file("manifest.json", JSON.stringify(manifest, null, 2));
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const baseName =
+    categories.length === 1
+      ? categories[0].label.replace(/[^a-z0-9]/gi, "_") || "board"
+      : "AlwaysFreeAAC_boards";
+  return { blob, filename: `${baseName}.obz` };
+}
+
+/** Trigger a browser download of an OBZ Blob */
+export function downloadOBZ(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/**
+ * Read a File as an OBZ archive and return all the OBF boards found inside.
+ * Images that are bundled as separate files in the zip are inlined back into
+ * the board as data URIs so the rest of the import pipeline can handle them.
+ */
+export async function readOBZFile(file: File): Promise<OBFBoard[]> {
+  const { default: JSZip } = await import("jszip");
+  const zip = await JSZip.loadAsync(file);
+
+  const manifestFile = zip.file("manifest.json");
+  if (!manifestFile) throw new Error("OBZ has no manifest.json");
+
+  const manifest = JSON.parse(
+    await manifestFile.async("string")
+  ) as OBZManifest;
+
+  if (!manifest.paths?.boards) {
+    throw new Error("OBZ manifest has no boards paths");
+  }
+
+  const boards: OBFBoard[] = [];
+
+  for (const boardPath of Object.values(manifest.paths.boards)) {
+    const boardFile = zip.file(boardPath);
+    if (!boardFile) continue;
+
+    const parsed: unknown = JSON.parse(await boardFile.async("string"));
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      typeof (parsed as Record<string, unknown>).format !== "string" ||
+      !String((parsed as Record<string, unknown>).format).startsWith("open-board")
+    ) {
+      continue;
+    }
+
+    const board = parsed as OBFBoard;
+
+    // Inline any bundled image files back into the board's image entries
+    for (const img of board.images ?? []) {
+      if (img.data || img.url) continue;
+      // Some OBZ producers add a non-spec "path" key on image entries
+      const imgPath = (img as unknown as Record<string, unknown>).path as
+        | string
+        | undefined;
+      if (!imgPath) continue;
+      const imgFile = zip.file(imgPath);
+      if (!imgFile) continue;
+      const contentType = img.content_type ?? "image/png";
+      const b64 = await imgFile.async("base64");
+      img.data = `data:${contentType};base64,${b64}`;
+    }
+
+    boards.push(board);
+  }
+
+  return boards;
 }

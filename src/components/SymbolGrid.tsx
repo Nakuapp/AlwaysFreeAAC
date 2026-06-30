@@ -1,6 +1,5 @@
-import { useRef } from "react";
-import type { ChangeEvent, CSSProperties } from "react";
-import { Check, Download, Pencil, Plus, Upload } from "lucide-react";
+import type { CSSProperties } from "react";
+import { Check, Pencil, Plus } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { SymbolButton } from "./SymbolButton";
@@ -18,9 +17,6 @@ interface SymbolGridProps {
   /** Toggles between normal and edit mode for the custom category */
   isEditMode?: boolean;
   onToggleEditMode?: () => void;
-  /** OBF export/import handlers for My Words */
-  onExportBoard?: () => void;
-  onImportBoard?: (file: File) => void;
 }
 
 export function SymbolGrid({
@@ -32,58 +28,13 @@ export function SymbolGrid({
   onDeleteSymbol,
   isEditMode,
   onToggleEditMode,
-  onExportBoard,
-  onImportBoard,
 }: SymbolGridProps) {
   const showAddControls = onAddWord !== undefined;
-  const importInputRef = useRef<HTMLInputElement>(null);
-
-  function handleImportChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file && onImportBoard) {
-      onImportBoard(file);
-    }
-    // Reset so the same file can be selected again
-    e.target.value = "";
-  }
 
   return (
     <div className="symbol-grid-container">
       {showAddControls && (
         <div className="symbol-grid-toolbar">
-          {onExportBoard && symbols.length > 0 && (
-            <button
-              type="button"
-              className="symbol-grid-toolbar__btn"
-              onClick={onExportBoard}
-              title={t(language, "exportBoard")}
-            >
-              <Download className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
-              {t(language, "exportBoard")}
-            </button>
-          )}
-          {onImportBoard && (
-            <>
-              <button
-                type="button"
-                className="symbol-grid-toolbar__btn"
-                onClick={() => importInputRef.current?.click()}
-                title={t(language, "importBoard")}
-              >
-                <Upload className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
-                {t(language, "importBoard")}
-              </button>
-              <input
-                ref={importInputRef}
-                type="file"
-                accept=".obf,application/json"
-                className="symbol-grid-toolbar__import-input"
-                onChange={handleImportChange}
-                aria-hidden="true"
-                tabIndex={-1}
-              />
-            </>
-          )}
           {onToggleEditMode && symbols.length > 0 && (
             <button
               type="button"

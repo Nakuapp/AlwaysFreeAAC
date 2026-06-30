@@ -122,7 +122,19 @@ type UiStringKey =
   | "hideBoard"
   | "userBoards"
   | "builtInBoards"
-  | "renameBoard";
+  | "renameBoard"
+  | "importExport"
+  | "exportSection"
+  | "importSection"
+  | "exportBoardsLabel"
+  | "exportSelected"
+  | "exportFormatNone"
+  | "exportFormatOBF"
+  | "exportFormatOBZ"
+  | "importBoardHint"
+  | "importSuccess"
+  | "selectAll"
+  | "deselectAll";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -239,6 +251,18 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     userBoards: "My Boards",
     builtInBoards: "Built-in Boards",
     renameBoard: "Rename board",
+    importExport: "Import / Export",
+    exportSection: "Export Boards",
+    importSection: "Import Boards",
+    exportBoardsLabel: "Select boards to export",
+    exportSelected: "Export Selected",
+    exportFormatNone: "Select at least one board to export.",
+    exportFormatOBF: "1 board selected → will download as .obf",
+    exportFormatOBZ: "2+ boards selected → will download as .obz",
+    importBoardHint: "Import a .obf (single board) or .obz (multiple boards) file. Each board is added as a new board.",
+    importSuccess: "Imported {{count}} board(s) successfully.",
+    selectAll: "Select all",
+    deselectAll: "Deselect all",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -354,6 +378,18 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     userBoards: "Mis tableros",
     builtInBoards: "Tableros predeterminados",
     renameBoard: "Renombrar tablero",
+    importExport: "Importar / Exportar",
+    exportSection: "Exportar tableros",
+    importSection: "Importar tableros",
+    exportBoardsLabel: "Seleccionar tableros para exportar",
+    exportSelected: "Exportar seleccionados",
+    exportFormatNone: "Selecciona al menos un tablero para exportar.",
+    exportFormatOBF: "1 tablero seleccionado → se descargará como .obf",
+    exportFormatOBZ: "2+ tableros seleccionados → se descargará como .obz",
+    importBoardHint: "Importa un archivo .obf (un tablero) o .obz (varios tableros). Cada tablero se añade como un nuevo tablero.",
+    importSuccess: "Se importaron {{count}} tablero(s) correctamente.",
+    selectAll: "Seleccionar todo",
+    deselectAll: "Deseleccionar todo",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -469,6 +505,18 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     userBoards: "Mes tableaux",
     builtInBoards: "Tableaux intégrés",
     renameBoard: "Renommer le tableau",
+    importExport: "Importer / Exporter",
+    exportSection: "Exporter des tableaux",
+    importSection: "Importer des tableaux",
+    exportBoardsLabel: "Sélectionner les tableaux à exporter",
+    exportSelected: "Exporter la sélection",
+    exportFormatNone: "Sélectionnez au moins un tableau à exporter.",
+    exportFormatOBF: "1 tableau sélectionné → téléchargement en .obf",
+    exportFormatOBZ: "2+ tableaux sélectionnés → téléchargement en .obz",
+    importBoardHint: "Importez un fichier .obf (un tableau) ou .obz (plusieurs tableaux). Chaque tableau est ajouté comme un nouveau tableau.",
+    importSuccess: "{{count}} tableau(x) importé(s) avec succès.",
+    selectAll: "Tout sélectionner",
+    deselectAll: "Tout désélectionner",
   },
 };
 

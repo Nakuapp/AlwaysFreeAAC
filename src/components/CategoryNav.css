@@ -93,8 +93,10 @@
   }
 }
 
-.category-nav__manage-item {
+.category-nav__actions {
   margin-left: auto;
+  display: flex;
+  align-items: stretch;
 }
 
 .category-nav__btn--manage {
