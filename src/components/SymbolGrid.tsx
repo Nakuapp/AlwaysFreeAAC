@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { CSSProperties } from "react";
+import type { ChangeEvent, CSSProperties } from "react";
 import { Check, Download, Pencil, Plus, Upload } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
@@ -38,7 +38,7 @@ export function SymbolGrid({
   const showAddControls = onAddWord !== undefined;
   const importInputRef = useRef<HTMLInputElement>(null);
 
-  function handleImportChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleImportChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file && onImportBoard) {
       onImportBoard(file);

@@ -8,6 +8,7 @@
  */
 
 import type { Category, Symbol } from "../data/vocabulary";
+import { isRasterImageDataUrl } from "../icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -101,7 +102,7 @@ export function exportCategoryToOBF(category: Category, locale = "en"): OBFBoard
       const imgId = `img-${symbol.id}`;
       images.push({ id: imgId, data: symbol.emoji });
       imageId = imgId;
-    } else if (symbol.emoji.startsWith("https://") || symbol.emoji.startsWith("http://")) {
+    } else if (symbol.emoji.startsWith("https://")) {
       // External image URL (e.g. from OpenSymbols)
       const imgId = `img-${symbol.id}`;
       images.push({ id: imgId, url: symbol.emoji });
@@ -207,9 +208,9 @@ export function importOBFToSymbols(board: OBFBoard): Symbol[] {
       if (btn.image_id) {
         const img = imageMap.get(btn.image_id);
         if (img) {
-          if (img.data?.startsWith("data:")) {
-            emoji = img.data;
-          } else if (img.url) {
+          if (isRasterImageDataUrl(img.data ?? "")) {
+            emoji = img.data!;
+          } else if (img.url?.startsWith("https://")) {
             emoji = img.url;
           }
         }

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -32,6 +32,14 @@ export function ManageBoardsDialog({
   const [newBoardIcon, setNewBoardIcon] = useState("pen-square");
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   function handleCreateBoard() {
     const name = newBoardName.trim();

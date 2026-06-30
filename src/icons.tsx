@@ -218,9 +218,9 @@ export function isRasterImageDataUrl(value: string) {
   return /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(value);
 }
 
-/** Returns true for external http(s) image URLs (e.g. from OpenSymbols or OBF imports) */
+/** Returns true for external https image URLs (e.g. from OpenSymbols or OBF imports) */
 export function isExternalImageUrl(value: string) {
-  return value.startsWith("https://") || value.startsWith("http://");
+  return value.startsWith("https://");
 }
 
 export function getAppIcon(value: string): LucideIcon | undefined {
