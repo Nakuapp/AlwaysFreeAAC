@@ -147,19 +147,30 @@ npx cap sync
 
 ```
 src/
+├── assets/               # Static assets bundled by Vite
 ├── components/
-│   ├── CategoryNav.tsx   # Horizontal scrollable category tabs
+│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (with icon picker & image upload)
+│   ├── CategoryNav.tsx   # Horizontal scrollable category tabs + Manage Boards / Import-Export buttons
+│   ├── IconVisual.tsx    # Renders icon or image for a tile
+│   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
+│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete) and toggle built-in board visibility
 │   ├── SentenceBar.tsx   # Sentence builder + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog (voice, speed, grid)
+│   ├── Settings.tsx      # Settings dialog (voice, speed, grid, language, theme)
 │   ├── SymbolButton.tsx  # Individual symbol tile
 │   └── SymbolGrid.tsx    # Responsive grid of symbol buttons
 ├── data/
-│   └── vocabulary.ts     # All categories and symbols
+│   └── vocabulary.ts     # Built-in categories and symbols
 ├── hooks/
+│   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
 │   └── useSpeech.ts      # Native speech + web fallback React hook
-├── icons.tsx             # Shared Lucide icon registry/helpers
+├── utils/
+│   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
+├── i18n.ts               # Internationalisation strings (en / es / fr)
+├── iconUtils.ts          # Lucide icon search and utility helpers
+├── icons.tsx             # Shared Lucide icon registry
 ├── App.tsx               # Root application component
 ├── App.css               # App shell styles
+├── main.tsx              # App entry point
 └── index.css             # Global reset + CSS variables
 public/
 ├── app-icon-192.png      # PWA icon + browser favicon

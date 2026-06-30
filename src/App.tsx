@@ -9,8 +9,8 @@ import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
 import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
+import { ImportExportDialog } from "./components/ImportExportDialog";
 import { localizeCategories, t, type Language, type Theme } from "./i18n";
-import { exportCategoryToOBF, downloadOBF, readOBFFile, importOBFToSymbols } from "./utils/openboard";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
@@ -232,6 +232,7 @@ export default function App() {
   const [hiddenBuiltinIds, setHiddenBuiltinIds] = useState<Set<string>>(loadHiddenBuiltinIds);
   const [showAddTile, setShowAddTile] = useState(false);
   const [showManageBoards, setShowManageBoards] = useState(false);
+  const [showImportExport, setShowImportExport] = useState(false);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
 
   // Localized built-in categories (minus hidden ones)
@@ -351,32 +352,9 @@ export default function App() {
     [activeCategoryId]
   );
 
-  const handleExportBoard = useCallback(() => {
-    if (!activeCategory) return;
-    const board = exportCategoryToOBF(activeCategory, settings.language);
-    downloadOBF(board);
-  }, [activeCategory, settings.language]);
-
-  const handleImportBoard = useCallback(
-    async (file: File) => {
-      try {
-        const board = await readOBFFile(file);
-        const imported = importOBFToSymbols(board);
-        if (imported.length === 0) {
-          alert(t(settings.language, "importBoardError"));
-          return;
-        }
-        setUserBoards((prev) =>
-          prev.map((b) =>
-            b.id === activeCategoryId ? { ...b, symbols: [...b.symbols, ...imported] } : b
-          )
-        );
-      } catch {
-        alert(t(settings.language, "importBoardError"));
-      }
-    },
-    [activeCategoryId, settings.language]
-  );
+  const handleImportBoards = useCallback((boards: UserBoard[]) => {
+    setUserBoards((prev) => [...prev, ...boards]);
+  }, []);
 
   const handleUpdateUserBoards = useCallback((boards: UserBoard[]) => {
     setUserBoards(boards);
@@ -495,6 +473,7 @@ export default function App() {
           setIsEditingTiles(false);
         }}
         onManageBoards={() => setShowManageBoards(true)}
+        onImportExport={() => setShowImportExport(true)}
         language={settings.language}
       />
 
@@ -507,8 +486,6 @@ export default function App() {
         onDeleteSymbol={isUserBoard ? handleDeleteCustomTile : undefined}
         isEditMode={isEditingTiles}
         onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
-        onExportBoard={isUserBoard ? handleExportBoard : undefined}
-        onImportBoard={isUserBoard ? handleImportBoard : undefined}
       />
 
       {showSettings && (
@@ -558,6 +535,15 @@ export default function App() {
           onUpdateUserBoards={handleUpdateUserBoards}
           onToggleBuiltIn={handleToggleBuiltIn}
           onClose={() => setShowManageBoards(false)}
+        />
+      )}
+
+      {showImportExport && (
+        <ImportExportDialog
+          language={settings.language}
+          allCategories={allCategories}
+          onImportBoards={handleImportBoards}
+          onClose={() => setShowImportExport(false)}
         />
       )}
     </div>

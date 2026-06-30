@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, X } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { t, type Language } from "../i18n";
@@ -30,6 +30,9 @@ export function ManageBoardsDialog({
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [newBoardIcon, setNewBoardIcon] = useState("pen-square");
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renamingValue, setRenamingValue] = useState("");
+  const skipRenameBlurRef = useRef(false);
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef);
 
@@ -59,6 +62,34 @@ export function ManageBoardsDialog({
   function handleDeleteBoard(id: string) {
     if (!window.confirm(t(language, "confirmDeleteBoard"))) return;
     onUpdateUserBoards(userBoards.filter((b) => b.id !== id));
+  }
+
+  function handleStartRename(board: UserBoard) {
+    skipRenameBlurRef.current = false;
+    setRenamingId(board.id);
+    setRenamingValue(board.label);
+  }
+
+  function handleSaveRename(id: string) {
+    const name = renamingValue.trim();
+    if (name) {
+      onUpdateUserBoards(userBoards.map((b) => (b.id === id ? { ...b, label: name } : b)));
+    }
+    setRenamingId(null);
+    setRenamingValue("");
+  }
+
+  function handleCancelRename() {
+    setRenamingId(null);
+    setRenamingValue("");
+  }
+
+  function handleRenameBlur(id: string) {
+    if (skipRenameBlurRef.current) {
+      skipRenameBlurRef.current = false;
+      return;
+    }
+    handleSaveRename(id);
   }
 
   function moveBoard(index: number, direction: -1 | 1) {
@@ -115,7 +146,11 @@ export function ManageBoardsDialog({
                   onChange={(e) => setNewBoardName(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateBoard();
-                    if (e.key === "Escape") setShowNewBoardForm(false);
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowNewBoardForm(false);
+                    }
                   }}
                   autoFocus
                   maxLength={40}
@@ -165,7 +200,32 @@ export function ManageBoardsDialog({
               {userBoards.map((board, index) => (
                 <li key={board.id} className="manage-boards-list__item">
                   <IconVisual value={board.emoji} className="manage-boards-list__icon" />
-                  <span className="manage-boards-list__label">{board.label}</span>
+                  {renamingId === board.id ? (
+                    <input
+                      type="text"
+                      className="manage-boards-list__rename-input"
+                      value={renamingValue}
+                      onChange={(e) => setRenamingValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          e.currentTarget.blur();
+                        }
+                        if (e.key === "Escape") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          skipRenameBlurRef.current = true;
+                          handleCancelRename();
+                        }
+                      }}
+                      onBlur={() => handleRenameBlur(board.id)}
+                      autoFocus
+                      maxLength={40}
+                      aria-label={t(language, "boardName")}
+                    />
+                  ) : (
+                    <span className="manage-boards-list__label">{board.label}</span>
+                  )}
                   <div className="manage-boards-list__actions">
                     <button
                       type="button"
@@ -184,6 +244,14 @@ export function ManageBoardsDialog({
                       aria-label={`${t(language, "moveDown")}: ${board.label}`}
                     >
                       <ArrowDown className="manage-boards-list__btn-icon" aria-hidden="true" focusable="false" />
+                    </button>
+                    <button
+                      type="button"
+                      className="manage-boards-list__btn"
+                      onClick={() => handleStartRename(board)}
+                      aria-label={`${t(language, "renameBoard")}: ${board.label}`}
+                    >
+                      <Pencil className="manage-boards-list__btn-icon" aria-hidden="true" focusable="false" />
                     </button>
                     <button
                       type="button"

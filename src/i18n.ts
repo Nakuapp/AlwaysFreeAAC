@@ -121,7 +121,21 @@ type UiStringKey =
   | "showBoard"
   | "hideBoard"
   | "userBoards"
-  | "builtInBoards";
+  | "builtInBoards"
+  | "renameBoard"
+  | "importExport"
+  | "exportSection"
+  | "importSection"
+  | "exportBoardsLabel"
+  | "exportSelected"
+  | "exportFormatNone"
+  | "exportFormatOBF"
+  | "exportFormatOBZ"
+  | "importBoardHint"
+  | "importSuccess"
+  | "importedBoard"
+  | "selectAll"
+  | "deselectAll";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -222,8 +236,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     moreVoicesTipAndroid: "Tip: For more diverse voices, open your device Settings and look for Accessibility → Text-to-Speech to install additional voice packs.",
     moreVoicesTipWeb: "Tip: Voice quality and variety depend on your browser and OS. Chrome and Edge on desktop typically offer the most options.",
     exportBoard: "Export (.obf)",
-    importBoard: "Import (.obf)",
-    importBoardError: "Could not import board. Please select a valid .obf file.",
+    importBoard: "Import (.obf / .obz)",
+    importBoardError: "Could not import board. Please select a valid .obf or .obz file.",
     manageBoards: "Manage Boards",
     newBoard: "New Board",
     boardName: "Board Name",
@@ -237,6 +251,20 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     hideBoard: "Hide board",
     userBoards: "My Boards",
     builtInBoards: "Built-in Boards",
+    renameBoard: "Rename board",
+    importExport: "Import / Export",
+    exportSection: "Export Boards",
+    importSection: "Import Boards",
+    exportBoardsLabel: "Select boards to export",
+    exportSelected: "Export Selected",
+    exportFormatNone: "Select at least one board to export.",
+    exportFormatOBF: "1 board selected → will download as .obf",
+    exportFormatOBZ: "2+ boards selected → will download as .obz",
+    importBoardHint: "Import a .obf (single board) or .obz (multiple boards) file. Each board is added as a new board.",
+    importSuccess: "Imported {{count}} board(s) successfully.",
+    importedBoard: "Imported Board",
+    selectAll: "Select all",
+    deselectAll: "Deselect all",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -336,8 +364,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     moreVoicesTipAndroid: "Consejo: Para más voces, abre Ajustes en tu dispositivo y busca Accesibilidad → Texto a voz para instalar paquetes de voces adicionales.",
     moreVoicesTipWeb: "Consejo: La calidad y variedad de voces dependen de tu navegador y sistema operativo. Chrome y Edge en escritorio suelen ofrecer más opciones.",
     exportBoard: "Exportar (.obf)",
-    importBoard: "Importar (.obf)",
-    importBoardError: "No se pudo importar el tablero. Selecciona un archivo .obf válido.",
+    importBoard: "Importar (.obf / .obz)",
+    importBoardError: "No se pudo importar el tablero. Selecciona un archivo .obf o .obz válido.",
     manageBoards: "Gestionar tableros",
     newBoard: "Nuevo tablero",
     boardName: "Nombre del tablero",
@@ -351,6 +379,20 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     hideBoard: "Ocultar tablero",
     userBoards: "Mis tableros",
     builtInBoards: "Tableros predeterminados",
+    renameBoard: "Renombrar tablero",
+    importExport: "Importar / Exportar",
+    exportSection: "Exportar tableros",
+    importSection: "Importar tableros",
+    exportBoardsLabel: "Seleccionar tableros para exportar",
+    exportSelected: "Exportar seleccionados",
+    exportFormatNone: "Selecciona al menos un tablero para exportar.",
+    exportFormatOBF: "1 tablero seleccionado → se descargará como .obf",
+    exportFormatOBZ: "2+ tableros seleccionados → se descargará como .obz",
+    importBoardHint: "Importa un archivo .obf (un tablero) o .obz (varios tableros). Cada tablero se añade como un nuevo tablero.",
+    importSuccess: "Se importaron {{count}} tablero(s) correctamente.",
+    importedBoard: "Tablero importado",
+    selectAll: "Seleccionar todo",
+    deselectAll: "Deseleccionar todo",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -450,8 +492,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     moreVoicesTipAndroid: "Conseil : Pour plus de voix, ouvrez les Paramètres de votre appareil et cherchez Accessibilité → Synthèse vocale pour installer des packs de voix supplémentaires.",
     moreVoicesTipWeb: "Conseil : La qualité et la variété des voix dépendent de votre navigateur et de votre système d'exploitation. Chrome et Edge sur ordinateur offrent généralement le plus d'options.",
     exportBoard: "Exporter (.obf)",
-    importBoard: "Importer (.obf)",
-    importBoardError: "Impossible d'importer le tableau. Sélectionnez un fichier .obf valide.",
+    importBoard: "Importer (.obf / .obz)",
+    importBoardError: "Impossible d'importer le tableau. Sélectionnez un fichier .obf ou .obz valide.",
     manageBoards: "Gérer les tableaux",
     newBoard: "Nouveau tableau",
     boardName: "Nom du tableau",
@@ -465,6 +507,20 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     hideBoard: "Masquer le tableau",
     userBoards: "Mes tableaux",
     builtInBoards: "Tableaux intégrés",
+    renameBoard: "Renommer le tableau",
+    importExport: "Importer / Exporter",
+    exportSection: "Exporter des tableaux",
+    importSection: "Importer des tableaux",
+    exportBoardsLabel: "Sélectionner les tableaux à exporter",
+    exportSelected: "Exporter la sélection",
+    exportFormatNone: "Sélectionnez au moins un tableau à exporter.",
+    exportFormatOBF: "1 tableau sélectionné → téléchargement en .obf",
+    exportFormatOBZ: "2+ tableaux sélectionnés → téléchargement en .obz",
+    importBoardHint: "Importez un fichier .obf (un tableau) ou .obz (plusieurs tableaux). Chaque tableau est ajouté comme un nouveau tableau.",
+    importSuccess: "{{count}} tableau(x) importé(s) avec succès.",
+    importedBoard: "Tableau importé",
+    selectAll: "Tout sélectionner",
+    deselectAll: "Tout désélectionner",
   },
 };
 

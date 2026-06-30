@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAppIcon, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl } from "../iconUtils";
+import { getAppIcon, getAppIconStyle, isImageDataUrl, isExternalImageUrl } from "../iconUtils";
 
 interface IconVisualProps {
   value: string;
@@ -13,21 +13,37 @@ export function IconVisual({ value, className }: IconVisualProps) {
     setImageFailed(false);
   }, [value]);
 
-  const isImage = isRasterImageDataUrl(value) || isExternalImageUrl(value);
+  const isImage = isImageDataUrl(value) || isExternalImageUrl(value);
 
-  if (isImage && !imageFailed) {
-    return (
-      <img
-        className={`${className} ${className}--img`}
-        src={value}
-        alt=""
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-        referrerPolicy="no-referrer"
-        onError={() => setImageFailed(true)}
-      />
-    );
+  if (isImage) {
+    if (!imageFailed) {
+      return (
+        <img
+          className={`${className} ${className}--img`}
+          src={value}
+          alt=""
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setImageFailed(true)}
+        />
+      );
+    }
+    // Image failed to load — show a placeholder icon instead of raw URL text
+    const FallbackIcon = getAppIcon("image-icon");
+    if (FallbackIcon) {
+      return (
+        <FallbackIcon
+          className={className}
+          aria-hidden="true"
+          focusable="false"
+          strokeWidth={2}
+          fill="none"
+        />
+      );
+    }
+    return <span className={className} aria-hidden="true" />;
   }
 
   const Icon = getAppIcon(value);
