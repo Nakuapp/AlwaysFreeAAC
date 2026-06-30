@@ -328,19 +328,39 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
 
     const board = parsed as OBFBoard;
 
+    // Build a reverse-lookup from imageId → zip path using manifest.paths.images
+    const manifestImagePaths: Record<string, string> =
+      manifest.paths?.images ?? {};
+
     // Inline any bundled image files back into the board's image entries
     for (const img of board.images ?? []) {
-      if (img.data || img.url) continue;
-      // Some OBZ producers add a non-spec "path" key on image entries
-      const imgPath = (img as unknown as Record<string, unknown>).path as
+      // Already a data URI — nothing to do
+      if (img.data) continue;
+
+      // Determine the zip-internal path for this image, checking multiple sources:
+      //   1. Non-spec "path" key some producers add directly on the image entry
+      //   2. manifest.paths.images[id] (OBZ spec)
+      //   3. img.url when it is a relative path (not an absolute http/data URI)
+      const nonSpecPath = (img as unknown as Record<string, unknown>).path as
         | string
         | undefined;
+      const manifestPath = manifestImagePaths[img.id];
+      const relativeUrl =
+        img.url && !img.url.startsWith("http") && !img.url.startsWith("data:")
+          ? img.url
+          : undefined;
+
+      const imgPath = nonSpecPath ?? manifestPath ?? relativeUrl;
       if (!imgPath) continue;
+
       const imgFile = zip.file(imgPath);
       if (!imgFile) continue;
+
       const contentType = img.content_type ?? "image/png";
       const b64 = await imgFile.async("base64");
       img.data = `data:${contentType};base64,${b64}`;
+      // Clear the relative URL now that we've inlined the data
+      if (relativeUrl) img.url = undefined;
     }
 
     boards.push(board);

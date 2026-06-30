@@ -133,6 +133,7 @@ type UiStringKey =
   | "exportFormatOBZ"
   | "importBoardHint"
   | "importSuccess"
+  | "importedBoard"
   | "selectAll"
   | "deselectAll";
 
@@ -261,6 +262,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportFormatOBZ: "2+ boards selected → will download as .obz",
     importBoardHint: "Import a .obf (single board) or .obz (multiple boards) file. Each board is added as a new board.",
     importSuccess: "Imported {{count}} board(s) successfully.",
+    importedBoard: "Imported Board",
     selectAll: "Select all",
     deselectAll: "Deselect all",
   },
@@ -388,6 +390,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportFormatOBZ: "2+ tableros seleccionados → se descargará como .obz",
     importBoardHint: "Importa un archivo .obf (un tablero) o .obz (varios tableros). Cada tablero se añade como un nuevo tablero.",
     importSuccess: "Se importaron {{count}} tablero(s) correctamente.",
+    importedBoard: "Tablero importado",
     selectAll: "Seleccionar todo",
     deselectAll: "Deseleccionar todo",
   },
@@ -515,6 +518,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportFormatOBZ: "2+ tableaux sélectionnés → téléchargement en .obz",
     importBoardHint: "Importez un fichier .obf (un tableau) ou .obz (plusieurs tableaux). Chaque tableau est ajouté comme un nouveau tableau.",
     importSuccess: "{{count}} tableau(x) importé(s) avec succès.",
+    importedBoard: "Tableau importé",
     selectAll: "Tout sélectionner",
     deselectAll: "Tout désélectionner",
   },

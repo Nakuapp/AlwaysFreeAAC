@@ -28,11 +28,11 @@ interface ImportExportDialogProps {
 
 type ImportStatus = "idle" | "success" | "error";
 
-function obfBoardToUserBoard(board: OBFBoard): UserBoard {
+function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
   const symbols = importOBFToSymbols(board);
   return {
     id: `import-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    label: board.name?.trim() || "Imported Board",
+    label: board.name?.trim() || t(language, "importedBoard"),
     emoji: "pen-square",
     symbols,
   };
@@ -116,7 +116,7 @@ export function ImportExportDialog({
       }
 
       const newBoards = obfBoards
-        .map(obfBoardToUserBoard)
+        .map((b) => obfBoardToUserBoard(b, language))
         .filter((b) => b.symbols.length > 0);
 
       if (newBoards.length === 0) {
