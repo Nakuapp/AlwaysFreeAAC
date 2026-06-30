@@ -34,11 +34,9 @@ async function run() {
   for (const { label, width, height } of VIEWPORTS) {
     const page = await browser.newPage({ viewport: { width, height } });
 
-    // Wait for the app to fully render before capturing.
-    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
-
-    // Allow any animations / font loading to settle.
-    await page.waitForTimeout(1000);
+    // Wait for the app shell to render before capturing.
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.app-header', { state: 'visible' });
 
     const file = join(OUT_DIR, `screenshot-${label}.png`);
     await page.screenshot({ path: file, fullPage: false });
