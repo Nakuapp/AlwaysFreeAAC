@@ -152,7 +152,7 @@ src/
 │   ├── AddTileDialog.tsx # Add/edit custom tile dialog (with icon picker & image upload)
 │   ├── CategoryNav.tsx   # Horizontal scrollable category tabs
 │   ├── IconVisual.tsx    # Renders icon or image for a tile
-│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, delete)
+│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete) and toggle built-in board visibility
 │   ├── SentenceBar.tsx   # Sentence builder + speak/clear controls
 │   ├── Settings.tsx      # Settings dialog (voice, speed, grid, language, theme)
 │   ├── SymbolButton.tsx  # Individual symbol tile

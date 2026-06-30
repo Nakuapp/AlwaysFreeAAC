@@ -121,7 +121,8 @@ type UiStringKey =
   | "showBoard"
   | "hideBoard"
   | "userBoards"
-  | "builtInBoards";
+  | "builtInBoards"
+  | "renameBoard";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -237,6 +238,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     hideBoard: "Hide board",
     userBoards: "My Boards",
     builtInBoards: "Built-in Boards",
+    renameBoard: "Rename board",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -351,6 +353,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     hideBoard: "Ocultar tablero",
     userBoards: "Mis tableros",
     builtInBoards: "Tableros predeterminados",
+    renameBoard: "Renombrar tablero",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -465,6 +468,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     hideBoard: "Masquer le tableau",
     userBoards: "Mes tableaux",
     builtInBoards: "Tableaux intégrés",
+    renameBoard: "Renommer le tableau",
   },
 };
 
