@@ -96,13 +96,31 @@ type UiStringKey =
   | "changeImage"
   | "cancel"
   | "save"
+  | "close"
+  | "skipToMain"
   | "noCustomTiles"
   | "voiceFilterLabel"
   | "voiceFilterPlaceholder"
   | "voiceFilterNoMatch"
   | "onlineVoiceSuffix"
   | "moreVoicesTipAndroid"
-  | "moreVoicesTipWeb";
+  | "moreVoicesTipWeb"
+  | "exportBoard"
+  | "importBoard"
+  | "importBoardError"
+  | "manageBoards"
+  | "newBoard"
+  | "boardName"
+  | "boardNamePlaceholder"
+  | "createBoard"
+  | "deleteBoard"
+  | "confirmDeleteBoard"
+  | "moveUp"
+  | "moveDown"
+  | "showBoard"
+  | "hideBoard"
+  | "userBoards"
+  | "builtInBoards";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -192,6 +210,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeImage: "Change Image",
     cancel: "Cancel",
     save: "Save",
+    close: "Close",
+    skipToMain: "Skip to main content",
     noCustomTiles: "No custom tiles yet. Tap \"+ Add Word\" to create one.",
     voiceFilterLabel: "Filter voices",
     voiceFilterPlaceholder: "Search by name or language…",
@@ -199,6 +219,22 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     onlineVoiceSuffix: "(Online)",
     moreVoicesTipAndroid: "Tip: For more diverse voices, open your device Settings and look for Accessibility → Text-to-Speech to install additional voice packs.",
     moreVoicesTipWeb: "Tip: Voice quality and variety depend on your browser and OS. Chrome and Edge on desktop typically offer the most options.",
+    exportBoard: "Export (.obf)",
+    importBoard: "Import (.obf)",
+    importBoardError: "Could not import board. Please select a valid .obf file.",
+    manageBoards: "Manage Boards",
+    newBoard: "New Board",
+    boardName: "Board Name",
+    boardNamePlaceholder: "e.g. School, Home…",
+    createBoard: "Create Board",
+    deleteBoard: "Delete Board",
+    confirmDeleteBoard: "Delete this board and all its tiles?",
+    moveUp: "Move up",
+    moveDown: "Move down",
+    showBoard: "Show board",
+    hideBoard: "Hide board",
+    userBoards: "My Boards",
+    builtInBoards: "Built-in Boards",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -287,6 +323,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeImage: "Cambiar imagen",
     cancel: "Cancelar",
     save: "Guardar",
+    close: "Cerrar",
+    skipToMain: "Saltar al contenido principal",
     noCustomTiles: "Aún no hay fichas. Toca \"+ Agregar palabra\" para crear una.",
     voiceFilterLabel: "Filtrar voces",
     voiceFilterPlaceholder: "Buscar por nombre o idioma…",
@@ -294,6 +332,22 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     onlineVoiceSuffix: "(En línea)",
     moreVoicesTipAndroid: "Consejo: Para más voces, abre Ajustes en tu dispositivo y busca Accesibilidad → Texto a voz para instalar paquetes de voces adicionales.",
     moreVoicesTipWeb: "Consejo: La calidad y variedad de voces dependen de tu navegador y sistema operativo. Chrome y Edge en escritorio suelen ofrecer más opciones.",
+    exportBoard: "Exportar (.obf)",
+    importBoard: "Importar (.obf)",
+    importBoardError: "No se pudo importar el tablero. Selecciona un archivo .obf válido.",
+    manageBoards: "Gestionar tableros",
+    newBoard: "Nuevo tablero",
+    boardName: "Nombre del tablero",
+    boardNamePlaceholder: "Ej. Escuela, Casa…",
+    createBoard: "Crear tablero",
+    deleteBoard: "Eliminar tablero",
+    confirmDeleteBoard: "¿Eliminar este tablero y todos sus mosaicos?",
+    moveUp: "Mover arriba",
+    moveDown: "Mover abajo",
+    showBoard: "Mostrar tablero",
+    hideBoard: "Ocultar tablero",
+    userBoards: "Mis tableros",
+    builtInBoards: "Tableros predeterminados",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -382,6 +436,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeImage: "Changer l'image",
     cancel: "Annuler",
     save: "Enregistrer",
+    close: "Fermer",
+    skipToMain: "Passer au contenu principal",
     noCustomTiles: "Aucune fiche pour l'instant. Appuyez sur \"+ Ajouter un mot\" pour en créer une.",
     voiceFilterLabel: "Filtrer les voix",
     voiceFilterPlaceholder: "Rechercher par nom ou langue…",
@@ -389,6 +445,22 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     onlineVoiceSuffix: "(En ligne)",
     moreVoicesTipAndroid: "Conseil : Pour plus de voix, ouvrez les Paramètres de votre appareil et cherchez Accessibilité → Synthèse vocale pour installer des packs de voix supplémentaires.",
     moreVoicesTipWeb: "Conseil : La qualité et la variété des voix dépendent de votre navigateur et de votre système d'exploitation. Chrome et Edge sur ordinateur offrent généralement le plus d'options.",
+    exportBoard: "Exporter (.obf)",
+    importBoard: "Importer (.obf)",
+    importBoardError: "Impossible d'importer le tableau. Sélectionnez un fichier .obf valide.",
+    manageBoards: "Gérer les tableaux",
+    newBoard: "Nouveau tableau",
+    boardName: "Nom du tableau",
+    boardNamePlaceholder: "Ex. École, Maison…",
+    createBoard: "Créer le tableau",
+    deleteBoard: "Supprimer le tableau",
+    confirmDeleteBoard: "Supprimer ce tableau et toutes ses fiches ?",
+    moveUp: "Monter",
+    moveDown: "Descendre",
+    showBoard: "Afficher le tableau",
+    hideBoard: "Masquer le tableau",
+    userBoards: "Mes tableaux",
+    builtInBoards: "Tableaux intégrés",
   },
 };
 

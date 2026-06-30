@@ -1,3 +1,4 @@
+import { Settings2 } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { IconVisual } from "./IconVisual";
@@ -7,6 +8,7 @@ interface CategoryNavProps {
   categories: Category[];
   activeId: string;
   onSelect: (id: string) => void;
+  onManageBoards: () => void;
   language: Language;
 }
 
@@ -14,6 +16,7 @@ export function CategoryNav({
   categories,
   activeId,
   onSelect,
+  onManageBoards,
   language,
 }: CategoryNavProps) {
   return (
@@ -33,6 +36,17 @@ export function CategoryNav({
             </button>
           </li>
         ))}
+        <li role="none" className="category-nav__manage-item">
+          <button
+            type="button"
+            className="category-nav__btn category-nav__btn--manage"
+            onClick={onManageBoards}
+            aria-label={t(language, "manageBoards")}
+          >
+            <Settings2 className="category-nav__icon" aria-hidden="true" focusable="false" />
+            <span className="category-nav__label">{t(language, "manageBoards")}</span>
+          </button>
+        </li>
       </ul>
     </nav>
   );

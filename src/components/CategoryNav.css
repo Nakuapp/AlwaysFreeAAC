@@ -92,3 +92,17 @@
     font-size: 0.8rem;
   }
 }
+
+.category-nav__manage-item {
+  margin-left: auto;
+}
+
+.category-nav__btn--manage {
+  color: var(--text-secondary);
+  border-left: 1px solid var(--border-soft);
+}
+
+.category-nav__btn--manage:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+  color: var(--text-primary);
+}
