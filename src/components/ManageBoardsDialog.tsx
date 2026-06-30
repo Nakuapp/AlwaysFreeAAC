@@ -194,7 +194,10 @@ export function ManageBoardsDialog({
                       onChange={(e) => setRenamingValue(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleSaveRename(board.id);
-                        if (e.key === "Escape") handleCancelRename();
+                        if (e.key === "Escape") {
+                          e.nativeEvent.stopPropagation();
+                          handleCancelRename();
+                        }
                       }}
                       onBlur={() => handleSaveRename(board.id)}
                       autoFocus
