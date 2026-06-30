@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAppIcon, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl } from "../icons";
+import { getAppIcon, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl } from "../iconUtils";
 
 interface IconVisualProps {
   value: string;
