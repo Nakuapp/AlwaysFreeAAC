@@ -116,7 +116,7 @@ To generate a branch-specific test build without publishing a release, run the `
 ## App Logo & Native App Icons
 
 - Brand source icon: `resources/icon.png` (1024×1024)
-- Web icons: `public/app-icon.svg`, `public/app-icon-192.png`, `public/app-icon-512.png`, `public/favicon.svg`
+- Web icons: `public/app-logo.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
 - Android/iOS launch icons are generated in CI with `@capacitor/assets` during Android and iOS workflows.
 
 To regenerate native icons locally (after `npx cap add android` / `npx cap add ios`):
@@ -162,12 +162,9 @@ src/
 ├── App.css               # App shell styles
 └── index.css             # Global reset + CSS variables
 public/
-├── app-icon-192.png      # PWA icon
+├── app-icon-192.png      # PWA icon + browser favicon
 ├── app-icon-512.png      # PWA icon + maskable icon
-├── app-icon.svg          # Scalable app icon
-├── app-logo.svg          # Marketing/app logo
-├── favicon.svg           # Browser tab icon
-└── icons.svg             # Additional SVG icon sheet
+└── app-logo.png          # Header/app logo
 resources/
 └── icon.png              # Source image for native Android/iOS icon generation
 ```
