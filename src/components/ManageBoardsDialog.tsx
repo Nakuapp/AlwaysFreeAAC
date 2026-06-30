@@ -193,9 +193,12 @@ export function ManageBoardsDialog({
                       value={renamingValue}
                       onChange={(e) => setRenamingValue(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSaveRename(board.id);
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          e.currentTarget.blur();
+                        }
                         if (e.key === "Escape") {
-                          e.nativeEvent.stopPropagation();
+                          e.stopPropagation();
                           handleCancelRename();
                         }
                       }}
