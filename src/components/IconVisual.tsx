@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAppIcon, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl } from "../iconUtils";
+import { getAppIcon, getAppIconStyle, isImageDataUrl, isExternalImageUrl } from "../iconUtils";
 
 interface IconVisualProps {
   value: string;
@@ -13,7 +13,7 @@ export function IconVisual({ value, className }: IconVisualProps) {
     setImageFailed(false);
   }, [value]);
 
-  const isImage = isRasterImageDataUrl(value) || isExternalImageUrl(value);
+  const isImage = isImageDataUrl(value) || isExternalImageUrl(value);
 
   if (isImage) {
     if (!imageFailed) {

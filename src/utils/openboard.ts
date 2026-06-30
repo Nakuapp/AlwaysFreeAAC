@@ -1,5 +1,5 @@
 /**
- * Utilities for the Open Board Format (OBF) v0.1 and Open Board Zip (OBZ) v0.2
+ * Utilities for the Open Board Format (OBF) v0.1 and Open Board Zip (OBZ)
  * Specification: https://www.openboardformat.org/docs
  *
  * OBF  — single-board JSON file.
@@ -10,7 +10,7 @@
  */
 
 import type { Category, Symbol } from "../data/vocabulary";
-import { isRasterImageDataUrl } from "../iconUtils";
+import { isImageDataUrl } from "../iconUtils";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -68,8 +68,8 @@ const COLOR_TO_RGBA: Record<string, string> = {
 };
 
 /** Reverse: OBF rgba/hex → app color name */
-function colorNameFromOBF(value: string | undefined): string | undefined {
-  if (!value) return undefined;
+function colorNameFromOBF(value: unknown): string | undefined {
+  if (typeof value !== "string" || !value) return undefined;
   for (const [name, rgba] of Object.entries(COLOR_TO_RGBA)) {
     if (rgba === value) return name;
   }
@@ -198,31 +198,40 @@ export async function readOBFFile(file: File): Promise<OBFBoard> {
 
 /** Convert OBF buttons into app Symbols (for import into My Words) */
 export function importOBFToSymbols(board: OBFBoard): Symbol[] {
+  const images = Array.isArray(board.images) ? board.images : [];
+  const buttons = Array.isArray(board.buttons) ? board.buttons : [];
   const imageMap = new Map<string, OBFImage>(
-    (board.images ?? []).map((img) => [img.id, img])
+    images
+      .filter((img): img is OBFImage & { id: string } => typeof img?.id === "string")
+      .map((img) => [img.id, img])
   );
 
-  return (board.buttons ?? [])
+  return buttons
     .map((btn): Symbol | null => {
-      if (!btn.label?.trim()) return null;
+      const label = asString(btn.label)?.trim();
+      if (!label) return null;
 
       let emoji = "❓";
       if (btn.image_id) {
         const img = imageMap.get(btn.image_id);
         if (img) {
-          if (isRasterImageDataUrl(img.data ?? "")) {
-            emoji = img.data!;
-          } else if (img.url?.startsWith("https://")) {
-            emoji = img.url;
+          const data = asString(img.data);
+          const url = asString(img.url);
+          if (data && isImageDataUrl(data)) {
+            emoji = data;
+          } else if (url?.startsWith("https://")) {
+            emoji = url;
           }
         }
       }
 
+      const vocalization = asString(btn.vocalization)?.trim();
+
       return {
         id: `obf-${btn.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        label: btn.label.trim(),
+        label,
         emoji,
-        speak: btn.vocalization || undefined,
+        speak: vocalization || undefined,
         color: colorNameFromOBF(btn.background_color),
         isCustom: true,
       };
@@ -256,6 +265,10 @@ function inferImageMimeType(path: string): string | undefined {
   const withoutQuery = path.split("?")[0];
   const ext = withoutQuery.split(".").pop()?.toLowerCase();
   return ext ? IMAGE_EXTENSION_TO_MIME[ext] : undefined;
+}
+
+function asString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }
 
 /**
@@ -329,6 +342,7 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
   const boards: OBFBoard[] = [];
 
   for (const boardPath of Object.values(manifest.paths.boards)) {
+    if (typeof boardPath !== "string" || !boardPath) continue;
     const boardFile = zip.file(boardPath);
     if (!boardFile) continue;
 
@@ -345,25 +359,31 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
     const board = parsed as OBFBoard;
 
     // Build a reverse-lookup from imageId → zip path using manifest.paths.images
-    const manifestImagePaths: Record<string, string> =
-      manifest.paths?.images ?? {};
+    const manifestImagePaths =
+      typeof manifest.paths?.images === "object" && manifest.paths.images !== null
+        ? manifest.paths.images
+        : {};
+    const boardImages = Array.isArray(board.images) ? board.images : [];
 
     // Inline any bundled image files back into the board's image entries
-    for (const img of board.images ?? []) {
+    for (const img of boardImages) {
       // Already a data URI — nothing to do
-      if (img.data) continue;
+      if (typeof img.data === "string" && img.data) continue;
 
       // Determine the zip-internal path for this image, checking multiple sources:
       //   1. Non-spec "path" key some producers add directly on the image entry
       //   2. manifest.paths.images[id] (OBZ spec)
       //   3. img.url when it is a relative path (not an absolute http/data URI)
-      const nonSpecPath = (img as unknown as Record<string, unknown>).path as
-        | string
-        | undefined;
-      const manifestPath = manifestImagePaths[img.id];
+      const nonSpecPath = asString((img as Record<string, unknown>).path);
+      const imageId = asString(img.id);
+      const manifestPath =
+        imageId && typeof manifestImagePaths[imageId] === "string"
+          ? manifestImagePaths[imageId]
+          : undefined;
+      const imageUrl = asString(img.url);
       const relativeUrl =
-        img.url && !img.url.startsWith("http") && !img.url.startsWith("data:")
-          ? img.url
+        imageUrl && !imageUrl.startsWith("http") && !imageUrl.startsWith("data:")
+          ? imageUrl
           : undefined;
 
       const imgPath = nonSpecPath ?? manifestPath ?? relativeUrl;
@@ -372,7 +392,7 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
       const imgFile = zip.file(imgPath);
       if (!imgFile) continue;
 
-      const contentType = img.content_type ?? inferImageMimeType(imgPath) ?? "image/png";
+      const contentType = asString(img.content_type) ?? inferImageMimeType(imgPath) ?? "image/png";
       const b64 = await imgFile.async("base64");
       img.data = `data:${contentType};base64,${b64}`;
       // Clear the relative URL now that we've inlined the data

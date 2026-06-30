@@ -32,6 +32,7 @@ export function ManageBoardsDialog({
   const [newBoardIcon, setNewBoardIcon] = useState("pen-square");
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renamingValue, setRenamingValue] = useState("");
+  const skipRenameBlurRef = useRef(false);
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef);
 
@@ -64,6 +65,7 @@ export function ManageBoardsDialog({
   }
 
   function handleStartRename(board: UserBoard) {
+    skipRenameBlurRef.current = false;
     setRenamingId(board.id);
     setRenamingValue(board.label);
   }
@@ -80,6 +82,14 @@ export function ManageBoardsDialog({
   function handleCancelRename() {
     setRenamingId(null);
     setRenamingValue("");
+  }
+
+  function handleRenameBlur(id: string) {
+    if (skipRenameBlurRef.current) {
+      skipRenameBlurRef.current = false;
+      return;
+    }
+    handleSaveRename(id);
   }
 
   function moveBoard(index: number, direction: -1 | 1) {
@@ -136,7 +146,11 @@ export function ManageBoardsDialog({
                   onChange={(e) => setNewBoardName(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateBoard();
-                    if (e.key === "Escape") setShowNewBoardForm(false);
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowNewBoardForm(false);
+                    }
                   }}
                   autoFocus
                   maxLength={40}
@@ -198,11 +212,13 @@ export function ManageBoardsDialog({
                           e.currentTarget.blur();
                         }
                         if (e.key === "Escape") {
+                          e.preventDefault();
                           e.stopPropagation();
+                          skipRenameBlurRef.current = true;
                           handleCancelRename();
                         }
                       }}
-                      onBlur={() => handleSaveRename(board.id)}
+                      onBlur={() => handleRenameBlur(board.id)}
                       autoFocus
                       maxLength={40}
                       aria-label={t(language, "boardName")}
