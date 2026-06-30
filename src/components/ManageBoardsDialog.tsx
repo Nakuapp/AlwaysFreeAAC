@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { t, type Language } from "../i18n";
-import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../icons";
+import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
 import { IconVisual } from "./IconVisual";
 import type { UserBoard } from "../App";
 import "./ManageBoardsDialog.css";

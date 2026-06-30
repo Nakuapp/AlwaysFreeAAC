@@ -8,7 +8,7 @@
  */
 
 import type { Category, Symbol } from "../data/vocabulary";
-import { isRasterImageDataUrl } from "../icons";
+import { isRasterImageDataUrl } from "../iconUtils";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 

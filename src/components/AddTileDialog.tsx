@@ -4,7 +4,8 @@ import { ImageIcon, Search, Upload, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { type AppIconName, type AppIconStyle, CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../icons";
+import { type AppIconName, type AppIconStyle } from "../icons";
+import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
 import { IconVisual } from "./IconVisual";
 import "./AddTileDialog.css";
 
