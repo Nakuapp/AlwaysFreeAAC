@@ -32,6 +32,7 @@ type UiStringKey =
   | "noVoices"
   | "defaultVoice"
   | "previewVoice"
+  | "voicePreviewSample"
   | "vocalStyle"
   | "customNatural"
   | "baritone"
@@ -176,6 +177,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     light: "Light",
     dark: "Dark",
     previewVoice: "Preview voice",
+    voicePreviewSample: "The quick brown fox jumps over the lazy dog.",
     myWords: "My Words",
     addWord: "+ Add Word",
     editTiles: "Edit",
@@ -289,6 +291,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     light: "Claro",
     dark: "Oscuro",
     previewVoice: "Previsualizar voz",
+    voicePreviewSample: "Benjamín pidió una bebida de kiwi y fresa; Noé la quiso sin hielo.",
     myWords: "Mis palabras",
     addWord: "+ Agregar palabra",
     editTiles: "Editar",
@@ -402,6 +405,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     light: "Clair",
     dark: "Sombre",
     previewVoice: "Aperçu de la voix",
+    voicePreviewSample: "Voyez le brick géant que j'examine près du wharf.",
     myWords: "Mes mots",
     addWord: "+ Ajouter un mot",
     editTiles: "Modifier",
