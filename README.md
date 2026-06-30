@@ -109,6 +109,8 @@ npm run lint       # Lint source files
 
 To publish a new release, run the `Release Apps` GitHub Actions workflow with a version number (e.g. `1.2.3`). It builds the web zip, Android APK, and iOS IPA and publishes a GitHub release with all artifacts.
 
+To generate a branch-specific test build without publishing a release, run the `Test Mobile Builds` workflow from the branch you want using the **Run workflow** branch selector. Choose Android, iOS, or both, and optionally provide a custom artifact label.
+
 ---
 
 ## App Logo & Native App Icons
