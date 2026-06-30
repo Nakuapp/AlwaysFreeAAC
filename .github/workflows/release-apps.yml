@@ -46,18 +46,20 @@ jobs:
       version: ${{ needs.prepare.outputs.release_tag }}
 
   android:
-    name: Build Android Asset
+    name: Build Android Play Bundle
     needs: prepare
     uses: ./.github/workflows/android.yml
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
+      artifact_type: release_aab
 
   ios:
-    name: Build iOS Asset
+    name: Build iOS App Store Archive
     needs: prepare
     uses: ./.github/workflows/ios.yml
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
+      artifact_type: app_store_archive
 
   publish:
     name: Publish GitHub Release

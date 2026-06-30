@@ -35,7 +35,7 @@ The web app works on any device and can be added to your home screen for quick a
 
 ## Releases
 
-Download the latest Android APK or iOS IPA from the [Releases](../../releases) page.
+Download the latest web zip, Android Play Store bundle (`.aab`), and iOS App Store archive (`.xcarchive.zip`) from the [Releases](../../releases) page.
 
 ---
 
@@ -107,9 +107,9 @@ npm run preview    # Preview production build
 npm run lint       # Lint source files
 ```
 
-To publish a new release, run the `Release Apps` GitHub Actions workflow with a version number (e.g. `1.2.3`). It builds the web zip, Android APK, and iOS IPA and publishes a GitHub release with all artifacts.
+To publish a new release, run the `Release Apps` GitHub Actions workflow with a version number (e.g. `1.2.3`). It builds the web zip, Android Play Store app bundle (`.aab`), and iOS App Store archive (`.xcarchive.zip`) and publishes a GitHub release with all artifacts.
 
-To generate a branch-specific test build without publishing a release, run the `Test Mobile Builds` workflow from the branch you want using the **Run workflow** branch selector. Choose Android, iOS, or both, and optionally provide a custom artifact label.
+To generate a branch-specific test build without publishing a release, run the `Test Mobile Builds` workflow from the branch you want using the **Run workflow** branch selector. Choose Android, iOS, or both, and optionally provide a custom artifact label. Test mobile builds default to a debug Android APK and a sideload-friendly iOS IPA.
 
 ---
 
