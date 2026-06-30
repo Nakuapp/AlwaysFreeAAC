@@ -261,7 +261,7 @@ export async function exportCategoriesToOBZ(
     const safeId = category.id.replace(/[^a-z0-9_-]/gi, "_");
     const boardPath = `boards/${safeId}.obf`;
     zip.file(boardPath, JSON.stringify(board, null, 2));
-    boardPaths[boardPath] = boardPath;
+    boardPaths[safeId] = boardPath;
     if (!rootPath) rootPath = boardPath;
   }
 
