@@ -242,6 +242,22 @@ export interface OBZManifest {
   };
 }
 
+const IMAGE_EXTENSION_TO_MIME: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  bmp: "image/bmp",
+  svg: "image/svg+xml",
+};
+
+function inferImageMimeType(path: string): string | undefined {
+  const withoutQuery = path.split("?")[0];
+  const ext = withoutQuery.split(".").pop()?.toLowerCase();
+  return ext ? IMAGE_EXTENSION_TO_MIME[ext] : undefined;
+}
+
 /**
  * Package one or more categories as an OBZ archive (ZIP containing OBF boards
  * and a manifest.json).  Returns the zip Blob and a suggested filename.
@@ -266,7 +282,7 @@ export async function exportCategoriesToOBZ(
   }
 
   const manifest: OBZManifest = {
-    format: "open-board-0.2",
+    format: "open-board-0.1",
     root: rootPath,
     paths: { boards: boardPaths, images: {}, sounds: {} },
   };
@@ -356,7 +372,7 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
       const imgFile = zip.file(imgPath);
       if (!imgFile) continue;
 
-      const contentType = img.content_type ?? "image/png";
+      const contentType = img.content_type ?? inferImageMimeType(imgPath) ?? "image/png";
       const b64 = await imgFile.async("base64");
       img.data = `data:${contentType};base64,${b64}`;
       // Clear the relative URL now that we've inlined the data

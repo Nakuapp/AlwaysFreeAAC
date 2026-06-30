@@ -30,9 +30,10 @@ type ImportStatus = "idle" | "success" | "error";
 
 function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
   const symbols = importOBFToSymbols(board);
+  const boardName = typeof board.name === "string" ? board.name.trim() : "";
   return {
     id: `import-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    label: board.name?.trim() || t(language, "importedBoard"),
+    label: boardName || t(language, "importedBoard"),
     emoji: "pen-square",
     symbols,
   };
