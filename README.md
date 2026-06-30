@@ -147,19 +147,29 @@ npx cap sync
 
 ```
 src/
+├── assets/               # Static assets bundled by Vite
 ├── components/
+│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (with icon picker & image upload)
 │   ├── CategoryNav.tsx   # Horizontal scrollable category tabs
+│   ├── IconVisual.tsx    # Renders icon or image for a tile
+│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, delete)
 │   ├── SentenceBar.tsx   # Sentence builder + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog (voice, speed, grid)
+│   ├── Settings.tsx      # Settings dialog (voice, speed, grid, language, theme)
 │   ├── SymbolButton.tsx  # Individual symbol tile
 │   └── SymbolGrid.tsx    # Responsive grid of symbol buttons
 ├── data/
-│   └── vocabulary.ts     # All categories and symbols
+│   └── vocabulary.ts     # Built-in categories and symbols
 ├── hooks/
+│   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
 │   └── useSpeech.ts      # Native speech + web fallback React hook
-├── icons.tsx             # Shared Lucide icon registry/helpers
+├── utils/
+│   └── openboard.ts      # OpenBoard format import/export helpers
+├── i18n.ts               # Internationalisation strings (en / es / fr)
+├── iconUtils.ts          # Lucide icon search and utility helpers
+├── icons.tsx             # Shared Lucide icon registry
 ├── App.tsx               # Root application component
 ├── App.css               # App shell styles
+├── main.tsx              # App entry point
 └── index.css             # Global reset + CSS variables
 public/
 ├── app-icon-192.png      # PWA icon + browser favicon
