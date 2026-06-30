@@ -12,6 +12,15 @@ on:
         required: false
         default: debug_apk
         type: string
+    secrets:
+      ANDROID_SIGNING_KEYSTORE_BASE64:
+        required: false
+      ANDROID_SIGNING_KEY_ALIAS:
+        required: false
+      ANDROID_SIGNING_KEYSTORE_PASSWORD:
+        required: false
+      ANDROID_SIGNING_KEY_PASSWORD:
+        required: false
   workflow_dispatch:
     inputs:
       version:
@@ -85,7 +94,7 @@ jobs:
             release_aab)
               echo "gradle_task=bundleRelease" >> "${GITHUB_OUTPUT}"
               echo "artifact_path=android/app/build/outputs/bundle/release/app-release.aab" >> "${GITHUB_OUTPUT}"
-              echo "artifact_label=android-release-bundle" >> "${GITHUB_OUTPUT}"
+              echo "artifact_label=android-play-store" >> "${GITHUB_OUTPUT}"
               echo "artifact_extension=aab" >> "${GITHUB_OUTPUT}"
               ;;
             *)
@@ -96,7 +105,49 @@ jobs:
               ;;
           esac
 
+      - name: Validate Android signing secrets
+        if: ${{ inputs.artifact_type == 'release_aab' }}
+        run: |
+          missing=0
+          for secret_name in \
+            ANDROID_SIGNING_KEYSTORE_BASE64 \
+            ANDROID_SIGNING_KEY_ALIAS \
+            ANDROID_SIGNING_KEYSTORE_PASSWORD \
+            ANDROID_SIGNING_KEY_PASSWORD; do
+            if [ -z "${!secret_name}" ]; then
+              echo "Missing required secret: ${secret_name}" >&2
+              missing=1
+            fi
+          done
+
+          if [ "${missing}" -ne 0 ]; then
+            exit 1
+          fi
+        env:
+          ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+
+      - name: Decode Android signing keystore
+        if: ${{ inputs.artifact_type == 'release_aab' }}
+        run: |
+          printf '%s' "${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}" | base64 --decode > "${RUNNER_TEMP}/android-release.keystore"
+
+      - name: Build Android release AAB
+        if: ${{ inputs.artifact_type == 'release_aab' }}
+        run: |
+          STORE_PASS_PROP="android.injected.signing.store.p""assword"
+          KEY_PASS_PROP="android.injected.signing.key.p""assword"
+          ./gradlew ${{ steps.artifact.outputs.gradle_task }} --no-daemon \
+            -Pandroid.injected.signing.store.file="${RUNNER_TEMP}/android-release.keystore" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" \
+            "-P${STORE_PASS_PROP}=${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}" \
+            "-P${KEY_PASS_PROP}=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}"
+        working-directory: android
+
       - name: Build Android artifact
+        if: ${{ inputs.artifact_type != 'release_aab' }}
         run: ./gradlew ${{ steps.artifact.outputs.gradle_task }} --no-daemon
         working-directory: android
 

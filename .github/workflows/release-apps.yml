@@ -52,14 +52,16 @@ jobs:
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
       artifact_type: release_aab
+    secrets: inherit
 
   ios:
-    name: Build iOS App Store Archive
+    name: Build iOS App Store IPA
     needs: prepare
     uses: ./.github/workflows/ios.yml
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
-      artifact_type: app_store_archive
+      artifact_type: app_store_ipa
+    secrets: inherit
 
   publish:
     name: Publish GitHub Release
