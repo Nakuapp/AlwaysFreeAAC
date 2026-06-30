@@ -258,6 +258,7 @@ const IMAGE_EXTENSION_TO_MIME: Record<string, string> = {
   webp: "image/webp",
   gif: "image/gif",
   bmp: "image/bmp",
+  avif: "image/avif",
   svg: "image/svg+xml",
 };
 
@@ -269,6 +270,13 @@ function inferImageMimeType(path: string): string | undefined {
 
 function asString(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
+}
+
+function asImageMimeType(value: unknown): string | undefined {
+  const mimeType = asString(value)?.trim().toLowerCase();
+  return mimeType && /^image\/[a-z0-9.+-]+$/.test(mimeType)
+    ? mimeType
+    : undefined;
 }
 
 /**
@@ -392,7 +400,10 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
       const imgFile = zip.file(imgPath);
       if (!imgFile) continue;
 
-      const contentType = asString(img.content_type) ?? inferImageMimeType(imgPath) ?? "image/png";
+      const contentType =
+        asImageMimeType(img.content_type) ??
+        inferImageMimeType(imgPath) ??
+        "image/png";
       const b64 = await imgFile.async("base64");
       img.data = `data:${contentType};base64,${b64}`;
       // Clear the relative URL now that we've inlined the data
