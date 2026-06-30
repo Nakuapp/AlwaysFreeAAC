@@ -30,22 +30,25 @@ async function run() {
   await mkdir(OUT_DIR, { recursive: true });
 
   const browser = await chromium.launch();
+  try {
+    for (const { label, width, height } of VIEWPORTS) {
+      const page = await browser.newPage({ viewport: { width, height } });
+      try {
+        // Wait for the app shell to render before capturing.
+        await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('.app-header', { state: 'visible' });
 
-  for (const { label, width, height } of VIEWPORTS) {
-    const page = await browser.newPage({ viewport: { width, height } });
-
-    // Wait for the app shell to render before capturing.
-    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('.app-header', { state: 'visible' });
-
-    const file = join(OUT_DIR, `screenshot-${label}.png`);
-    await page.screenshot({ path: file, fullPage: false });
-    console.log(`Saved ${file}`);
-
-    await page.close();
+        const file = join(OUT_DIR, `screenshot-${label}.png`);
+        await page.screenshot({ path: file, fullPage: false });
+        console.log(`Saved ${file}`);
+      } finally {
+        await page.close();
+      }
+    }
+  } finally {
+    await browser.close();
   }
 
-  await browser.close();
   console.log(`\nAll screenshots written to ${OUT_DIR}`);
 }
 
