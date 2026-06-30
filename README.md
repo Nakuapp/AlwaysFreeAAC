@@ -194,6 +194,14 @@ Inspired by user-centric AAC solutions such as Proloquo2Go — designed to be fr
 
 ---
 
+## Privacy Policy
+
+AlwaysFreeAAC collects no personal data. All settings and custom boards are stored locally on your device and never sent to any server.
+
+Read the full [Privacy Policy](https://nakuapp.github.io/AlwaysFreeAAC/privacy-policy.html).
+
+---
+
 ## License
 
 Free to use. Contributions welcome.
