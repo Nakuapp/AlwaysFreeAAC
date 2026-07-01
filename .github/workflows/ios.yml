@@ -124,8 +124,8 @@ jobs:
           KEYCHAIN_PATH="${RUNNER_TEMP}/app-signing.keychain-db"
           KEYCHAIN_PASSWORD="$(openssl rand -hex 16)"
 
-          printf '%s' "${{ secrets.IOS_SIGNING_CERTIFICATE_P12_BASE64 }}" | base64 --decode > "${CERT_PATH}"
-          printf '%s' "${{ secrets.IOS_SIGNING_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > "${PROFILE_PATH}"
+          printf '%s' "${{ secrets.IOS_SIGNING_CERTIFICATE_P12_BASE64 }}" | python3 -c 'import base64,sys;sys.stdout.buffer.write(base64.b64decode(sys.stdin.read()))' > "${CERT_PATH}"
+          printf '%s' "${{ secrets.IOS_SIGNING_PROVISIONING_PROFILE_BASE64 }}" | python3 -c 'import base64,sys;sys.stdout.buffer.write(base64.b64decode(sys.stdin.read()))' > "${PROFILE_PATH}"
 
           security create-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
           security set-keychain-settings -lut 21600 "${KEYCHAIN_PATH}"
