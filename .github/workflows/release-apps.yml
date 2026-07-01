@@ -52,7 +52,11 @@ jobs:
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
       artifact_type: release_aab
-    secrets: inherit
+    secrets:
+      ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+      ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+      ANDROID_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
+      ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
 
   ios:
     name: Build iOS App Store IPA
@@ -61,7 +65,12 @@ jobs:
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
       artifact_type: app_store_ipa
-    secrets: inherit
+    secrets:
+      IOS_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE_P12_BASE64 }}
+      IOS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
+      IOS_SIGNING_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_SIGNING_PROVISIONING_PROFILE_BASE64 }}
+      IOS_SIGNING_TEAM_ID: ${{ secrets.IOS_SIGNING_TEAM_ID }}
+      IOS_SIGNING_BUNDLE_ID: ${{ secrets.IOS_SIGNING_BUNDLE_ID }}
 
   publish:
     name: Publish GitHub Release
