@@ -35,13 +35,13 @@ The web app works on any device and can be added to your home screen for quick a
 
 ## Releases
 
-Download the latest Android APK or iOS IPA from the [Releases](../../releases) page.
+Download the latest web zip, Android Play Store bundle (`.aab`), and iOS App Store IPA (`.ipa`) from the [Releases](../../releases) page.
 
 ---
 
 ## Installing on Android (Sideloading)
 
-1. **Download** the `alwaysfreeaac-*-android-debug.apk` file from the [GitHub Releases](../../releases) page onto your Android device.
+1. **Run** the `Test Mobile Builds` workflow with `platform=android` (or `both`) and download the `alwaysfreeaac-*-android-debug.apk` artifact.
 2. **Enable unknown sources.** The exact path varies by manufacturer and Android version:
    - Android 8+: *Settings → Apps → Special app access → Install unknown apps*, then select the app you'll use to open the APK (e.g. Chrome or Files).
    - Older Android: *Settings → Security → Unknown sources*.
@@ -54,12 +54,12 @@ Download the latest Android APK or iOS IPA from the [Releases](../../releases) p
 
 ## Installing on iOS (Sideloading)
 
-iOS requires every app to be code-signed before it can be installed on a device. The IPA released from CI is **unsigned**, so you need a tool that re-signs it with your own Apple ID's free development certificate.
+iOS requires every app to be code-signed before it can be installed on a device. The test-build IPA from CI is **unsigned**, so you need a tool that re-signs it with your own Apple ID's free development certificate.
 
 ### Option A — AltStore (Windows / Mac, no jailbreak required)
 
 1. Install [AltStore](https://altstore.io) on your PC or Mac and pair it with your iPhone/iPad via the AltStore documentation.
-2. Download the `alwaysfreeaac-*-ios.ipa` from the [GitHub Releases](../../releases) page.
+2. Run the `Test Mobile Builds` workflow with `platform=ios` (or `both`) and download the `alwaysfreeaac-*-ios.ipa` artifact.
 3. In AltStore on your device, tap **+** and select the downloaded IPA.
 4. AltStore re-signs the app with your Apple ID and installs it.
 5. **Refresh every 7 days** — free Apple developer certificates expire after 7 days. AltStore can auto-refresh when your device and PC/Mac are on the same Wi-Fi.
@@ -68,7 +68,7 @@ iOS requires every app to be code-signed before it can be installed on a device.
 
 1. Download [Sideloadly](https://sideloadly.io) for your computer.
 2. Connect your iPhone/iPad via USB.
-3. Drop the IPA onto the Sideloadly window, enter your Apple ID, and click **Start**.
+3. Drop the test-build IPA onto the Sideloadly window, enter your Apple ID, and click **Start**.
 4. Trust the developer certificate on your device: *Settings → General → VPN & Device Management → [your Apple ID] → Trust*.
 5. Same 7-day certificate limit applies — re-run Sideloadly to refresh.
 
@@ -107,9 +107,21 @@ npm run preview    # Preview production build
 npm run lint       # Lint source files
 ```
 
-To publish a new release, run the `Release Apps` GitHub Actions workflow with a version number (e.g. `1.2.3`). It builds the web zip, Android APK, and iOS IPA and publishes a GitHub release with all artifacts.
+To publish a new release, run the `Release Apps` GitHub Actions workflow with a version number (e.g. `1.2.3`). It builds the web zip, a signed Android Play Store app bundle (`.aab`), and a signed iOS App Store IPA (`.ipa`) and publishes a GitHub release with all artifacts.
 
-To generate a branch-specific test build without publishing a release, run the `Test Mobile Builds` workflow from the branch you want using the **Run workflow** branch selector. Choose Android, iOS, or both, and optionally provide a custom artifact label.
+Store release signing requires these repository secrets:
+
+- `ANDROID_SIGNING_KEYSTORE_BASE64`
+- `ANDROID_SIGNING_KEY_ALIAS`
+- `ANDROID_SIGNING_KEYSTORE_PASSWORD`
+- `ANDROID_SIGNING_KEY_PASSWORD`
+- `IOS_SIGNING_CERTIFICATE_P12_BASE64`
+- `IOS_SIGNING_CERTIFICATE_PASSWORD`
+- `IOS_SIGNING_PROVISIONING_PROFILE_BASE64`
+- `IOS_SIGNING_TEAM_ID`
+- `IOS_SIGNING_BUNDLE_ID`
+
+To generate a branch-specific test build without publishing a release, run the `Test Mobile Builds` workflow from the branch you want using the **Run workflow** branch selector. Choose Android, iOS, or both, and optionally provide a custom artifact label. Test mobile builds default to a debug Android APK and a sideload-friendly iOS IPA.
 
 ---
 
