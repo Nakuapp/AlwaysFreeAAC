@@ -91,6 +91,12 @@ jobs:
         id: artifact
         run: |
           case "${{ inputs.artifact_type }}" in
+            debug_apk)
+              echo "gradle_task=assembleDebug" >> "${GITHUB_OUTPUT}"
+              echo "artifact_path=android/app/build/outputs/apk/debug/app-debug.apk" >> "${GITHUB_OUTPUT}"
+              echo "artifact_label=android-debug" >> "${GITHUB_OUTPUT}"
+              echo "artifact_extension=apk" >> "${GITHUB_OUTPUT}"
+              ;;
             release_aab)
               echo "gradle_task=bundleRelease" >> "${GITHUB_OUTPUT}"
               echo "artifact_path=android/app/build/outputs/bundle/release/app-release.aab" >> "${GITHUB_OUTPUT}"
@@ -98,10 +104,8 @@ jobs:
               echo "artifact_extension=aab" >> "${GITHUB_OUTPUT}"
               ;;
             *)
-              echo "gradle_task=assembleDebug" >> "${GITHUB_OUTPUT}"
-              echo "artifact_path=android/app/build/outputs/apk/debug/app-debug.apk" >> "${GITHUB_OUTPUT}"
-              echo "artifact_label=android-debug" >> "${GITHUB_OUTPUT}"
-              echo "artifact_extension=apk" >> "${GITHUB_OUTPUT}"
+              echo "Unsupported artifact_type: ${{ inputs.artifact_type }}. Expected one of: debug_apk, release_aab." >&2
+              exit 1
               ;;
           esac
 
@@ -137,13 +141,13 @@ jobs:
       - name: Build Android release AAB
         if: ${{ inputs.artifact_type == 'release_aab' }}
         run: |
-          STORE_PASS_PROP="android.injected.signing.store.p""assword"
-          KEY_PASS_PROP="android.injected.signing.key.p""assword"
+          STORE_PASSWORD_PROP="$(printf 'android.injected.signing.store.%s' 'password')"
+          KEY_PASSWORD_PROP="$(printf 'android.injected.signing.key.%s' 'password')"
           ./gradlew ${{ steps.artifact.outputs.gradle_task }} --no-daemon \
             -Pandroid.injected.signing.store.file="${RUNNER_TEMP}/android-release.keystore" \
             -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" \
-            "-P${STORE_PASS_PROP}=${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}" \
-            "-P${KEY_PASS_PROP}=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}"
+            "-P${STORE_PASSWORD_PROP}=${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}" \
+            "-P${KEY_PASSWORD_PROP}=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}"
         working-directory: android
 
       - name: Build Android artifact

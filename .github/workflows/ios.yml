@@ -80,11 +80,15 @@ jobs:
         id: artifact
         run: |
           case "${{ inputs.artifact_type }}" in
+            sideload_ipa)
+              echo "artifact_label=ios" >> "${GITHUB_OUTPUT}"
+              ;;
             app_store_ipa)
               echo "artifact_label=ios-app-store" >> "${GITHUB_OUTPUT}"
               ;;
             *)
-              echo "artifact_label=ios" >> "${GITHUB_OUTPUT}"
+              echo "Unsupported artifact_type: ${{ inputs.artifact_type }}. Expected one of: sideload_ipa, app_store_ipa." >&2
+              exit 1
               ;;
           esac
 
