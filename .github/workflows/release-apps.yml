@@ -7,6 +7,11 @@ on:
         description: Version number to release, with or without a leading v.
         required: true
         type: string
+      build_store_bundles:
+        description: Build signed store bundles (Android AAB + iOS App Store IPA). Set to false to build sideload apps only (Android APK + iOS sideload IPA).
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -46,12 +51,12 @@ jobs:
       version: ${{ needs.prepare.outputs.release_tag }}
 
   android:
-    name: Build Android Play Bundle
+    name: Build Android Artifact
     needs: prepare
     uses: ./.github/workflows/android.yml
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
-      artifact_type: release_aab
+      artifact_type: ${{ inputs.build_store_bundles && 'release_aab' || 'debug_apk' }}
     secrets:
       ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
       ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
@@ -59,12 +64,12 @@ jobs:
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
 
   ios:
-    name: Build iOS App Store IPA
+    name: Build iOS Artifact
     needs: prepare
     uses: ./.github/workflows/ios.yml
     with:
       version: ${{ needs.prepare.outputs.release_tag }}
-      artifact_type: app_store_ipa
+      artifact_type: ${{ inputs.build_store_bundles && 'app_store_ipa' || 'sideload_ipa' }}
     secrets:
       IOS_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE_P12_BASE64 }}
       IOS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
