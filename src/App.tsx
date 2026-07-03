@@ -232,6 +232,7 @@ export default function App() {
   const [userBoards, setUserBoards] = useState<UserBoard[]>(loadUserBoards);
   const [hiddenBuiltinIds, setHiddenBuiltinIds] = useState<Set<string>>(loadHiddenBuiltinIds);
   const [showAddTile, setShowAddTile] = useState(false);
+  const [editingTile, setEditingTile] = useState<Symbol | null>(null);
   const [showManageBoards, setShowManageBoards] = useState(false);
   const [showImportExport, setShowImportExport] = useState(false);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
@@ -284,6 +285,19 @@ export default function App() {
 
   const handleCloseAddTile = useCallback(() => {
     setShowAddTile(false);
+    restoreFocus();
+  }, [restoreFocus]);
+
+  const handleOpenEditTile = useCallback(
+    (sym: Symbol) => {
+      captureFocus();
+      setEditingTile(sym);
+    },
+    [captureFocus]
+  );
+
+  const handleCloseEditTile = useCallback(() => {
+    setEditingTile(null);
     restoreFocus();
   }, [restoreFocus]);
 
@@ -393,6 +407,20 @@ export default function App() {
       );
     },
     [activeCategoryId]
+  );
+
+  const handleUpdateCustomTile = useCallback(
+    (sym: Symbol, data: Omit<Symbol, "id">) => {
+      setUserBoards((prev) =>
+        prev.map((b) =>
+          b.id === activeCategoryId
+            ? { ...b, symbols: b.symbols.map((t) => (t.id === sym.id ? { ...data, id: sym.id } : t)) }
+            : b
+        )
+      );
+      handleCloseEditTile();
+    },
+    [activeCategoryId, handleCloseEditTile]
   );
 
   const handleImportBoards = useCallback((boards: UserBoard[]) => {
@@ -527,6 +555,7 @@ export default function App() {
         language={settings.language}
         onAddWord={isUserBoard ? handleOpenAddTile : undefined}
         onDeleteSymbol={isUserBoard ? handleDeleteCustomTile : undefined}
+        onEditSymbol={isUserBoard ? handleOpenEditTile : undefined}
         isEditMode={isEditingTiles}
         onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
       />
@@ -566,6 +595,15 @@ export default function App() {
           language={settings.language}
           onSave={handleAddCustomTile}
           onClose={handleCloseAddTile}
+        />
+      )}
+
+      {editingTile && (
+        <AddTileDialog
+          language={settings.language}
+          initialSymbol={editingTile}
+          onSave={(data) => handleUpdateCustomTile(editingTile, data)}
+          onClose={handleCloseEditTile}
         />
       )}
 

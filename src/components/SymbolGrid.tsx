@@ -14,6 +14,8 @@ interface SymbolGridProps {
   onAddWord?: () => void;
   /** When provided, shows delete badges on tiles and calls this on delete */
   onDeleteSymbol?: (symbol: Symbol) => void;
+  /** When provided, tapping a tile in edit mode opens the edit dialog */
+  onEditSymbol?: (symbol: Symbol) => void;
   /** Toggles between normal and edit mode for the custom category */
   isEditMode?: boolean;
   onToggleEditMode?: () => void;
@@ -26,6 +28,7 @@ export function SymbolGrid({
   language,
   onAddWord,
   onDeleteSymbol,
+  onEditSymbol,
   isEditMode,
   onToggleEditMode,
 }: SymbolGridProps) {
@@ -66,9 +69,10 @@ export function SymbolGrid({
             key={sym.id}
             symbol={sym}
             onClick={onSelect}
-            disabled={Boolean(isEditMode)}
+            disabled={Boolean(isEditMode) && !onEditSymbol}
             onDelete={isEditMode && onDeleteSymbol ? onDeleteSymbol : undefined}
             deleteAriaLabel={(symbol) => `${t(language, "deleteTile")}: ${symbol.label}`}
+            onEdit={isEditMode && onEditSymbol ? onEditSymbol : undefined}
           />
         ))}
         {showAddControls && (

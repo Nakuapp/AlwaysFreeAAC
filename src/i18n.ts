@@ -69,6 +69,7 @@ type UiStringKey =
   | "doneTiles"
   | "deleteTile"
   | "addTileTitle"
+  | "editTileTitle"
   | "tileLabel"
   | "tileLabelPlaceholder"
   | "tileSpeak"
@@ -200,6 +201,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     doneTiles: "Done",
     deleteTile: "Delete tile",
     addTileTitle: "Add Word Tile",
+    editTileTitle: "Edit Word Tile",
     tileLabel: "Word / Label",
     tileLabelPlaceholder: "e.g. Cat",
     tileSpeak: "Spoken text (optional)",
@@ -330,6 +332,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     doneTiles: "Listo",
     deleteTile: "Eliminar ficha",
     addTileTitle: "Agregar ficha",
+    editTileTitle: "Editar ficha",
     tileLabel: "Palabra / Etiqueta",
     tileLabelPlaceholder: "Ej. Gato",
     tileSpeak: "Texto hablado (opcional)",
@@ -460,6 +463,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     doneTiles: "Terminé",
     deleteTile: "Supprimer la fiche",
     addTileTitle: "Ajouter une fiche",
+    editTileTitle: "Modifier la fiche",
     tileLabel: "Mot / Étiquette",
     tileLabelPlaceholder: "Ex. Chat",
     tileSpeak: "Texte parlé (optionnel)",

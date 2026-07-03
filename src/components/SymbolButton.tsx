@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { X } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { IconVisual } from "./IconVisual";
 import "./SymbolButton.css";
@@ -12,6 +12,9 @@ interface SymbolButtonProps {
   /** When provided, renders a delete badge that calls this handler */
   onDelete?: (symbol: Symbol) => void;
   deleteAriaLabel?: (symbol: Symbol) => string;
+  /** When provided, clicking the tile calls this instead of onClick (edit mode) */
+  onEdit?: (symbol: Symbol) => void;
+  editAriaLabel?: (symbol: Symbol) => string;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -45,6 +48,8 @@ export function SymbolButton({
   disabled = false,
   onDelete,
   deleteAriaLabel,
+  onEdit,
+  editAriaLabel,
 }: SymbolButtonProps) {
   const bg = symbol.color ? (COLOR_MAP[symbol.color] ?? "var(--color-default)") : "var(--color-default)";
   const iconColor = symbol.iconColor ? (ICON_COLOR_MAP[symbol.iconColor] ?? undefined) : undefined;
@@ -52,15 +57,20 @@ export function SymbolButton({
   return (
     <div className="symbol-btn-wrapper">
       <button
-        className={`symbol-btn symbol-btn--${size}`}
+        className={`symbol-btn symbol-btn--${size}${onEdit ? " symbol-btn--editable" : ""}`}
         style={{ "--symbol-bg": bg } as CSSProperties}
-        onClick={() => onClick(symbol)}
+        onClick={() => onEdit ? onEdit(symbol) : onClick(symbol)}
         aria-label={symbol.speak ?? symbol.label}
-        disabled={disabled}
+        disabled={disabled && !onEdit}
         type="button"
       >
         <IconVisual value={symbol.emoji} className="symbol-btn__icon" iconColor={iconColor} />
         <span className="symbol-btn__label">{symbol.label}</span>
+        {onEdit && (
+          <span className="symbol-btn__edit-overlay" aria-hidden="true">
+            <Pencil className="symbol-btn__edit-overlay-icon" aria-hidden="true" focusable="false" />
+          </span>
+        )}
       </button>
       {onDelete && (
         <button
@@ -72,6 +82,9 @@ export function SymbolButton({
           <X className="symbol-btn__delete-icon" aria-hidden="true" focusable="false" />
           <span className="sr-only">{deleteAriaLabel?.(symbol) ?? `Delete ${symbol.label}`}</span>
         </button>
+      )}
+      {onEdit && !onDelete && (
+        <span className="sr-only">{editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`}</span>
       )}
     </div>
   );

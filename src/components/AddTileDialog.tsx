@@ -5,7 +5,7 @@ import type { Symbol } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { type AppIconName, type AppIconStyle } from "../icons";
-import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
+import { CUSTOM_TILE_ICON_OPTIONS, getAppIconName, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl, toAppIconValue } from "../iconUtils";
 import { IconVisual } from "./IconVisual";
 import "./AddTileDialog.css";
 
@@ -61,18 +61,40 @@ interface AddTileDialogProps {
   language: Language;
   onSave: (symbol: Omit<Symbol, "id">) => void;
   onClose: () => void;
+  /** When provided, pre-fills the dialog for editing an existing tile */
+  initialSymbol?: Symbol;
 }
 
-export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps) {
-  const [label, setLabel] = useState("");
-  const [speakOverride, setSpeakOverride] = useState("");
-  const [iconMode, setIconMode] = useState<"icon" | "image">("icon");
+function deriveIconState(emoji: string | undefined): {
+  iconMode: "icon" | "image";
+  iconName: AppIconName;
+  iconStyle: AppIconStyle;
+  imageDataUrl: string | null;
+} {
+  if (emoji && (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji))) {
+    return { iconMode: "image", iconName: "star", iconStyle: "outline", imageDataUrl: emoji };
+  }
+  if (emoji) {
+    const name = getAppIconName(emoji) ?? "star";
+    const style = getAppIconStyle(emoji);
+    return { iconMode: "icon", iconName: name, iconStyle: style, imageDataUrl: null };
+  }
+  return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null };
+}
+
+export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddTileDialogProps) {
+  const isEditing = initialSymbol !== undefined;
+  const initial = deriveIconState(initialSymbol?.emoji);
+
+  const [label, setLabel] = useState(initialSymbol?.label ?? "");
+  const [speakOverride, setSpeakOverride] = useState(initialSymbol?.speak ?? "");
+  const [iconMode, setIconMode] = useState<"icon" | "image">(initial.iconMode);
   const [iconFilter, setIconFilter] = useState("");
-  const [selectedIconName, setSelectedIconName] = useState<AppIconName>("star");
-  const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>("outline");
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const [color, setColor] = useState("blue");
-  const [iconColor, setIconColor] = useState("");
+  const [selectedIconName, setSelectedIconName] = useState<AppIconName>(initial.iconName);
+  const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>(initial.iconStyle);
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
+  const [color, setColor] = useState(initialSymbol?.color ?? "blue");
+  const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -148,7 +170,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
     <div className="add-tile-overlay">
       <div className="add-tile-panel" role="dialog" aria-modal="true" aria-labelledby="add-tile-title" ref={panelRef}>
         <div className="add-tile-panel__header">
-          <h2 className="add-tile-panel__title" id="add-tile-title">{t(language, "addTileTitle")}</h2>
+          <h2 className="add-tile-panel__title" id="add-tile-title">{t(language, isEditing ? "editTileTitle" : "addTileTitle")}</h2>
           <button
             className="add-tile-panel__close"
             onClick={onClose}
