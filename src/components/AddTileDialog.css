@@ -336,6 +336,31 @@
   outline-offset: 3px;
 }
 
+/* "Default" icon color swatch — no fill, just a dashed border */
+.add-tile-colors__swatch--icon-color:not([style]) {
+  background: var(--bg-subtle);
+  border: 3px dashed var(--border-medium);
+  position: relative;
+}
+
+.add-tile-colors__swatch--icon-color:not([style])::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom right,
+    transparent 45%,
+    var(--border-medium) 45%,
+    var(--border-medium) 55%,
+    transparent 55%
+  );
+}
+
+.add-tile-colors__swatch--icon-color:not([style]).add-tile-colors__swatch--selected {
+  border-color: var(--text-primary);
+}
+
 /* Advanced */
 .add-tile-advanced {
   border: 2px solid var(--border-soft);

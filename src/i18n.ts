@@ -84,6 +84,8 @@ type UiStringKey =
   | "tileIconStyleOutline"
   | "tileIconStyleFilled"
   | "tileColor"
+  | "tileIconColor"
+  | "tileIconColorDefault"
   | "tileColorGreen"
   | "tileColorBlue"
   | "tileColorOrange"
@@ -212,7 +214,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconStyle: "Icon style",
     tileIconStyleOutline: "Outline",
     tileIconStyleFilled: "Filled",
-    tileColor: "Color",
+    tileColor: "Tile Color",
+    tileIconColor: "Icon Color",
+    tileIconColorDefault: "Default",
     tileColorGreen: "Green",
     tileColorBlue: "Blue",
     tileColorOrange: "Orange",
@@ -340,7 +344,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconStyle: "Estilo de ícono",
     tileIconStyleOutline: "Contorno",
     tileIconStyleFilled: "Relleno",
-    tileColor: "Color",
+    tileColor: "Color de ficha",
+    tileIconColor: "Color del ícono",
+    tileIconColorDefault: "Por defecto",
     tileColorGreen: "Verde",
     tileColorBlue: "Azul",
     tileColorOrange: "Naranja",
@@ -468,7 +474,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconStyle: "Style d'icône",
     tileIconStyleOutline: "Contour",
     tileIconStyleFilled: "Plein",
-    tileColor: "Couleur",
+    tileColor: "Couleur de la fiche",
+    tileIconColor: "Couleur de l'icône",
+    tileIconColorDefault: "Par défaut",
     tileColorGreen: "Vert",
     tileColorBlue: "Bleu",
     tileColorOrange: "Orange",

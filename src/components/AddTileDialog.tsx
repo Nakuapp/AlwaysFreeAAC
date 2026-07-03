@@ -32,6 +32,31 @@ const COLOR_OPTIONS = [
   { value: "gray", bg: "#e0e0e0", labelKey: "tileColorGray" },
 ] as const satisfies ReadonlyArray<{ value: string; bg: string; labelKey: ColorLabelKey }>;
 
+type IconColorLabelKey =
+  | "tileIconColorDefault"
+  | "tileColorRed"
+  | "tileColorOrange"
+  | "tileColorYellow"
+  | "tileColorGreen"
+  | "tileColorBlue"
+  | "tileColorPurple"
+  | "tileColorPink"
+  | "tileColorTeal"
+  | "tileColorGray";
+
+const ICON_COLOR_OPTIONS = [
+  { value: "", color: null, labelKey: "tileIconColorDefault" },
+  { value: "red", color: "#e53935", labelKey: "tileColorRed" },
+  { value: "orange", color: "#f57c00", labelKey: "tileColorOrange" },
+  { value: "yellow", color: "#f9a825", labelKey: "tileColorYellow" },
+  { value: "green", color: "#2e7d32", labelKey: "tileColorGreen" },
+  { value: "blue", color: "#1565c0", labelKey: "tileColorBlue" },
+  { value: "purple", color: "#6a1b9a", labelKey: "tileColorPurple" },
+  { value: "pink", color: "#ad1457", labelKey: "tileColorPink" },
+  { value: "teal", color: "#00695c", labelKey: "tileColorTeal" },
+  { value: "gray", color: "#546e7a", labelKey: "tileColorGray" },
+] as const satisfies ReadonlyArray<{ value: string; color: string | null; labelKey: IconColorLabelKey }>;
+
 interface AddTileDialogProps {
   language: Language;
   onSave: (symbol: Omit<Symbol, "id">) => void;
@@ -47,6 +72,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>("outline");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [color, setColor] = useState("blue");
+  const [iconColor, setIconColor] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -91,6 +117,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
       emoji: icon,
       speak: speakOverride.trim() || undefined,
       color,
+      iconColor: iconColor || undefined,
       isCustom: true,
     });
   }
@@ -114,6 +141,9 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
       ? imageDataUrl
       : toAppIconValue(selectedIconName, selectedIconStyle);
 
+  const _foundIconColorOpt = iconColor ? ICON_COLOR_OPTIONS.find((o) => o.value === iconColor) : undefined;
+  const previewIconColor: string | undefined = _foundIconColorOpt?.color ?? undefined;
+
   return (
     <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
       <div className="add-tile-panel" ref={panelRef}>
@@ -133,7 +163,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
           {/* Preview */}
           <div className="add-tile-preview" style={{ background: `var(--color-${color}, var(--color-default))` }}>
             <span className="add-tile-preview__icon" aria-hidden="true">
-              <IconVisual value={previewIcon} className="add-tile-preview__icon-value" />
+              <IconVisual value={previewIcon} className="add-tile-preview__icon-value" iconColor={previewIconColor} />
             </span>
             <span className="add-tile-preview__label">{label || "…"}</span>
           </div>
@@ -256,7 +286,7 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
             )}
           </div>
 
-          {/* Color */}
+          {/* Tile Color */}
           <div className="add-tile-field">
             <span className="add-tile-field__label">{t(language, "tileColor")}</span>
             <div className="add-tile-colors">
@@ -269,6 +299,24 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   onClick={() => setColor(opt.value)}
                   aria-label={t(language, opt.labelKey)}
                   aria-pressed={color === opt.value}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Icon Color */}
+          <div className="add-tile-field">
+            <span className="add-tile-field__label">{t(language, "tileIconColor")}</span>
+            <div className="add-tile-colors">
+              {ICON_COLOR_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value === "" ? "__default__" : opt.value}
+                  type="button"
+                  className={`add-tile-colors__swatch add-tile-colors__swatch--icon-color${iconColor === opt.value ? " add-tile-colors__swatch--selected" : ""}`}
+                  style={opt.color ? { background: opt.color } : undefined}
+                  onClick={() => setIconColor(opt.value)}
+                  aria-label={t(language, opt.labelKey)}
+                  aria-pressed={iconColor === opt.value}
                 />
               ))}
             </div>

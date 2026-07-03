@@ -5,6 +5,7 @@ export interface Symbol {
   emoji: string;
   speak?: string; // override spoken text if different from label
   color?: string; // background color category
+  iconColor?: string; // icon fill/stroke color category
   /** When true this tile was created by the user and can be deleted */
   isCustom?: boolean;
 }
