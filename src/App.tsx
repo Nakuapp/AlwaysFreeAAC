@@ -11,6 +11,7 @@ import { AddTileDialog } from "./components/AddTileDialog";
 import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
 import { ImportExportDialog } from "./components/ImportExportDialog";
 import { localizeCategories, t, type Language, type Theme } from "./i18n";
+import { useRestoreFocus } from "./hooks/useRestoreFocus";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
@@ -264,6 +265,48 @@ export default function App() {
 
   const isUserBoard = userBoards.some((b) => b.id === activeCategoryId);
 
+  const { capture: captureFocus, restore: restoreFocus } = useRestoreFocus();
+
+  const handleOpenSettings = useCallback(() => {
+    captureFocus();
+    setShowSettings(true);
+  }, [captureFocus]);
+
+  const handleCloseSettings = useCallback(() => {
+    setShowSettings(false);
+    restoreFocus();
+  }, [restoreFocus]);
+
+  const handleOpenAddTile = useCallback(() => {
+    captureFocus();
+    setShowAddTile(true);
+  }, [captureFocus]);
+
+  const handleCloseAddTile = useCallback(() => {
+    setShowAddTile(false);
+    restoreFocus();
+  }, [restoreFocus]);
+
+  const handleOpenManageBoards = useCallback(() => {
+    captureFocus();
+    setShowManageBoards(true);
+  }, [captureFocus]);
+
+  const handleCloseManageBoards = useCallback(() => {
+    setShowManageBoards(false);
+    restoreFocus();
+  }, [restoreFocus]);
+
+  const handleOpenImportExport = useCallback(() => {
+    captureFocus();
+    setShowImportExport(true);
+  }, [captureFocus]);
+
+  const handleCloseImportExport = useCallback(() => {
+    setShowImportExport(false);
+    restoreFocus();
+  }, [restoreFocus]);
+
   const { speak, previewVoice, speaking, voices } = useSpeech({
     rate: settings.rate,
     pitch: settings.pitch,
@@ -334,9 +377,9 @@ export default function App() {
           b.id === activeCategoryId ? { ...b, symbols: [...b.symbols, newTile] } : b
         )
       );
-      setShowAddTile(false);
+      handleCloseAddTile();
     },
-    [activeCategoryId]
+    [activeCategoryId, handleCloseAddTile]
   );
 
   const handleDeleteCustomTile = useCallback(
@@ -434,7 +477,7 @@ export default function App() {
   };
 
   return (
-    <div className="app" aria-label={t(settings.language, "appName")}>
+    <div className="app">
       <a href="#main-content" className="skip-link">
         {t(settings.language, "skipToMain")}
       </a>
@@ -445,7 +488,7 @@ export default function App() {
         </div>
         <button
           className="app-header__settings-btn"
-          onClick={() => setShowSettings(true)}
+          onClick={handleOpenSettings}
           aria-label={t(settings.language, "openSettings")}
           aria-haspopup="dialog"
           type="button"
@@ -472,8 +515,8 @@ export default function App() {
           setActiveCategoryId(id);
           setIsEditingTiles(false);
         }}
-        onManageBoards={() => setShowManageBoards(true)}
-        onImportExport={() => setShowImportExport(true)}
+        onManageBoards={handleOpenManageBoards}
+        onImportExport={handleOpenImportExport}
         language={settings.language}
       />
 
@@ -482,7 +525,7 @@ export default function App() {
         columns={settings.columns}
         onSelect={handleSymbolSelect}
         language={settings.language}
-        onAddWord={isUserBoard ? () => setShowAddTile(true) : undefined}
+        onAddWord={isUserBoard ? handleOpenAddTile : undefined}
         onDeleteSymbol={isUserBoard ? handleDeleteCustomTile : undefined}
         isEditMode={isEditingTiles}
         onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
@@ -514,7 +557,7 @@ export default function App() {
           onLanguageChange={(language) => updateSetting("language", language)}
           onThemeChange={(theme) => updateSetting("theme", theme)}
           onPreviewVoice={handlePreviewVoice}
-          onClose={() => setShowSettings(false)}
+          onClose={handleCloseSettings}
         />
       )}
 
@@ -522,7 +565,7 @@ export default function App() {
         <AddTileDialog
           language={settings.language}
           onSave={handleAddCustomTile}
-          onClose={() => setShowAddTile(false)}
+          onClose={handleCloseAddTile}
         />
       )}
 
@@ -534,7 +577,7 @@ export default function App() {
           hiddenBuiltinIds={hiddenBuiltinIds}
           onUpdateUserBoards={handleUpdateUserBoards}
           onToggleBuiltIn={handleToggleBuiltIn}
-          onClose={() => setShowManageBoards(false)}
+          onClose={handleCloseManageBoards}
         />
       )}
 
@@ -543,7 +586,7 @@ export default function App() {
           language={settings.language}
           allCategories={allCategories}
           onImportBoards={handleImportBoards}
-          onClose={() => setShowImportExport(false)}
+          onClose={handleCloseImportExport}
         />
       )}
     </div>

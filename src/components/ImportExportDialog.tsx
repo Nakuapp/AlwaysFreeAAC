@@ -145,13 +145,10 @@ export function ImportExportDialog({
   return (
     <div
       className="ie-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t(language, "importExport")}
     >
-      <div className="ie-panel" ref={panelRef}>
+      <div className="ie-panel" role="dialog" aria-modal="true" aria-labelledby="import-export-title" ref={panelRef}>
         <div className="ie-panel__header">
-          <h2 className="ie-panel__title">{t(language, "importExport")}</h2>
+          <h2 className="ie-panel__title" id="import-export-title">{t(language, "importExport")}</h2>
           <button
             className="ie-panel__close"
             onClick={onClose}

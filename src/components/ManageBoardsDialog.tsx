@@ -103,13 +103,10 @@ export function ManageBoardsDialog({
   return (
     <div
       className="manage-boards-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t(language, "manageBoards")}
     >
-      <div className="manage-boards-panel" ref={panelRef}>
+      <div className="manage-boards-panel" role="dialog" aria-modal="true" aria-labelledby="manage-boards-title" ref={panelRef}>
         <div className="manage-boards-panel__header">
-          <h2 className="manage-boards-panel__title">{t(language, "manageBoards")}</h2>
+          <h2 className="manage-boards-panel__title" id="manage-boards-title">{t(language, "manageBoards")}</h2>
           <button
             className="manage-boards-panel__close"
             onClick={onClose}

@@ -145,10 +145,10 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   const previewIconColor: string | undefined = _foundIconColorOpt?.color ?? undefined;
 
   return (
-    <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
-      <div className="add-tile-panel" ref={panelRef}>
+    <div className="add-tile-overlay">
+      <div className="add-tile-panel" role="dialog" aria-modal="true" aria-labelledby="add-tile-title" ref={panelRef}>
         <div className="add-tile-panel__header">
-          <h2 className="add-tile-panel__title">{t(language, "addTileTitle")}</h2>
+          <h2 className="add-tile-panel__title" id="add-tile-title">{t(language, "addTileTitle")}</h2>
           <button
             className="add-tile-panel__close"
             onClick={onClose}

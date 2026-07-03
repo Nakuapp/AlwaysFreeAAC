@@ -90,10 +90,10 @@ export function Settings({
   }, [onClose]);
 
   return (
-    <div className="settings-overlay" role="dialog" aria-modal="true" aria-label={t(language, "settings")}>
-      <div className="settings-panel" ref={panelRef}>
+    <div className="settings-overlay">
+      <div className="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" ref={panelRef}>
         <div className="settings-panel__header">
-          <h2 className="settings-panel__title">
+          <h2 className="settings-panel__title" id="settings-title">
             <SettingsIcon className="settings-panel__title-icon" aria-hidden="true" focusable="false" />
             {t(language, "settings")}
           </h2>
