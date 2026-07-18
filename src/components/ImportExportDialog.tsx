@@ -51,7 +51,13 @@ export function ImportExportDialog({
   const [importCount, setImportCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   useFocusTrap(panelRef);
+
+  // Move focus into the dialog on open (WCAG 2.4.3)
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -154,6 +160,7 @@ export function ImportExportDialog({
             onClick={onClose}
             aria-label={t(language, "close")}
             type="button"
+            ref={closeButtonRef}
           >
             <X className="ie-panel__close-icon" aria-hidden="true" focusable="false" />
           </button>

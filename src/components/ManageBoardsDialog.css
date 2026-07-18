@@ -121,6 +121,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
+  margin: 0;
 }
 
 .manage-boards-section__add-btn {

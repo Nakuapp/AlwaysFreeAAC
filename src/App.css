@@ -43,9 +43,9 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
   color: var(--header-text);
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   padding: 0.35rem 0.7rem;
   font-size: 0.85rem;

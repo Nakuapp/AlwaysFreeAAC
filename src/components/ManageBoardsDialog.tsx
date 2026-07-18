@@ -34,7 +34,13 @@ export function ManageBoardsDialog({
   const [renamingValue, setRenamingValue] = useState("");
   const skipRenameBlurRef = useRef(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   useFocusTrap(panelRef);
+
+  // Move focus into the dialog on open (WCAG 2.4.3)
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -112,6 +118,7 @@ export function ManageBoardsDialog({
             onClick={onClose}
             aria-label={t(language, "close")}
             type="button"
+            ref={closeButtonRef}
           >
             <X className="manage-boards-panel__close-icon" aria-hidden="true" focusable="false" />
           </button>
@@ -121,7 +128,7 @@ export function ManageBoardsDialog({
           {/* User boards section */}
           <div className="manage-boards-section">
             <div className="manage-boards-section__header">
-              <span className="manage-boards-section__title">{t(language, "userBoards")}</span>
+              <h3 className="manage-boards-section__title">{t(language, "userBoards")}</h3>
               <button
                 type="button"
                 className="manage-boards-section__add-btn"
@@ -266,7 +273,7 @@ export function ManageBoardsDialog({
 
           {/* Built-in boards section */}
           <div className="manage-boards-section">
-            <span className="manage-boards-section__title">{t(language, "builtInBoards")}</span>
+            <h3 className="manage-boards-section__title">{t(language, "builtInBoards")}</h3>
             <ul className="manage-boards-list" role="list">
               {builtInCategories.map((cat) => {
                 const hidden = hiddenBuiltinIds.has(cat.id);

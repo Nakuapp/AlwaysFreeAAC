@@ -263,7 +263,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddT
                     {t(language, "tileIconStyleFilled")}
                   </button>
                 </div>
-                <div className="add-tile-icon-grid" role="listbox" aria-label={t(language, "tileIcon")}>
+                <div className="add-tile-icon-grid" role="group" aria-label={t(language, "tileIcon")}>
                   {filteredIcons.map((icon) => (
                     <button
                       key={icon.value}
@@ -271,8 +271,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddT
                       className={`add-tile-icon-grid__btn${selectedIconName === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
                       onClick={() => setSelectedIconName(icon.value)}
                       aria-label={icon.label}
-                      aria-selected={selectedIconName === icon.value}
-                      role="option"
+                      aria-pressed={selectedIconName === icon.value}
                     >
                       <IconVisual value={toAppIconValue(icon.value, selectedIconStyle)} className="add-tile-icon-grid__icon" />
                     </button>
