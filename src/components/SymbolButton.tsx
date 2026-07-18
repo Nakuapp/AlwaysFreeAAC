@@ -60,7 +60,7 @@ export function SymbolButton({
         className={`symbol-btn symbol-btn--${size}${onEdit ? " symbol-btn--editable" : ""}`}
         style={{ "--symbol-bg": bg } as CSSProperties}
         onClick={() => onEdit ? onEdit(symbol) : onClick(symbol)}
-        aria-label={symbol.speak ?? symbol.label}
+        aria-label={onEdit ? (editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`) : (symbol.speak ?? symbol.label)}
         disabled={disabled && !onEdit}
         type="button"
       >

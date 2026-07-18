@@ -132,6 +132,7 @@ function parseSymbol(tile: Record<string, unknown>): Symbol {
     emoji: (tile.emoji as string) || (tile.icon as string),
     speak: typeof tile.speak === "string" ? tile.speak : undefined,
     color: typeof tile.color === "string" ? tile.color : undefined,
+    iconColor: typeof tile.iconColor === "string" ? tile.iconColor : undefined,
     isCustom: true,
   };
 }
@@ -280,6 +281,7 @@ export default function App() {
 
   const handleOpenAddTile = useCallback(() => {
     captureFocus();
+    setEditingTile(null);
     setShowAddTile(true);
   }, [captureFocus]);
 
@@ -291,6 +293,7 @@ export default function App() {
   const handleOpenEditTile = useCallback(
     (sym: Symbol) => {
       captureFocus();
+      setShowAddTile(false);
       setEditingTile(sym);
     },
     [captureFocus]
