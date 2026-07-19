@@ -76,7 +76,22 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         .catch(() => {
           // Voice enumeration unavailable on some Android versions; default voice will be used
         });
-      return;
+
+      // Use plugin events for accurate speaking state on native (the promise resolves
+      // before speech actually starts, so the indicator would otherwise flicker off immediately).
+      let startHandle: { remove: () => Promise<void> } | undefined;
+      let endHandle: { remove: () => Promise<void> } | undefined;
+      let errorHandle: { remove: () => Promise<void> } | undefined;
+
+      SpeechSynthesis.addListener("start", () => setSpeaking(true)).then((h) => { startHandle = h; }).catch(() => {});
+      SpeechSynthesis.addListener("end", () => setSpeaking(false)).then((h) => { endHandle = h; }).catch(() => {});
+      SpeechSynthesis.addListener("error", () => setSpeaking(false)).then((h) => { errorHandle = h; }).catch(() => {});
+
+      return () => {
+        startHandle?.remove().catch(() => {});
+        endHandle?.remove().catch(() => {});
+        errorHandle?.remove().catch(() => {});
+      };
     }
 
     if (!("speechSynthesis" in window)) return;
@@ -118,20 +133,19 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         const voiceInfo = voiceName
           ? nativeVoicesRef.current.find((v) => v.id === voiceName)
           : undefined;
-        // Always include a language so the native TTS engine can select an appropriate voice.
-        // Prefer the matched voice's language, then the system locale, then a safe default.
-        const language = voiceInfo?.language ?? (typeof navigator !== "undefined" ? navigator.language : undefined) ?? "en-US";
-        setSpeaking(true);
+        // Only supply voiceId/language when the user has explicitly selected a voice.
+        // Passing a language without a voiceId calls tts.setLanguage() which can fail
+        // silently on devices that don't have the requested locale's TTS data installed,
+        // resulting in no audio output. When no voice is selected, letting the Android TTS
+        // engine use its device default is both safer and more reliable.
         SpeechSynthesis.speak({
           text,
           rate,
           pitch,
           volume,
           queueStrategy: "Flush",
-          language,
-          ...(voiceInfo && { voiceId: voiceInfo.id }),
+          ...(voiceInfo && { voiceId: voiceInfo.id, language: voiceInfo.language }),
         })
-          .then(() => setSpeaking(false))
           .catch(() => setSpeaking(false));
         return;
       }
