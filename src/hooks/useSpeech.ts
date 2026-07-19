@@ -31,13 +31,17 @@ const ENGINE_PATTERNS: Array<[RegExp, string]> = [
   [/^Apple\b/i, "Apple"],
 ];
 
-/** Derive a human-readable TTS engine name from a voice's id and name fields. */
+/** Derive a human-readable TTS engine name from a voice's id and name fields.
+ *  Returns "Device" (not "System") for unrecognised engines to avoid a
+ *  name collision with the "System" (all-engines) option in the TTS engine
+ *  dropdown whose label comes from the ttsEngineAll i18n key.
+ */
 export function detectTTSEngine(voice: { id: string; name: string }): string {
   const candidate = `${voice.id} ${voice.name}`;
   for (const [pattern, label] of ENGINE_PATTERNS) {
     if (pattern.test(candidate)) return label;
   }
-  return "System";
+  return "Device";
 }
 
 export interface UseSpeechOptions {
@@ -133,18 +137,24 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         const voiceInfo = voiceName
           ? nativeVoicesRef.current.find((v) => v.id === voiceName)
           : undefined;
-        // Only supply voiceId/language when the user has explicitly selected a voice.
-        // Passing a language without a voiceId calls tts.setLanguage() which can fail
-        // silently on devices that don't have the requested locale's TTS data installed,
-        // resulting in no audio output. When no voice is selected, letting the Android TTS
-        // engine use its device default is both safer and more reliable.
+        // Always include a language so the native TTS engine can select an appropriate
+        // voice. Without an explicit language some Android engines produce no audio.
+        // Prefer the matched voice's language, then the system locale, then "en-US".
+        const language =
+          voiceInfo?.language ??
+          (typeof navigator !== "undefined" ? navigator.language : undefined) ??
+          "en-US";
+        // Set speaking immediately so the UI indicator responds before the async
+        // native event arrives; the "end"/"error" plugin event clears it.
+        setSpeaking(true);
         SpeechSynthesis.speak({
           text,
           rate,
           pitch,
           volume,
           queueStrategy: "Flush",
-          ...(voiceInfo && { voiceId: voiceInfo.id, language: voiceInfo.language }),
+          language,
+          ...(voiceInfo && { voiceId: voiceInfo.id }),
         })
           .catch(() => setSpeaking(false));
         return;
