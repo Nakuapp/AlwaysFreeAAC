@@ -129,8 +129,12 @@ export function Settings({
   onClose,
 }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>("speech");
-  const [voiceFilter, setVoiceFilter] = useState("");
-  const [selectedEngine, setSelectedEngine] = useState<string>("");
+  const [selectedEngine, setSelectedEngine] = useState<string>(() => {
+    // Initialise from the currently-saved voice so the UI reflects stored settings.
+    if (!selectedVoice) return "";
+    return voices.find((v) => v.id === selectedVoice)?.engine ?? "";
+  });
+  const engineAutoSetRef = useRef(false);
   const platform = Capacitor.getPlatform();
   const panelRef = useRef<HTMLDivElement>(null);
   const tabPanelId = useId();
@@ -143,44 +147,36 @@ export function Settings({
   const [importCount, setImportCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // When the engine selection changes, reset voice filter
+  // Once voices load asynchronously, sync selectedEngine to match the saved voice.
+  useEffect(() => {
+    if (engineAutoSetRef.current || voices.length === 0) return;
+    engineAutoSetRef.current = true;
+    if (selectedVoice) {
+      const voiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
+      if (voiceEngine) setSelectedEngine(voiceEngine);
+    }
+  }, [voices, selectedVoice]);
+
+  // Handle engine dropdown change.
   const handleEngineChange = useCallback((engine: string) => {
+    engineAutoSetRef.current = true; // prevent async re-init from overriding user choice
     setSelectedEngine(engine);
-    setVoiceFilter("");
-  }, []);
-
-  // When engine changes and current voice is from a different engine, switch to first available
-  useEffect(() => {
-    if (!selectedEngine) return;
-    const currentVoiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
-    if (currentVoiceEngine && currentVoiceEngine !== selectedEngine) {
-      const firstVoiceForEngine = voices.find((v) => v.engine === selectedEngine);
-      if (firstVoiceForEngine) onVoiceChange(firstVoiceForEngine.id);
+    if (!engine) {
+      // "System" selected — clear any specific voice so TTS uses the device default.
+      onVoiceChange("");
+    } else {
+      // Switching engine: clear voice if it belongs to a different engine.
+      const currentVoiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
+      if (currentVoiceEngine !== engine) {
+        onVoiceChange("");
+      }
     }
-  }, [selectedEngine, selectedVoice, voices, onVoiceChange]);
+  }, [onVoiceChange, voices, selectedVoice]);
 
-  // Auto-select engine when only one is available
-  useEffect(() => {
-    if (availableEngines.length === 1 && !selectedEngine) {
-      setSelectedEngine(availableEngines[0]);
-    }
-  }, [availableEngines, selectedEngine]);
-
-  const normalizedFilter = voiceFilter.trim().toLowerCase();
-
-  const engineFilteredVoices = selectedEngine
+  // Voices for the currently-selected engine (empty when engine is "" / System).
+  const voicesForEngine = selectedEngine
     ? voices.filter((v) => v.engine === selectedEngine)
-    : voices;
-
-  const filteredVoices = normalizedFilter
-    ? engineFilteredVoices.filter(
-        (v) =>
-          v.name.toLowerCase().includes(normalizedFilter) ||
-          v.lang.toLowerCase().includes(normalizedFilter)
-      )
-    : engineFilteredVoices;
-
-  const showEngineSelector = voices.length > 0;
+    : [];
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -345,97 +341,83 @@ export function Settings({
             hidden={activeTab !== "speech"}
             className="settings-tabpanel"
           >
-            {/* TTS Engine (shown whenever voices are available to clarify engine/filter voices) */}
-            {showEngineSelector && (
+            {/* TTS Engine — always visible; "System" means use the device default */}
+            <div className="settings-field">
+              <label className="settings-field__label" htmlFor="engine-select">
+                <Cpu className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+                {t(language, "ttsEngine")}
+              </label>
+              <select
+                id="engine-select"
+                className="settings-field__select"
+                value={selectedEngine}
+                onChange={(e) => handleEngineChange(e.target.value)}
+              >
+                <option value="">{t(language, "ttsEngineAll")}</option>
+                {availableEngines.map((eng) => (
+                  <option key={eng} value={eng}>{eng}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Voice selection — only shown when a specific engine is selected */}
+            {selectedEngine && (
               <div className="settings-field">
-                <label className="settings-field__label" htmlFor="engine-select">
-                  <Cpu className="settings-field__label-icon" aria-hidden="true" focusable="false" />
-                  {t(language, "ttsEngine")}
+                <label className="settings-field__label" htmlFor="voice-select">
+                  <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+                  {t(language, "voice")}
                 </label>
-                <select
-                  id="engine-select"
-                  className="settings-field__select"
-                  value={selectedEngine}
-                  onChange={(e) => handleEngineChange(e.target.value)}
-                >
-                  {availableEngines.length > 1 && (
-                    <option value="">{t(language, "ttsEngineAll")}</option>
-                  )}
-                  {availableEngines.map((eng) => (
-                    <option key={eng} value={eng}>{eng}</option>
-                  ))}
-                </select>
+                {voicesForEngine.length === 0 ? (
+                  <p className="settings-field__hint">{t(language, "noVoices")}</p>
+                ) : (
+                  <>
+                    <div className="settings-field__voice-row">
+                      <select
+                        id="voice-select"
+                        className="settings-field__select settings-field__select--inline"
+                        value={selectedVoice}
+                        onChange={(e) => onVoiceChange(e.target.value)}
+                      >
+                        <option value="">{t(language, "defaultVoice")}</option>
+                        {Array.from(
+                          voicesForEngine.reduce((groups, v) => {
+                            const lang = v.lang.split("-")[0].toUpperCase();
+                            if (!groups.has(lang)) groups.set(lang, []);
+                            groups.get(lang)!.push(v);
+                            return groups;
+                          }, new Map<string, VoiceOption[]>()),
+                          ([lang, group]) => (
+                            <optgroup key={lang} label={lang}>
+                              {group.map((v) => (
+                                <option key={v.id} value={v.id}>
+                                  {v.name}
+                                  {v.isNetworkConnectionRequired ? ` ${t(language, "onlineVoiceSuffix")}` : ""}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )
+                        )}
+                      </select>
+                      <button
+                        type="button"
+                        className="settings-field__preview-btn"
+                        onClick={() => onPreviewVoice(selectedVoice || (voicesForEngine[0]?.id ?? ""))}
+                        aria-label={t(language, "previewVoice")}
+                        title={t(language, "previewVoice")}
+                      >
+                        <Volume2 className="settings-field__preview-icon" aria-hidden="true" focusable="false" />
+                      </button>
+                    </div>
+                    {platform !== "ios" && (
+                      <p className="settings-field__tip">
+                        <Info className="settings-field__tip-icon" aria-hidden="true" focusable="false" />{" "}
+                        {t(language, platform === "android" ? "moreVoicesTipAndroid" : "moreVoicesTipWeb")}
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
             )}
-
-            {/* Voice selection */}
-            <div className="settings-field">
-              <label className="settings-field__label" htmlFor="voice-select">
-                <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
-                {t(language, "voice")}
-              </label>
-              {voices.length === 0 ? (
-                <p className="settings-field__hint">{t(language, "noVoices")}</p>
-              ) : (
-                <>
-                  <div className="settings-field__voice-row">
-                    <input
-                      id="voice-filter"
-                      type="search"
-                      className="settings-field__search settings-field__search--inline"
-                      placeholder={t(language, "voiceFilterPlaceholder")}
-                      aria-label={t(language, "voiceFilterLabel")}
-                      value={voiceFilter}
-                      onChange={(e) => setVoiceFilter(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="settings-field__preview-btn"
-                      onClick={() => onPreviewVoice(selectedVoice || (filteredVoices[0]?.id ?? ""))}
-                      aria-label={t(language, "previewVoice")}
-                      title={t(language, "previewVoice")}
-                    >
-                      <Volume2 className="settings-field__preview-icon" aria-hidden="true" focusable="false" />
-                    </button>
-                  </div>
-                  <select
-                    id="voice-select"
-                    className="settings-field__select"
-                    value={selectedVoice}
-                    onChange={(e) => onVoiceChange(e.target.value)}
-                  >
-                    <option value="">{t(language, "defaultVoice")}</option>
-                    {Array.from(
-                      filteredVoices.reduce((groups, v) => {
-                        const lang = v.lang.split("-")[0].toUpperCase();
-                        if (!groups.has(lang)) groups.set(lang, []);
-                        groups.get(lang)!.push(v);
-                        return groups;
-                      }, new Map<string, VoiceOption[]>()),
-                      ([lang, group]) => (
-                        <optgroup key={lang} label={lang}>
-                          {group.map((v) => (
-                            <option key={v.id} value={v.id}>
-                              {v.name}
-                              {v.isNetworkConnectionRequired ? ` ${t(language, "onlineVoiceSuffix")}` : ""}
-                            </option>
-                          ))}
-                        </optgroup>
-                      )
-                    )}
-                  </select>
-                  {filteredVoices.length === 0 && voiceFilter.trim() && (
-                    <p className="settings-field__hint">{t(language, "voiceFilterNoMatch")}</p>
-                  )}
-                  {platform !== "ios" && (
-                    <p className="settings-field__tip">
-                      <Info className="settings-field__tip-icon" aria-hidden="true" focusable="false" />{" "}
-                      {t(language, platform === "android" ? "moreVoicesTipAndroid" : "moreVoicesTipWeb")}
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
 
             {/* Vocal style */}
             <div className="settings-field">

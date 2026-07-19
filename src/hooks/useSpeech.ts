@@ -118,6 +118,9 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         const voiceInfo = voiceName
           ? nativeVoicesRef.current.find((v) => v.id === voiceName)
           : undefined;
+        // Always include a language so the native TTS engine can select an appropriate voice.
+        // Prefer the matched voice's language, then the system locale, then a safe default.
+        const language = voiceInfo?.language ?? (typeof navigator !== "undefined" ? navigator.language : undefined) ?? "en-US";
         setSpeaking(true);
         SpeechSynthesis.speak({
           text,
@@ -125,7 +128,8 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           pitch,
           volume,
           queueStrategy: "Flush",
-          ...(voiceInfo && { voiceId: voiceInfo.id, language: voiceInfo.language }),
+          language,
+          ...(voiceInfo && { voiceId: voiceInfo.id }),
         })
           .then(() => setSpeaking(false))
           .catch(() => setSpeaking(false));
@@ -136,23 +140,27 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
       window.speechSynthesis.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = rate;
-      utterance.pitch = pitch;
-      utterance.volume = volume;
+      // A brief delay after cancel() is required in some Chromium builds to prevent
+      // the subsequent speak() call from being silently ignored.
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = rate;
+        utterance.pitch = pitch;
+        utterance.volume = volume;
 
-      if (voiceName) {
-        const match = window.speechSynthesis
-          .getVoices()
-          .find((v) => v.name === voiceName);
-        if (match) utterance.voice = match;
-      }
+        if (voiceName) {
+          const match = window.speechSynthesis
+            .getVoices()
+            .find((v) => v.name === voiceName);
+          if (match) utterance.voice = match;
+        }
 
-      utterance.onstart = () => setSpeaking(true);
-      utterance.onend = () => setSpeaking(false);
-      utterance.onerror = () => setSpeaking(false);
+        utterance.onstart = () => setSpeaking(true);
+        utterance.onend = () => setSpeaking(false);
+        utterance.onerror = () => setSpeaking(false);
 
-      window.speechSynthesis.speak(utterance);
+        window.speechSynthesis.speak(utterance);
+      }, 0);
     },
     [isNative]
   );
