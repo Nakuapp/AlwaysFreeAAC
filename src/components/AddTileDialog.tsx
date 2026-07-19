@@ -65,6 +65,8 @@ interface AddTileDialogProps {
   onClose: () => void;
   /** When provided, pre-fills the dialog for editing an existing tile */
   initialSymbol?: Symbol;
+  /** When provided, pre-fills just the label (used when adding from keyboard search) */
+  initialLabel?: string;
   /** Global tile size (used to show "Default" label in the size picker) */
   defaultTileSize?: TileSize;
 }
@@ -86,11 +88,11 @@ function deriveIconState(emoji: string | undefined): {
   return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null };
 }
 
-export function AddTileDialog({ language, onSave, onClose, initialSymbol, defaultTileSize }: AddTileDialogProps) {
+export function AddTileDialog({ language, onSave, onClose, initialSymbol, initialLabel, defaultTileSize }: AddTileDialogProps) {
   const isEditing = initialSymbol !== undefined;
   const initial = deriveIconState(initialSymbol?.emoji);
 
-  const [label, setLabel] = useState(initialSymbol?.label ?? "");
+  const [label, setLabel] = useState(initialSymbol?.label ?? initialLabel ?? "");
   const [speakOverride, setSpeakOverride] = useState(initialSymbol?.speak ?? "");
   const [iconMode, setIconMode] = useState<"icon" | "image">(initial.iconMode);
   const [iconFilter, setIconFilter] = useState("");

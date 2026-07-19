@@ -21,17 +21,20 @@ The web app works on any device and can be added to your home screen for quick a
 ## Features
 
 - **Symbol boards** — 8 categories with 100+ symbols using emoji visuals and clear text labels
-- **Sentence builder** — tap symbols to compose sentences in the display bar
+- **Sentence builder** — tap symbols or type into the built-in search bar to compose sentences
+- **Keyboard search** — type any word to find matching tiles instantly; tap a result to add it to the sentence; if a word isn't on any board and a custom board is active, an "Add to board" shortcut opens the tile editor pre-filled
 - **Text-to-speech** — speaks sentences aloud using your device's built-in voice
 - **Category navigation** — Core, People, Actions, Feelings, Food & Drink, Places, Describe, Social
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
 - **Accessible** — WCAG 2.1 AA compliant; works with screen readers, keyboard navigation, and respects reduced-motion preferences
-- **Customisable** — adjust voice, speech rate/pitch, tile size (XS–XL), font size, language, theme, and custom tiles
+- **Customisable** — adjust voice, speech rate/pitch, tile size (XS–XL), font size, language, theme, layout order, and custom tiles
+- **Layout order** — choose "Tabs on top, speech at bottom" (default) or "Speech on top, tabs below" to suit your workflow
 - **Icon styles & colours** — choose outlined or filled icon styles and a custom accent colour for each tile
 - **In-place tile editing** — tap any custom tile in edit mode to update its label, icon, colour, and spoken text
 - **Per-tile size override** — set an individual tile to a different size so important symbols stand out
 - **Drag-and-drop reorder** — drag tiles in edit mode to arrange them however you like
+- **Logo = settings** — the app logo in the navigation bar opens the settings panel; no separate header bar
 - **Your preferences are saved** — settings and custom boards are remembered between sessions
 
 ---
@@ -164,13 +167,13 @@ npx cap sync
 src/
 ├── assets/               # Static assets bundled by Vite
 ├── components/
-│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size)
-│   ├── CategoryNav.tsx   # Horizontal scrollable category tabs + Manage Boards / Import-Export buttons
+│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size, pre-fill from search)
+│   ├── CategoryNav.tsx   # Navigation bar: logo/settings button (fixed left) + scrollable category tabs + manage/import actions
 │   ├── IconVisual.tsx    # Renders icon or image for a tile
 │   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
 │   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete) and toggle built-in board visibility
-│   ├── SentenceBar.tsx   # Sentence builder + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog (voice, speed, tile size XS–XL, language, theme)
+│   ├── SentenceBar.tsx   # Sentence builder: word chips + keyboard search input with live suggestions + speak/clear controls
+│   ├── Settings.tsx      # Settings dialog (voice, speed, tile size XS–XL, language, theme, layout order)
 │   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
 │   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
 ├── data/
@@ -182,18 +185,18 @@ src/
 ├── utils/
 │   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
 ├── colors.ts             # Shared icon-colour hex values (used by SymbolButton & AddTileDialog)
-├── i18n.ts               # Internationalisation strings (en / es / fr)
+├── i18n.ts               # Internationalisation strings (en / es / fr); exports Language, Theme, LayoutOrder types
 ├── iconUtils.ts          # Lucide icon search and utility helpers
 ├── icons.tsx             # Shared Lucide icon registry
 ├── tileSize.ts           # Named tile-size constants (xs–xl), column counts, and span helpers
 ├── App.tsx               # Root application component
-├── App.css               # App shell styles
+├── App.css               # App shell styles (layout order CSS using `order` + safe-area insets)
 ├── main.tsx              # App entry point
 └── index.css             # Global reset + CSS variables
 public/
 ├── app-icon-192.png      # PWA icon + browser favicon
 ├── app-icon-512.png      # PWA icon + maskable icon
-└── app-logo.png          # Header/app logo
+└── app-logo.png          # Logo shown in CategoryNav (tapping opens Settings)
 resources/
 └── icon.png              # Source image for native Android/iOS icon generation
 ```

@@ -1,3 +1,4 @@
+import { useMemo, useRef, useState } from "react";
 import type { Symbol } from "../data/vocabulary";
 import { Delete, Play, Trash2, Volume2 } from "lucide-react";
 import { t, type Language } from "../i18n";
@@ -12,7 +13,15 @@ interface SentenceBarProps {
   onRemoveLast: () => void;
   onSpeakWord: (symbol: Symbol) => void;
   language: Language;
+  /** All symbols across every board, used for live search suggestions */
+  allSymbols?: Symbol[];
+  /** Called when the user selects a suggestion to add it to the sentence */
+  onSelectSymbol?: (symbol: Symbol) => void;
+  /** Called when the user wants to add a typed word as a new board tile */
+  onAddToBoard?: (word: string) => void;
 }
+
+const MAX_SUGGESTIONS = 8;
 
 export function SentenceBar({
   sentence,
@@ -22,36 +31,138 @@ export function SentenceBar({
   onRemoveLast,
   onSpeakWord,
   language,
+  allSymbols,
+  onSelectSymbol,
+  onAddToBoard,
 }: SentenceBarProps) {
+  const [inputText, setInputText] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const trimmed = inputText.trim();
+
+  const suggestions = useMemo(() => {
+    if (!trimmed || !allSymbols) return [];
+    const q = trimmed.toLowerCase();
+    return allSymbols
+      .filter((s) => s.label.toLowerCase().includes(q))
+      .slice(0, MAX_SUGGESTIONS);
+  }, [trimmed, allSymbols]);
+
+  const hasExactMatch = suggestions.some(
+    (s) => s.label.toLowerCase() === trimmed.toLowerCase()
+  );
+  const showAddToBoard = Boolean(trimmed && !hasExactMatch && onAddToBoard);
+  const showSuggestions = suggestions.length > 0 || showAddToBoard;
+
+  function selectSuggestion(sym: Symbol) {
+    onSelectSymbol?.(sym);
+    setInputText("");
+    inputRef.current?.focus();
+  }
+
+  function handleAddToBoardClick() {
+    if (onAddToBoard && trimmed) {
+      onAddToBoard(trimmed);
+      setInputText("");
+    }
+  }
+
+  function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      if (suggestions.length > 0) {
+        selectSuggestion(suggestions[0]);
+      } else if (showAddToBoard) {
+        handleAddToBoardClick();
+      }
+    } else if (e.key === "Escape") {
+      setInputText("");
+    }
+  }
+
   return (
     <div className="sentence-bar" role="region" aria-label={t(language, "sentenceBuilder")}>
-      <ul
-        className="sentence-bar__words"
-        role="list"
-        aria-label={t(language, "currentSentence")}
-        aria-live="polite"
-        aria-atomic="false"
-      >
-        {sentence.length === 0 ? (
-          <li className="sentence-bar__placeholder-item">
-            <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
-          </li>
-        ) : (
-          sentence.map((sym, idx) => (
-            <li key={`${sym.id}-${idx}`} className="sentence-bar__word-item">
+      <div className="sentence-bar__left">
+        <ul
+          className="sentence-bar__words"
+          role="list"
+          aria-label={t(language, "currentSentence")}
+          aria-live="polite"
+          aria-atomic="false"
+        >
+          {sentence.length === 0 ? (
+            <li className="sentence-bar__placeholder-item">
+              <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
+            </li>
+          ) : (
+            sentence.map((sym, idx) => (
+              <li key={`${sym.id}-${idx}`} className="sentence-bar__word-item">
+                <button
+                  className="sentence-bar__word"
+                  onClick={() => onSpeakWord(sym)}
+                  aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
+                  type="button"
+                >
+                  <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
+                  <span>{sym.label}</span>
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+
+        <div className="sentence-bar__input-row">
+          <input
+            ref={inputRef}
+            type="text"
+            className="sentence-bar__type-input"
+            placeholder={t(language, "typeToSearch")}
+            aria-label={t(language, "typeToSearch")}
+            aria-autocomplete="list"
+            aria-expanded={showSuggestions}
+            aria-controls={showSuggestions ? "sentence-suggestions" : undefined}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+          />
+        </div>
+
+        {showSuggestions && (
+          <div
+            id="sentence-suggestions"
+            className="sentence-bar__suggestions"
+            role="listbox"
+            aria-label="Suggestions"
+          >
+            {suggestions.map((sym) => (
               <button
-                className="sentence-bar__word"
-                onClick={() => onSpeakWord(sym)}
-                aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
+                key={sym.id}
                 type="button"
+                role="option"
+                aria-selected={false}
+                className="sentence-bar__suggestion-item"
+                onClick={() => selectSuggestion(sym)}
               >
-                <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
+                <IconVisual value={sym.emoji} className="sentence-bar__suggestion-icon" />
                 <span>{sym.label}</span>
               </button>
-            </li>
-          ))
+            ))}
+            {showAddToBoard && (
+              <button
+                type="button"
+                role="option"
+                aria-selected={false}
+                className="sentence-bar__suggestion-item sentence-bar__suggestion-item--add"
+                onClick={handleAddToBoardClick}
+              >
+                {t(language, "addWordToBoard", { word: trimmed })}
+              </button>
+            )}
+          </div>
         )}
-      </ul>
+      </div>
 
       <div className="sentence-bar__controls">
         <button

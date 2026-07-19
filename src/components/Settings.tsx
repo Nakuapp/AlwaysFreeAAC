@@ -6,6 +6,7 @@ import {
   Languages,
   MoonStar,
   Music,
+  PanelTop,
   Settings as SettingsIcon,
   SlidersHorizontal,
   Type,
@@ -14,7 +15,7 @@ import {
 } from "lucide-react";
 import type { VoiceOption } from "../hooks/useSpeech";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { LANGUAGE_OPTIONS, t, type Language, type Theme } from "../i18n";
+import { LANGUAGE_OPTIONS, t, type Language, type Theme, type LayoutOrder } from "../i18n";
 import type { TileSize } from "../data/vocabulary";
 import { TILE_SIZES, TILE_SIZE_COLUMNS } from "../tileSize";
 import "./Settings.css";
@@ -30,6 +31,7 @@ interface SettingsProps {
   fontSize: number;
   language: Language;
   theme: Theme;
+  layoutOrder: LayoutOrder;
   onVoiceChange: (name: string) => void;
   onVoicePresetChange: (preset: string) => void;
   onRateChange: (rate: number) => void;
@@ -39,6 +41,7 @@ interface SettingsProps {
   onFontSizeChange: (size: number) => void;
   onLanguageChange: (language: Language) => void;
   onThemeChange: (theme: Theme) => void;
+  onLayoutOrderChange: (order: LayoutOrder) => void;
   onPreviewVoice: (voiceId: string) => void;
   onClose: () => void;
 }
@@ -54,6 +57,7 @@ export function Settings({
   fontSize,
   language,
   theme,
+  layoutOrder,
   onVoiceChange,
   onVoicePresetChange,
   onRateChange,
@@ -63,6 +67,7 @@ export function Settings({
   onFontSizeChange,
   onLanguageChange,
   onThemeChange,
+  onLayoutOrderChange,
   onPreviewVoice,
   onClose,
 }: SettingsProps) {
@@ -143,6 +148,22 @@ export function Settings({
             >
               <option value="light">{t(language, "light")}</option>
               <option value="dark">{t(language, "dark")}</option>
+            </select>
+          </div>
+
+          <div className="settings-field">
+            <label className="settings-field__label" htmlFor="layout-order-select">
+              <PanelTop className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+              {t(language, "layoutOrder")}
+            </label>
+            <select
+              id="layout-order-select"
+              className="settings-field__select"
+              value={layoutOrder}
+              onChange={(e) => onLayoutOrderChange(e.target.value as LayoutOrder)}
+            >
+              <option value="tabs-top">{t(language, "layoutTabsTop")}</option>
+              <option value="speech-top">{t(language, "layoutSpeechTop")}</option>
             </select>
           </div>
 

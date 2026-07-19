@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Settings as SettingsIcon } from "lucide-react";
 import { CATEGORIES } from "./data/vocabulary";
 import type { Symbol } from "./data/vocabulary";
 import type { TileSize } from "./data/vocabulary";
@@ -12,7 +11,7 @@ import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
 import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
 import { ImportExportDialog } from "./components/ImportExportDialog";
-import { localizeCategories, t, type Language, type Theme } from "./i18n";
+import { localizeCategories, t, type Language, type Theme, type LayoutOrder } from "./i18n";
 import { useRestoreFocus } from "./hooks/useRestoreFocus";
 import "./App.css";
 
@@ -38,6 +37,7 @@ interface AppSettings {
   fontSize: number;
   language: Language;
   theme: Theme;
+  layoutOrder: LayoutOrder;
 }
 
 function defaultSettings(): AppSettings {
@@ -51,6 +51,7 @@ function defaultSettings(): AppSettings {
     fontSize: 14,
     language: "en",
     theme: "light",
+    layoutOrder: "tabs-top",
   };
 }
 
@@ -72,6 +73,7 @@ const VALID_VOICE_PRESETS = new Set<AppSettings["voicePreset"]>([
 const VALID_LANGUAGES = new Set<Language>(["en", "es", "fr"]);
 const VALID_THEMES = new Set<Theme>(["light", "dark"]);
 const VALID_TILE_SIZES = new Set<TileSize>(["xs", "sm", "md", "lg", "xl"]);
+const VALID_LAYOUT_ORDERS = new Set<LayoutOrder>(["tabs-top", "speech-top"]);
 
 function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
   if (typeof preset !== "string") return "custom";
@@ -95,6 +97,10 @@ function loadSettings(): AppSettings {
         typeof parsed.theme === "string" && VALID_THEMES.has(parsed.theme as Theme)
           ? (parsed.theme as Theme)
           : "light";
+      const normalizedLayoutOrder =
+        typeof parsed.layoutOrder === "string" && VALID_LAYOUT_ORDERS.has(parsed.layoutOrder as LayoutOrder)
+          ? (parsed.layoutOrder as LayoutOrder)
+          : "tabs-top";
 
       // Migrate legacy numeric columns → named tileSize
       let normalizedTileSize: TileSize =
@@ -112,6 +118,7 @@ function loadSettings(): AppSettings {
         language: normalizedLanguage,
         theme: normalizedTheme,
         tileSize: normalizedTileSize,
+        layoutOrder: normalizedLayoutOrder,
       };
     }
   } catch {
@@ -250,6 +257,7 @@ export default function App() {
   const [userBoards, setUserBoards] = useState<UserBoard[]>(loadUserBoards);
   const [hiddenBuiltinIds, setHiddenBuiltinIds] = useState<Set<string>>(loadHiddenBuiltinIds);
   const [showAddTile, setShowAddTile] = useState(false);
+  const [addTileInitialLabel, setAddTileInitialLabel] = useState<string | undefined>();
   const [editingTile, setEditingTile] = useState<Symbol | null>(null);
   const [showManageBoards, setShowManageBoards] = useState(false);
   const [showImportExport, setShowImportExport] = useState(false);
@@ -284,6 +292,12 @@ export default function App() {
 
   const isUserBoard = userBoards.some((b) => b.id === activeCategoryId);
 
+  // Flat list of all symbols across all categories for keyboard search in SentenceBar
+  const allSymbols = useMemo(
+    () => allCategories.flatMap((c) => c.symbols),
+    [allCategories]
+  );
+
   const { capture: captureFocus, restore: restoreFocus } = useRestoreFocus();
 
   const handleOpenSettings = useCallback(() => {
@@ -296,14 +310,16 @@ export default function App() {
     restoreFocus();
   }, [restoreFocus]);
 
-  const handleOpenAddTile = useCallback(() => {
+  const handleOpenAddTile = useCallback((initialLabel?: string) => {
     captureFocus();
     setEditingTile(null);
+    setAddTileInitialLabel(initialLabel);
     setShowAddTile(true);
   }, [captureFocus]);
 
   const handleCloseAddTile = useCallback(() => {
     setShowAddTile(false);
+    setAddTileInitialLabel(undefined);
     restoreFocus();
   }, [restoreFocus]);
 
@@ -320,6 +336,14 @@ export default function App() {
     setEditingTile(null);
     restoreFocus();
   }, [restoreFocus]);
+
+  const handleAddToBoard = useCallback(
+    (word: string) => {
+      if (!isUserBoard) return;
+      handleOpenAddTile(word);
+    },
+    [isUserBoard, handleOpenAddTile]
+  );
 
   const handleOpenManageBoards = useCallback(() => {
     captureFocus();
@@ -540,26 +564,10 @@ export default function App() {
   };
 
   return (
-    <div className="app">
+    <div className="app" data-layout={settings.layoutOrder}>
       <a href="#main-content" className="skip-link">
         {t(settings.language, "skipToMain")}
       </a>
-      <header className="app-header">
-        <div className="app-header__brand">
-          <img src={import.meta.env.BASE_URL + 'app-logo.png'} className="app-header__logo" alt="" aria-hidden="true" />
-          <span className="app-header__title">{t(settings.language, "appName")}</span>
-        </div>
-        <button
-          className="app-header__settings-btn"
-          onClick={handleOpenSettings}
-          aria-label={t(settings.language, "openSettings")}
-          aria-haspopup="dialog"
-          type="button"
-        >
-          <SettingsIcon className="app-header__settings-icon" aria-hidden="true" focusable="false" />
-          <span className="app-header__settings-label">{t(settings.language, "settings")}</span>
-        </button>
-      </header>
 
       <SentenceBar
         sentence={sentence}
@@ -569,6 +577,9 @@ export default function App() {
         onRemoveLast={handleRemoveLast}
         onSpeakWord={handleSpeakWord}
         language={settings.language}
+        allSymbols={allSymbols}
+        onSelectSymbol={handleSymbolSelect}
+        onAddToBoard={isUserBoard ? handleAddToBoard : undefined}
       />
 
       <CategoryNav
@@ -580,6 +591,7 @@ export default function App() {
         }}
         onManageBoards={handleOpenManageBoards}
         onImportExport={handleOpenImportExport}
+        onOpenSettings={handleOpenSettings}
         language={settings.language}
       />
 
@@ -608,6 +620,7 @@ export default function App() {
           fontSize={settings.fontSize}
           language={settings.language}
           theme={settings.theme}
+          layoutOrder={settings.layoutOrder}
           onVoiceChange={(v) => updateSetting("voiceName", v)}
           onVoicePresetChange={applyVoicePreset}
           onRateChange={(r) =>
@@ -621,6 +634,7 @@ export default function App() {
           onFontSizeChange={(f) => updateSetting("fontSize", f)}
           onLanguageChange={(language) => updateSetting("language", language)}
           onThemeChange={(theme) => updateSetting("theme", theme)}
+          onLayoutOrderChange={(order) => updateSetting("layoutOrder", order)}
           onPreviewVoice={handlePreviewVoice}
           onClose={handleCloseSettings}
         />
@@ -630,6 +644,7 @@ export default function App() {
         <AddTileDialog
           language={settings.language}
           defaultTileSize={settings.tileSize}
+          initialLabel={addTileInitialLabel}
           onSave={handleAddCustomTile}
           onClose={handleCloseAddTile}
         />

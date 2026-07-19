@@ -2,6 +2,7 @@ import type { Category, Symbol } from "./data/vocabulary";
 
 export type Language = "en" | "es" | "fr";
 export type Theme = "light" | "dark";
+export type LayoutOrder = "tabs-top" | "speech-top";
 
 export const LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
   { code: "en", label: "English" },
@@ -149,7 +150,12 @@ type UiStringKey =
   | "tileSizeXl"
   | "moveTile"
   | "moveTileUp"
-  | "moveTileDown";
+  | "moveTileDown"
+  | "layoutOrder"
+  | "layoutTabsTop"
+  | "layoutSpeechTop"
+  | "typeToSearch"
+  | "addWordToBoard";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -293,6 +299,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     moveTile: "Move tile",
     moveTileUp: "Move tile left",
     moveTileDown: "Move tile right",
+    layoutOrder: "Layout order",
+    layoutTabsTop: "Tabs on top, speech at bottom",
+    layoutSpeechTop: "Speech on top, tabs below",
+    typeToSearch: "Type to search or add a word…",
+    addWordToBoard: "Add \"{{word}}\" to board",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -435,6 +446,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     moveTile: "Mover ficha",
     moveTileUp: "Mover ficha a la izquierda",
     moveTileDown: "Mover ficha a la derecha",
+    layoutOrder: "Orden del diseño",
+    layoutTabsTop: "Pestañas arriba, voz abajo",
+    layoutSpeechTop: "Voz arriba, pestañas abajo",
+    typeToSearch: "Escribe para buscar o agregar una palabra…",
+    addWordToBoard: "Agregar \"{{word}}\" al tablero",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -577,6 +593,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     moveTile: "Déplacer la fiche",
     moveTileUp: "Déplacer la fiche à gauche",
     moveTileDown: "Déplacer la fiche à droite",
+    layoutOrder: "Ordre de mise en page",
+    layoutTabsTop: "Onglets en haut, parole en bas",
+    layoutSpeechTop: "Parole en haut, onglets en bas",
+    typeToSearch: "Tapez pour rechercher ou ajouter un mot…",
+    addWordToBoard: "Ajouter « {{word}} » au tableau",
   },
 };
 

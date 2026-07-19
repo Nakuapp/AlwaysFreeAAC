@@ -1,13 +1,50 @@
 .category-nav {
+  display: flex;
+  align-items: stretch;
   background: var(--bg-subtle);
   border-bottom: 2px solid var(--border-medium);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
   flex-shrink: 0;
 }
 
-.category-nav::-webkit-scrollbar {
+/* ── Logo / settings trigger ─────────────────────────────────── */
+.category-nav__logo-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.4rem 0.6rem;
+  background: var(--header-bg);
+  border: none;
+  border-right: 2px solid var(--border-medium);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.category-nav__logo-btn:hover {
+  filter: brightness(1.15);
+}
+
+.category-nav__logo-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: -3px;
+}
+
+.category-nav__logo {
+  width: 1.6rem;
+  height: 1.6rem;
+  display: block;
+}
+
+/* ── Scrollable tabs area ───────────────────────────────────── */
+.category-nav__tabs-scroll {
+  flex: 1;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  min-width: 0;
+}
+
+.category-nav__tabs-scroll::-webkit-scrollbar {
   display: none;
 }
 
@@ -66,6 +103,15 @@
 }
 
 @media (min-width: 600px) {
+  .category-nav__logo {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  .category-nav__logo-btn {
+    padding: 0.4rem 0.75rem;
+  }
+
   .category-nav__btn {
     padding: 0.6rem 1rem;
     min-width: 70px;
