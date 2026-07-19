@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, DragEvent } from "react";
 import { GripVertical, Pencil, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { ICON_COLOR_HEX } from "../colors";
@@ -23,7 +23,7 @@ interface SymbolButtonProps {
   isDragOver?: boolean;
   onDragStart?: () => void;
   onDragEnter?: () => void;
-  onDragOver?: (e: React.DragEvent) => void;
+  onDragOver?: (e: DragEvent) => void;
   onDrop?: () => void;
   onDragEnd?: () => void;
 }

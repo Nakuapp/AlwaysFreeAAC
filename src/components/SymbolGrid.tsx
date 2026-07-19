@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type DragEvent } from "react";
 import { Check, Pencil, Plus } from "lucide-react";
 import type { TileSize, Symbol } from "../data/vocabulary";
 import { TILE_SIZE_COLUMNS, getTileColSpan } from "../tileSize";
@@ -54,7 +54,7 @@ export function SymbolGrid({
     }
   }
 
-  function handleDragOver(e: React.DragEvent, index: number) {
+  function handleDragOver(e: DragEvent, index: number) {
     e.preventDefault();
     if (dragIndex !== null && index !== dragIndex) {
       setDragOverIndex(index);

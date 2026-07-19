@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useId } from "react";
+import { useEffect, useRef, useState, useCallback, useId, type ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
 import {
   AppWindow,
@@ -125,7 +125,7 @@ export function Settings({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const tabs: Array<{ id: SettingsTab; label: string; icon: React.ReactNode }> = [
+  const tabs: Array<{ id: SettingsTab; label: string; icon: ReactNode }> = [
     {
       id: "speech",
       label: t(language, "settingsTabSpeech"),

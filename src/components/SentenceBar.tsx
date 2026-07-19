@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { Symbol } from "../data/vocabulary";
 import { Delete, Play, Trash2, Volume2 } from "lucide-react";
 import { t, type Language } from "../i18n";
@@ -67,7 +67,7 @@ export function SentenceBar({
     }
   }
 
-  function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleInputKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       if (suggestions.length > 0) {
         selectSuggestion(suggestions[0]);
@@ -134,7 +134,7 @@ export function SentenceBar({
             id="sentence-suggestions"
             className="sentence-bar__suggestions"
             role="listbox"
-            aria-label="Suggestions"
+            aria-label={t(language, "suggestions")}
           >
             {suggestions.map((sym) => (
               <button

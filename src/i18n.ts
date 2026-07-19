@@ -157,7 +157,8 @@ type UiStringKey =
   | "settingsTabDisplay"
   | "settingsTabApp"
   | "ttsEngine"
-  | "ttsEngineAll";
+  | "ttsEngineAll"
+  | "suggestions";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -308,6 +309,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     settingsTabApp: "App",
     ttsEngine: "TTS Engine",
     ttsEngineAll: "All engines",
+    suggestions: "Suggestions",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -457,6 +459,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     settingsTabApp: "App",
     ttsEngine: "Motor TTS",
     ttsEngineAll: "Todos los motores",
+    suggestions: "Sugerencias",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -606,6 +609,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     settingsTabApp: "App",
     ttsEngine: "Moteur TTS",
     ttsEngineAll: "Tous les moteurs",
+    suggestions: "Suggestions",
   },
 };
 
