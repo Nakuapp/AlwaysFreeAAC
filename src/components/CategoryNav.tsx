@@ -41,7 +41,7 @@ export function CategoryNav({
         aria-haspopup="dialog"
       >
         <img
-          src={import.meta.env.BASE_URL + "app-logo.png"}
+          src={import.meta.env.BASE_URL + "logo-300.png"}
           className="category-nav__logo"
           alt=""
           aria-hidden="true"
