@@ -9,7 +9,6 @@ import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
 import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
-import { ImportExportDialog } from "./components/ImportExportDialog";
 import { t, type Language, type Theme, type LayoutOrder } from "./i18n";
 import { useRestoreFocus } from "./hooks/useRestoreFocus";
 import "./App.css";
@@ -35,6 +34,7 @@ interface AppSettings {
   fontSize: number;
   language: Language;
   theme: Theme;
+  themeAccent: "blue" | "green" | "purple" | "teal" | "orange";
   layoutOrder: LayoutOrder;
   /** When false, tiles immediately speak/play (soundboard mode) instead of building a sentence */
   sentenceBuilderEnabled: boolean;
@@ -51,6 +51,7 @@ function defaultSettings(): AppSettings {
     fontSize: 14,
     language: "en",
     theme: "light",
+    themeAccent: "blue",
     layoutOrder: "tabs-top",
     sentenceBuilderEnabled: true,
   };
@@ -75,6 +76,7 @@ const VALID_LANGUAGES = new Set<Language>(["en", "es", "fr"]);
 const VALID_THEMES = new Set<Theme>(["light", "dark"]);
 const VALID_TILE_SIZES = new Set<TileSize>(["xs", "sm", "md", "lg", "xl"]);
 const VALID_LAYOUT_ORDERS = new Set<LayoutOrder>(["tabs-top", "speech-top"]);
+const VALID_ACCENTS = new Set<AppSettings["themeAccent"]>(["blue", "green", "purple", "teal", "orange"]);
 
 function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
   if (typeof preset !== "string") return "custom";
@@ -120,6 +122,10 @@ function loadSettings(): AppSettings {
         theme: normalizedTheme,
         tileSize: normalizedTileSize,
         layoutOrder: normalizedLayoutOrder,
+        themeAccent:
+          typeof parsed.themeAccent === "string" && VALID_ACCENTS.has(parsed.themeAccent as AppSettings["themeAccent"])
+            ? (parsed.themeAccent as AppSettings["themeAccent"])
+            : "blue",
         sentenceBuilderEnabled:
           typeof parsed.sentenceBuilderEnabled === "boolean"
             ? parsed.sentenceBuilderEnabled
@@ -286,7 +292,6 @@ export default function App() {
   const [addTileInitialLabel, setAddTileInitialLabel] = useState<string | undefined>();
   const [editingTile, setEditingTile] = useState<Symbol | null>(null);
   const [showManageBoards, setShowManageBoards] = useState(false);
-  const [showImportExport, setShowImportExport] = useState(false);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
 
   // All categories are user boards
@@ -372,16 +377,6 @@ export default function App() {
     restoreFocus();
   }, [restoreFocus]);
 
-  const handleOpenImportExport = useCallback(() => {
-    captureFocus();
-    setShowImportExport(true);
-  }, [captureFocus]);
-
-  const handleCloseImportExport = useCallback(() => {
-    setShowImportExport(false);
-    restoreFocus();
-  }, [restoreFocus]);
-
   const { speak, previewVoice, speaking, voices, availableEngines } = useSpeech({
     rate: settings.rate,
     pitch: settings.pitch,
@@ -407,6 +402,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", settings.theme);
   }, [settings.theme]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-accent", settings.themeAccent);
+  }, [settings.themeAccent]);
 
   useEffect(() => {
     document.documentElement.lang = settings.language;
@@ -445,12 +444,16 @@ export default function App() {
     [speak, settings.volume]
   );
 
-  const handleClear = useCallback(() => {
-    setSentence([]);
-  }, []);
-
   const handleRemoveLast = useCallback(() => {
     setSentence((prev) => prev.slice(0, -1));
+  }, []);
+
+  const handleRemoveWord = useCallback((index: number) => {
+    setSentence((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setSentence([]);
   }, []);
 
   const handleAddCustomTile = useCallback(
@@ -593,6 +596,7 @@ export default function App() {
           onSpeak={handleSpeak}
           onClear={handleClear}
           onRemoveLast={handleRemoveLast}
+          onRemoveWord={handleRemoveWord}
           onSpeakWord={handleSpeakWord}
           language={settings.language}
           allSymbols={allSymbols}
@@ -609,7 +613,6 @@ export default function App() {
           setIsEditingTiles(false);
         }}
         onManageBoards={handleOpenManageBoards}
-        onImportExport={handleOpenImportExport}
         onOpenSettings={handleOpenSettings}
         language={settings.language}
       />
@@ -657,6 +660,10 @@ export default function App() {
           onThemeChange={(theme) => updateSetting("theme", theme)}
           onLayoutOrderChange={(order) => updateSetting("layoutOrder", order)}
           onSentenceBuilderToggle={(enabled) => updateSetting("sentenceBuilderEnabled", enabled)}
+          onThemeAccentChange={(accent) => updateSetting("themeAccent", accent)}
+          themeAccent={settings.themeAccent}
+          allCategories={allCategories}
+          onImportBoards={handleImportBoards}
           onPreviewVoice={handlePreviewVoice}
           onClose={handleCloseSettings}
         />
@@ -688,15 +695,6 @@ export default function App() {
           userBoards={userBoards}
           onUpdateUserBoards={handleUpdateUserBoards}
           onClose={handleCloseManageBoards}
-        />
-      )}
-
-      {showImportExport && (
-        <ImportExportDialog
-          language={settings.language}
-          allCategories={allCategories}
-          onImportBoards={handleImportBoards}
-          onClose={handleCloseImportExport}
         />
       )}
     </div>

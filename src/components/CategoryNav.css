@@ -154,3 +154,33 @@
   background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
   color: var(--text-primary);
 }
+
+/* ── Right-side manage boards button ────────────────────────── */
+.category-nav__manage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 0.7rem;
+  background: none;
+  border: none;
+  border-left: 2px solid var(--border-medium);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.category-nav__manage-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--header-bg));
+  color: var(--header-bg);
+}
+
+.category-nav__manage-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: -3px;
+}
+
+.category-nav__manage-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}

@@ -32,11 +32,47 @@
   list-style: none;
 }
 
-.sentence-bar__placeholder-item,
 .sentence-bar__word-item {
   list-style: none;
   display: flex;
   align-items: center;
+  position: relative;
+}
+
+.sentence-bar__word-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--header-bg) 75%, transparent);
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  flex-shrink: 0;
+  transition: background 0.1s ease, opacity 0.1s ease;
+  opacity: 0.7;
+}
+
+.sentence-bar__word-item:hover .sentence-bar__word-remove,
+.sentence-bar__word-remove:focus-visible {
+  opacity: 1;
+}
+
+.sentence-bar__word-remove:hover {
+  background: var(--color-red);
+}
+
+.sentence-bar__word-remove:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__word-remove-icon {
+  width: 0.55rem;
+  height: 0.55rem;
 }
 
 .sentence-bar__placeholder {

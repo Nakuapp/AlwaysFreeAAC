@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useCallback, type KeyboardEvent } from "react";
 import type { Symbol } from "../data/vocabulary";
-import { Delete, Play, Plus, Trash2, Volume2, X } from "lucide-react";
+import { Play, Plus, Trash2, Volume2, X } from "lucide-react";
 import { t, type Language } from "../i18n";
 import { IconVisual } from "./IconVisual";
 import "./SentenceBar.css";
@@ -11,6 +11,7 @@ interface SentenceBarProps {
   onSpeak: () => void;
   onClear: () => void;
   onRemoveLast: () => void;
+  onRemoveWord?: (index: number) => void;
   onSpeakWord: (symbol: Symbol) => void;
   language: Language;
   /** All symbols across every board, used for chip matching */
@@ -38,6 +39,7 @@ export function SentenceBar({
   onSpeak,
   onClear,
   onRemoveLast,
+  onRemoveWord,
   onSpeakWord,
   language,
   allSymbols,
@@ -146,6 +148,16 @@ export function SentenceBar({
                   <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
                   <span>{sym.label}</span>
                 </button>
+                {onRemoveWord && (
+                  <button
+                    type="button"
+                    className="sentence-bar__word-remove"
+                    onClick={() => onRemoveWord(idx)}
+                    aria-label={`Remove ${sym.label}`}
+                  >
+                    <X className="sentence-bar__word-remove-icon" aria-hidden="true" focusable="false" />
+                  </button>
+                )}
               </li>
             ))
           )}
@@ -236,17 +248,6 @@ export function SentenceBar({
               <span>{t(language, "speak")}</span>
             </>
           )}
-        </button>
-
-        <button
-          className="sentence-bar__btn sentence-bar__btn--backspace"
-          onClick={onRemoveLast}
-          disabled={sentence.length === 0}
-          aria-label={t(language, "removeLastWord")}
-          type="button"
-        >
-          <Delete className="sentence-bar__btn-icon" aria-hidden="true" focusable="false" />
-          <span className="sr-only">{t(language, "backspace")}</span>
         </button>
 
         <button

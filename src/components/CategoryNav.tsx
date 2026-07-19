@@ -1,4 +1,4 @@
-import { ArrowUpDown, Settings2 } from "lucide-react";
+import { Settings2 } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { IconVisual } from "./IconVisual";
@@ -9,7 +9,6 @@ interface CategoryNavProps {
   activeId: string;
   onSelect: (id: string) => void;
   onManageBoards: () => void;
-  onImportExport: () => void;
   onOpenSettings: () => void;
   language: Language;
 }
@@ -19,7 +18,6 @@ export function CategoryNav({
   activeId,
   onSelect,
   onManageBoards,
-  onImportExport,
   onOpenSettings,
   language,
 }: CategoryNavProps) {
@@ -56,28 +54,18 @@ export function CategoryNav({
               </button>
             </li>
           ))}
-          <li role="none" className="category-nav__actions">
-            <button
-              type="button"
-              className="category-nav__btn category-nav__btn--manage"
-              onClick={onImportExport}
-              aria-label={t(language, "importExport")}
-            >
-              <ArrowUpDown className="category-nav__icon" aria-hidden="true" focusable="false" />
-              <span className="category-nav__label">{t(language, "importExport")}</span>
-            </button>
-            <button
-              type="button"
-              className="category-nav__btn category-nav__btn--manage"
-              onClick={onManageBoards}
-              aria-label={t(language, "manageBoards")}
-            >
-              <Settings2 className="category-nav__icon" aria-hidden="true" focusable="false" />
-              <span className="category-nav__label">{t(language, "manageBoards")}</span>
-            </button>
-          </li>
         </ul>
       </div>
+
+      <button
+        type="button"
+        className="category-nav__manage-btn"
+        onClick={onManageBoards}
+        aria-label={t(language, "manageBoards")}
+        aria-haspopup="dialog"
+      >
+        <Settings2 className="category-nav__manage-icon" aria-hidden="true" focusable="false" />
+      </button>
     </nav>
   );
 }

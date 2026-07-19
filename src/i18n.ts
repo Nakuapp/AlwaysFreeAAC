@@ -169,6 +169,8 @@ type UiStringKey =
   | "settingsTabSpeech"
   | "settingsTabDisplay"
   | "settingsTabApp"
+  | "settingsTabBoards"
+  | "accentColor"
   | "ttsEngine"
   | "ttsEngineAll"
   | "suggestions"
@@ -338,6 +340,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     settingsTabSpeech: "Speech",
     settingsTabDisplay: "Display",
     settingsTabApp: "App",
+    settingsTabBoards: "Boards",
+    accentColor: "Accent Color",
     ttsEngine: "TTS Engine",
     ttsEngineAll: "All engines",
     suggestions: "Suggestions",
@@ -506,6 +510,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     settingsTabSpeech: "Voz",
     settingsTabDisplay: "Pantalla",
     settingsTabApp: "App",
+    settingsTabBoards: "Tableros",
+    accentColor: "Color de acento",
     ttsEngine: "Motor TTS",
     ttsEngineAll: "Todos los motores",
     suggestions: "Sugerencias",
@@ -674,6 +680,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     settingsTabSpeech: "Voix",
     settingsTabDisplay: "Affichage",
     settingsTabApp: "App",
+    settingsTabBoards: "Tableaux",
+    accentColor: "Couleur d'accent",
     ttsEngine: "Moteur TTS",
     ttsEngineAll: "Tous les moteurs",
     suggestions: "Suggestions",
