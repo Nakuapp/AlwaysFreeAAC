@@ -148,6 +148,18 @@ export function SymbolGrid({
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={() => handleDrop(index)}
               onDragEnd={handleDragEnd}
+              onMoveBackward={
+                isEditMode && onReorderSymbols && index > 0
+                  ? () => onReorderSymbols(index, index - 1)
+                  : undefined
+              }
+              onMoveForward={
+                isEditMode && onReorderSymbols && index < symbols.length - 1
+                  ? () => onReorderSymbols(index, index + 1)
+                  : undefined
+              }
+              moveBackwardAriaLabel={(symbol) => `${t(language, "moveTileUp")}: ${symbol.label}`}
+              moveForwardAriaLabel={(symbol) => `${t(language, "moveTileDown")}: ${symbol.label}`}
             />
           );
         })}

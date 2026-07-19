@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState, useId, useMemo, type ReactNode, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, useId, useMemo, type ReactNode } from "react";
 import type React from "react";
 import { Capacitor } from "@capacitor/core";
 import {
   AppWindow,
-  Download,
-  FolderOpen,
   Grid3X3,
   Languages,
   MoonStar,
@@ -15,7 +13,6 @@ import {
   Settings as SettingsIcon,
   SlidersHorizontal,
   Type,
-  Upload,
   Volume2,
   X,
   Info,
@@ -23,23 +20,11 @@ import {
 import type { VoiceOption } from "../hooks/useSpeech";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { LANGUAGE_OPTIONS, t, type Language, type Theme, type LayoutOrder } from "../i18n";
-import type { TileSize, Category } from "../data/vocabulary";
+import type { TileSize } from "../data/vocabulary";
 import { TILE_SIZES, TILE_SIZE_COLUMNS } from "../tileSize";
-import { IconVisual } from "./IconVisual";
-import type { UserBoard } from "../App";
-import {
-  exportCategoryToOBF,
-  exportCategoriesToOBZ,
-  downloadOBF,
-  downloadOBZ,
-  readOBFFile,
-  readOBZFile,
-  importOBFToSymbols,
-  type OBFBoard,
-} from "../utils/openboard";
 import "./Settings.css";
 
-type SettingsTab = "speech" | "display" | "app" | "boards";
+type SettingsTab = "speech" | "display" | "app";
 type ThemeAccent = "blue" | "green" | "purple" | "teal" | "orange";
 
 interface SettingsProps {
@@ -56,7 +41,6 @@ interface SettingsProps {
   themeAccent: ThemeAccent;
   layoutOrder: LayoutOrder;
   sentenceBuilderEnabled: boolean;
-  allCategories: Category[];
   onVoiceChange: (name: string) => void;
   onVoicePresetChange: (preset: string) => void;
   onRateChange: (rate: number) => void;
@@ -69,12 +53,9 @@ interface SettingsProps {
   onThemeAccentChange: (accent: ThemeAccent) => void;
   onLayoutOrderChange: (order: LayoutOrder) => void;
   onSentenceBuilderToggle: (enabled: boolean) => void;
-  onImportBoards: (boards: UserBoard[]) => void;
   onPreviewVoice: (voiceId: string) => void;
   onClose: () => void;
 }
-
-type ImportStatus = "idle" | "success" | "error";
 
 interface VoiceListOption extends VoiceOption {
   displayLabel: string;
@@ -173,17 +154,6 @@ function formatVoiceLabel(voice: VoiceOption, displayLocale: string): string {
   return `${localeLabel} — ${trimmedName}`;
 }
 
-function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
-  const symbols = importOBFToSymbols(board);
-  const boardName = typeof board.name === "string" ? board.name.trim() : "";
-  return {
-    id: `import-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    label: boardName || t(language, "importedBoard"),
-    emoji: "pen-square",
-    symbols,
-  };
-}
-
 export function Settings({
   voices,
   selectedVoice,
@@ -198,7 +168,6 @@ export function Settings({
   themeAccent,
   layoutOrder,
   sentenceBuilderEnabled,
-  allCategories,
   onVoiceChange,
   onVoicePresetChange,
   onRateChange,
@@ -211,7 +180,6 @@ export function Settings({
   onThemeAccentChange,
   onLayoutOrderChange,
   onSentenceBuilderToggle,
-  onImportBoards,
   onPreviewVoice,
   onClose,
 }: SettingsProps) {
@@ -222,13 +190,6 @@ export function Settings({
   const tabPanelId = useId();
   useFocusTrap(panelRef);
 
-  // ── Boards tab state ──────────────────────────────────────────────────────
-  const [selectedBoardIds, setSelectedBoardIds] = useState<Set<string>>(new Set());
-  const [isExporting, setIsExporting] = useState(false);
-  const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
-  const [importCount, setImportCount] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -237,63 +198,6 @@ export function Settings({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  // ── Board export/import helpers ───────────────────────────────────────────
-  function toggleBoard(id: string) {
-    setSelectedBoardIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }
-  function selectAllBoards() { setSelectedBoardIds(new Set(allCategories.map((c) => c.id))); }
-  function deselectAllBoards() { setSelectedBoardIds(new Set()); }
-
-  async function handleExport() {
-    const selected = allCategories.filter((c) => selectedBoardIds.has(c.id));
-    if (selected.length === 0) return;
-    setIsExporting(true);
-    try {
-      if (selected.length === 1) {
-        downloadOBF(exportCategoryToOBF(selected[0], language));
-      } else {
-        const { blob, filename } = await exportCategoriesToOBZ(selected, language);
-        downloadOBZ(blob, filename);
-      }
-    } finally {
-      setIsExporting(false);
-    }
-  }
-
-  async function handleImportFile(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    setImportStatus("idle");
-    try {
-      const isOBZ = file.name.toLowerCase().endsWith(".obz") || file.type === "application/zip";
-      const obfBoards: OBFBoard[] = isOBZ
-        ? await readOBZFile(file)
-        : [await readOBFFile(file)];
-      const newBoards = obfBoards
-        .map((b) => obfBoardToUserBoard(b, language))
-        .filter((b) => b.symbols.length > 0);
-      if (newBoards.length === 0) { setImportStatus("error"); return; }
-      onImportBoards(newBoards);
-      setImportCount(newBoards.length);
-      setImportStatus("success");
-    } catch {
-      setImportStatus("error");
-    }
-  }
-
-  const selectedBoardCount = selectedBoardIds.size;
-  const allBoardsSelected = allCategories.length > 0 && selectedBoardCount === allCategories.length;
-  const exportFormatLabel =
-    selectedBoardCount === 0
-      ? t(language, "exportFormatNone")
-      : selectedBoardCount === 1
-        ? t(language, "exportFormatOBF")
-        : t(language, "exportFormatOBZ");
   const voiceDisplayLocale = language === "es" ? "es" : language === "fr" ? "fr" : "en";
   const voiceOptions = useMemo<VoiceListOption[]>(
     () =>
@@ -362,11 +266,6 @@ export function Settings({
       id: "app",
       label: t(language, "settingsTabApp"),
       icon: <Languages className="settings-tab__icon" aria-hidden="true" focusable="false" />,
-    },
-    {
-      id: "boards",
-      label: t(language, "settingsTabBoards"),
-      icon: <FolderOpen className="settings-tab__icon" aria-hidden="true" focusable="false" />,
     },
   ];
 
@@ -780,101 +679,6 @@ export function Settings({
             </div>
           </div>
 
-          {/* ── Boards tab ── */}
-          <div
-            id={`${tabPanelId}-boards`}
-            role="tabpanel"
-            aria-labelledby="settings-tab-boards"
-            hidden={activeTab !== "boards"}
-            className="settings-tabpanel"
-          >
-            {/* Export section */}
-            <section className="settings-boards-section">
-              <h3 className="settings-boards-section__title">
-                <Download className="settings-boards-section__icon" aria-hidden="true" focusable="false" />
-                {t(language, "exportSection")}
-              </h3>
-
-              <div className="settings-boards-list" role="group" aria-label={t(language, "exportBoardsLabel")}>
-                {allCategories.map((cat) => {
-                  const checked = selectedBoardIds.has(cat.id);
-                  return (
-                    <label key={cat.id} className="settings-board-row">
-                      <input
-                        type="checkbox"
-                        className="settings-board-row__checkbox"
-                        checked={checked}
-                        onChange={() => toggleBoard(cat.id)}
-                      />
-                      <IconVisual value={cat.emoji} className="settings-board-row__icon" />
-                      <span className="settings-board-row__label">{cat.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-
-              <div className="settings-boards-shortcuts">
-                <button
-                  type="button"
-                  className="settings-link-btn"
-                  onClick={allBoardsSelected ? deselectAllBoards : selectAllBoards}
-                >
-                  {allBoardsSelected ? t(language, "deselectAll") : t(language, "selectAll")}
-                </button>
-              </div>
-
-              <p className="settings-field__hint">{exportFormatLabel}</p>
-
-              <button
-                type="button"
-                className="settings-boards-action-btn"
-                onClick={handleExport}
-                disabled={selectedBoardCount === 0 || isExporting}
-              >
-                <Download className="settings-boards-action-btn__icon" aria-hidden="true" focusable="false" />
-                {t(language, "exportSelected")}
-              </button>
-            </section>
-
-            {/* Import section */}
-            <section className="settings-boards-section">
-              <h3 className="settings-boards-section__title">
-                <Upload className="settings-boards-section__icon" aria-hidden="true" focusable="false" />
-                {t(language, "importSection")}
-              </h3>
-              <p className="settings-field__hint">{t(language, "importBoardHint")}</p>
-
-              <button
-                type="button"
-                className="settings-boards-action-btn"
-                onClick={() => { setImportStatus("idle"); fileInputRef.current?.click(); }}
-              >
-                <Upload className="settings-boards-action-btn__icon" aria-hidden="true" focusable="false" />
-                {t(language, "importBoard")}
-              </button>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".obf,.obz,application/json,application/zip"
-                className="settings-boards-file-input"
-                onChange={handleImportFile}
-                aria-hidden="true"
-                tabIndex={-1}
-              />
-
-              {importStatus === "success" && (
-                <p className="settings-boards-status settings-boards-status--success" role="status">
-                  {t(language, "importSuccess", { count: importCount })}
-                </p>
-              )}
-              {importStatus === "error" && (
-                <p className="settings-boards-status settings-boards-status--error" role="alert">
-                  {t(language, "importBoardError")}
-                </p>
-              )}
-            </section>
-          </div>
         </div>
 
         <div className="settings-panel__footer">

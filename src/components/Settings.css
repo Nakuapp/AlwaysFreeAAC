@@ -179,6 +179,10 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   cursor: pointer;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .settings-field__select:focus {
@@ -211,11 +215,12 @@
   display: flex;
   gap: 0.5rem;
   align-items: stretch;
+  min-width: 0;
 }
 
 .settings-field__select--inline {
   flex: 1;
-  width: auto;
+  min-width: 0;
 }
 
 .settings-field__search {

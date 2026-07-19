@@ -1,11 +1,23 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { ArrowDown, ArrowUp, Download, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { t, type Language } from "../i18n";
 import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
 import { IconVisual } from "./IconVisual";
 import type { UserBoard } from "../App";
+import {
+  exportCategoryToOBF,
+  exportCategoriesToOBZ,
+  downloadOBF,
+  downloadOBZ,
+  readOBFFile,
+  readOBZFile,
+  importOBFToSymbols,
+  type OBFBoard,
+} from "../utils/openboard";
 import "./ManageBoardsDialog.css";
+
+type ImportStatus = "idle" | "success" | "error";
 
 interface ManageBoardsDialogProps {
   language: Language;
@@ -28,6 +40,11 @@ export function ManageBoardsDialog({
   const skipRenameBlurRef = useRef(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const [selectedBoardIds, setSelectedBoardIds] = useState<Set<string>>(new Set());
+  const [isExporting, setIsExporting] = useState(false);
+  const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
+  const [importCount, setImportCount] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   useFocusTrap(panelRef);
 
   // Move focus into the dialog on open (WCAG 2.4.3)
@@ -42,6 +59,15 @@ export function ManageBoardsDialog({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
+
+  useEffect(() => {
+    setSelectedBoardIds((prev) => {
+      if (prev.size === 0) return prev;
+      const validIds = new Set(userBoards.map((board) => board.id));
+      const next = new Set(Array.from(prev).filter((id) => validIds.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [userBoards]);
 
   function handleCreateBoard() {
     const name = newBoardName.trim();
@@ -98,6 +124,71 @@ export function ManageBoardsDialog({
     [newBoards[index], newBoards[target]] = [newBoards[target], newBoards[index]];
     onUpdateUserBoards(newBoards);
   }
+
+  function toggleBoardSelection(id: string) {
+    setSelectedBoardIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAllBoards() {
+    setSelectedBoardIds(new Set(userBoards.map((board) => board.id)));
+  }
+
+  function deselectAllBoards() {
+    setSelectedBoardIds(new Set());
+  }
+
+  async function handleExportBoards() {
+    const selectedBoards = userBoards.filter((board) => selectedBoardIds.has(board.id));
+    if (selectedBoards.length === 0) return;
+    setIsExporting(true);
+    try {
+      if (selectedBoards.length === 1) {
+        downloadOBF(exportCategoryToOBF(selectedBoards[0], language));
+      } else {
+        const { blob, filename } = await exportCategoriesToOBZ(selectedBoards, language);
+        downloadOBZ(blob, filename);
+      }
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  async function handleImportBoards(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setImportStatus("idle");
+    try {
+      const isOBZ = file.name.toLowerCase().endsWith(".obz") || file.type === "application/zip";
+      const imported = isOBZ ? await readOBZFile(file) : [await readOBFFile(file)];
+      const importedBoards = imported
+        .map((board) => obfBoardToUserBoard(board, language))
+        .filter((board) => board.symbols.length > 0);
+      if (importedBoards.length === 0) {
+        setImportStatus("error");
+        return;
+      }
+      onUpdateUserBoards([...userBoards, ...importedBoards]);
+      setImportCount(importedBoards.length);
+      setImportStatus("success");
+    } catch {
+      setImportStatus("error");
+    }
+  }
+
+  const selectedBoardCount = selectedBoardIds.size;
+  const allBoardsSelected = userBoards.length > 0 && selectedBoardCount === userBoards.length;
+  const exportFormatLabel =
+    selectedBoardCount === 0
+      ? t(language, "exportFormatNone")
+      : selectedBoardCount === 1
+        ? t(language, "exportFormatOBF")
+        : t(language, "exportFormatOBZ");
 
   return (
     <div
@@ -187,6 +278,81 @@ export function ManageBoardsDialog({
                     {t(language, "createBoard")}
                   </button>
                 </div>
+
+                <div className="manage-boards-section">
+                  <h3 className="manage-boards-section__title">{t(language, "exportSection")}</h3>
+                  <div className="manage-boards-export-list" role="group" aria-label={t(language, "exportBoardsLabel")}>
+                    {userBoards.map((board) => {
+                      const checked = selectedBoardIds.has(board.id);
+                      return (
+                        <label key={board.id} className="manage-boards-export-row">
+                          <input
+                            type="checkbox"
+                            className="manage-boards-export-row__checkbox"
+                            checked={checked}
+                            onChange={() => toggleBoardSelection(board.id)}
+                          />
+                          <IconVisual value={board.emoji} className="manage-boards-export-row__icon" />
+                          <span className="manage-boards-export-row__label">{board.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <div className="manage-boards-export-shortcuts">
+                    <button
+                      type="button"
+                      className="manage-boards-link-btn"
+                      onClick={allBoardsSelected ? deselectAllBoards : selectAllBoards}
+                    >
+                      {allBoardsSelected ? t(language, "deselectAll") : t(language, "selectAll")}
+                    </button>
+                  </div>
+                  <p className="manage-boards-hint">{exportFormatLabel}</p>
+                  <button
+                    type="button"
+                    className="manage-boards-action-btn"
+                    onClick={handleExportBoards}
+                    disabled={selectedBoardCount === 0 || isExporting}
+                  >
+                    <Download className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
+                    {t(language, "exportSelected")}
+                  </button>
+                </div>
+
+                <div className="manage-boards-section">
+                  <h3 className="manage-boards-section__title">{t(language, "importSection")}</h3>
+                  <p className="manage-boards-hint">{t(language, "importBoardHint")}</p>
+                  <button
+                    type="button"
+                    className="manage-boards-action-btn"
+                    onClick={() => {
+                      setImportStatus("idle");
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <Upload className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
+                    {t(language, "importBoard")}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".obf,.obz,application/json,application/zip"
+                    className="manage-boards-file-input"
+                    onChange={handleImportBoards}
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  />
+                  {importStatus === "success" && (
+                    <p className="manage-boards-status manage-boards-status--success" role="status">
+                      {t(language, "importSuccess", { count: importCount })}
+                    </p>
+                  )}
+                  {importStatus === "error" && (
+                    <p className="manage-boards-status manage-boards-status--error" role="alert">
+                      {t(language, "importBoardError")}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
@@ -272,4 +438,15 @@ export function ManageBoardsDialog({
       </div>
     </div>
   );
+}
+
+function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
+  const symbols = importOBFToSymbols(board);
+  const boardName = typeof board.name === "string" ? board.name.trim() : "";
+  return {
+    id: `import-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    label: boardName || t(language, "importedBoard"),
+    emoji: "pen-square",
+    symbols,
+  };
 }
