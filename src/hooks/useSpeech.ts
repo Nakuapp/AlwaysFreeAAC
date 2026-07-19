@@ -138,29 +138,38 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
       if (!("speechSynthesis" in window)) return;
 
+      // Reset any stuck speaking state before starting new speech.
+      setSpeaking(false);
+
+      // Resume synthesis if the browser paused it (e.g. page was backgrounded).
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+
+      // Cancel any in-progress or queued speech.
       window.speechSynthesis.cancel();
 
-      // A brief delay after cancel() is required in some Chromium builds to prevent
-      // the subsequent speak() call from being silently ignored.
-      setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = rate;
-        utterance.pitch = pitch;
-        utterance.volume = volume;
+      // Speak synchronously — calling speak() inside setTimeout loses the
+      // user-gesture context that iOS Safari requires, causing silent failures.
+      // Modern Chromium no longer requires a delay after cancel(), matching the
+      // behaviour of the capgo plugin's own web implementation.
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = volume;
 
-        if (voiceName) {
-          const match = window.speechSynthesis
-            .getVoices()
-            .find((v) => v.name === voiceName);
-          if (match) utterance.voice = match;
-        }
+      if (voiceName) {
+        const match = window.speechSynthesis
+          .getVoices()
+          .find((v) => v.name === voiceName);
+        if (match) utterance.voice = match;
+      }
 
-        utterance.onstart = () => setSpeaking(true);
-        utterance.onend = () => setSpeaking(false);
-        utterance.onerror = () => setSpeaking(false);
+      utterance.onstart = () => setSpeaking(true);
+      utterance.onend = () => setSpeaking(false);
+      utterance.onerror = () => setSpeaking(false);
 
-        window.speechSynthesis.speak(utterance);
-      }, 0);
+      window.speechSynthesis.speak(utterance);
     },
     [isNative]
   );
