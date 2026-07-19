@@ -278,81 +278,6 @@ export function ManageBoardsDialog({
                     {t(language, "createBoard")}
                   </button>
                 </div>
-
-                <div className="manage-boards-section">
-                  <h3 className="manage-boards-section__title">{t(language, "exportSection")}</h3>
-                  <div className="manage-boards-export-list" role="group" aria-label={t(language, "exportBoardsLabel")}>
-                    {userBoards.map((board) => {
-                      const checked = selectedBoardIds.has(board.id);
-                      return (
-                        <label key={board.id} className="manage-boards-export-row">
-                          <input
-                            type="checkbox"
-                            className="manage-boards-export-row__checkbox"
-                            checked={checked}
-                            onChange={() => toggleBoardSelection(board.id)}
-                          />
-                          <IconVisual value={board.emoji} className="manage-boards-export-row__icon" />
-                          <span className="manage-boards-export-row__label">{board.label}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <div className="manage-boards-export-shortcuts">
-                    <button
-                      type="button"
-                      className="manage-boards-link-btn"
-                      onClick={allBoardsSelected ? deselectAllBoards : selectAllBoards}
-                    >
-                      {allBoardsSelected ? t(language, "deselectAll") : t(language, "selectAll")}
-                    </button>
-                  </div>
-                  <p className="manage-boards-hint">{exportFormatLabel}</p>
-                  <button
-                    type="button"
-                    className="manage-boards-action-btn"
-                    onClick={handleExportBoards}
-                    disabled={selectedBoardCount === 0 || isExporting}
-                  >
-                    <Download className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
-                    {t(language, "exportSelected")}
-                  </button>
-                </div>
-
-                <div className="manage-boards-section">
-                  <h3 className="manage-boards-section__title">{t(language, "importSection")}</h3>
-                  <p className="manage-boards-hint">{t(language, "importBoardHint")}</p>
-                  <button
-                    type="button"
-                    className="manage-boards-action-btn"
-                    onClick={() => {
-                      setImportStatus("idle");
-                      fileInputRef.current?.click();
-                    }}
-                  >
-                    <Upload className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
-                    {t(language, "importBoard")}
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".obf,.obz,application/json,application/zip"
-                    className="manage-boards-file-input"
-                    onChange={handleImportBoards}
-                    aria-hidden="true"
-                    tabIndex={-1}
-                  />
-                  {importStatus === "success" && (
-                    <p className="manage-boards-status manage-boards-status--success" role="status">
-                      {t(language, "importSuccess", { count: importCount })}
-                    </p>
-                  )}
-                  {importStatus === "error" && (
-                    <p className="manage-boards-status manage-boards-status--error" role="alert">
-                      {t(language, "importBoardError")}
-                    </p>
-                  )}
-                </div>
               </div>
             )}
 
@@ -427,6 +352,83 @@ export function ManageBoardsDialog({
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Export section */}
+          <div className="manage-boards-section">
+            <h3 className="manage-boards-section__title">{t(language, "exportSection")}</h3>
+            <div className="manage-boards-export-list" role="group" aria-label={t(language, "exportBoardsLabel")}>
+              {userBoards.map((board) => {
+                const checked = selectedBoardIds.has(board.id);
+                return (
+                  <label key={board.id} className="manage-boards-export-row">
+                    <input
+                      type="checkbox"
+                      className="manage-boards-export-row__checkbox"
+                      checked={checked}
+                      onChange={() => toggleBoardSelection(board.id)}
+                    />
+                    <IconVisual value={board.emoji} className="manage-boards-export-row__icon" />
+                    <span className="manage-boards-export-row__label">{board.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="manage-boards-export-shortcuts">
+              <button
+                type="button"
+                className="manage-boards-link-btn"
+                onClick={allBoardsSelected ? deselectAllBoards : selectAllBoards}
+              >
+                {allBoardsSelected ? t(language, "deselectAll") : t(language, "selectAll")}
+              </button>
+            </div>
+            <p className="manage-boards-hint">{exportFormatLabel}</p>
+            <button
+              type="button"
+              className="manage-boards-action-btn"
+              onClick={handleExportBoards}
+              disabled={selectedBoardCount === 0 || isExporting}
+            >
+              <Download className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
+              {t(language, "exportSelected")}
+            </button>
+          </div>
+
+          {/* Import section */}
+          <div className="manage-boards-section">
+            <h3 className="manage-boards-section__title">{t(language, "importSection")}</h3>
+            <p className="manage-boards-hint">{t(language, "importBoardHint")}</p>
+            <button
+              type="button"
+              className="manage-boards-action-btn"
+              onClick={() => {
+                setImportStatus("idle");
+                fileInputRef.current?.click();
+              }}
+            >
+              <Upload className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
+              {t(language, "importBoard")}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".obf,.obz,application/json,application/zip"
+              className="manage-boards-file-input"
+              onChange={handleImportBoards}
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            {importStatus === "success" && (
+              <p className="manage-boards-status manage-boards-status--success" role="status">
+                {t(language, "importSuccess", { count: importCount })}
+              </p>
+            )}
+            {importStatus === "error" && (
+              <p className="manage-boards-status manage-boards-status--error" role="alert">
+                {t(language, "importBoardError")}
+              </p>
+            )}
           </div>
         </div>
 
