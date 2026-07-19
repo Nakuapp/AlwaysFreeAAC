@@ -26,10 +26,13 @@ The web app works on any device and can be added to your home screen for quick a
 - **Category navigation** — Core, People, Actions, Feelings, Food & Drink, Places, Describe, Social
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
-- **Accessible** — works with screen readers, keyboard navigation, and respects reduced-motion preferences
-- **Customisable** — adjust voice, speech rate/pitch, grid size, font size, language, theme, and custom tiles
-- **Icon styles** — choose outlined or filled icon styles for custom tiles
-- **Your preferences are saved** — settings are remembered between sessions
+- **Accessible** — WCAG 2.1 AA compliant; works with screen readers, keyboard navigation, and respects reduced-motion preferences
+- **Customisable** — adjust voice, speech rate/pitch, tile size (XS–XL), font size, language, theme, and custom tiles
+- **Icon styles & colours** — choose outlined or filled icon styles and a custom accent colour for each tile
+- **In-place tile editing** — tap any custom tile in edit mode to update its label, icon, colour, and spoken text
+- **Per-tile size override** — set an individual tile to a different size so important symbols stand out
+- **Drag-and-drop reorder** — drag tiles in edit mode to arrange them however you like
+- **Your preferences are saved** — settings and custom boards are remembered between sessions
 
 ---
 
@@ -161,25 +164,28 @@ npx cap sync
 src/
 ├── assets/               # Static assets bundled by Vite
 ├── components/
-│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (with icon picker & image upload)
+│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size)
 │   ├── CategoryNav.tsx   # Horizontal scrollable category tabs + Manage Boards / Import-Export buttons
 │   ├── IconVisual.tsx    # Renders icon or image for a tile
 │   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
 │   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete) and toggle built-in board visibility
 │   ├── SentenceBar.tsx   # Sentence builder + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog (voice, speed, grid, language, theme)
-│   ├── SymbolButton.tsx  # Individual symbol tile
-│   └── SymbolGrid.tsx    # Responsive grid of symbol buttons
+│   ├── Settings.tsx      # Settings dialog (voice, speed, tile size XS–XL, language, theme)
+│   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
+│   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
 ├── data/
 │   └── vocabulary.ts     # Built-in categories and symbols
 ├── hooks/
 │   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
+│   ├── useRestoreFocus.ts # Capture/restore keyboard focus when dialogs open and close
 │   └── useSpeech.ts      # Native speech + web fallback React hook
 ├── utils/
 │   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
+├── colors.ts             # Shared icon-colour hex values (used by SymbolButton & AddTileDialog)
 ├── i18n.ts               # Internationalisation strings (en / es / fr)
 ├── iconUtils.ts          # Lucide icon search and utility helpers
 ├── icons.tsx             # Shared Lucide icon registry
+├── tileSize.ts           # Named tile-size constants (xs–xl), column counts, and span helpers
 ├── App.tsx               # Root application component
 ├── App.css               # App shell styles
 ├── main.tsx              # App entry point
@@ -201,9 +207,10 @@ AlwaysFreeAAC is built with accessibility at its core:
 - Every symbol button has an `aria-label` announcing its spoken word
 - The sentence bar uses `aria-live="polite"` so screen readers announce additions
 - Category tabs use `aria-pressed` to indicate the active state
-- The settings dialog uses `role="dialog"` and `aria-modal="true"`
+- All dialogs use `role="dialog"`, `aria-modal="true"`, and `aria-labelledby` pointing at the heading
+- Keyboard focus is restored to the trigger element when a dialog closes (`useRestoreFocus`)
 - All interactive elements are reachable by keyboard
-- Focus indicators meet WCAG 2.1 AA contrast requirements
+- Focus indicators and text contrast meet WCAG 2.1 AA requirements
 - Motion is suppressed for users who prefer `prefers-reduced-motion`
 
 ---
