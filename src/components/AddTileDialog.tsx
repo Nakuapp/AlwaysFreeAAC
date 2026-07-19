@@ -111,45 +111,19 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
   const soundInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
-  function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
+  function readUploadedFile(e: ChangeEvent<HTMLInputElement>, acceptPattern: RegExp, onAccept: (dataUrl: string) => void) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const result = ev.target?.result as string;
-      // Only accept raster image data URLs (no SVG which can embed scripts)
-      if (result && /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(result)) {
-        setImageDataUrl(result);
-      }
+      if (result && acceptPattern.test(result)) onAccept(result);
     };
     reader.readAsDataURL(file);
   }
 
-  function handleBgImageUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string;
-      if (result && /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(result)) {
-        setBackgroundImage(result);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function handleSoundUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string;
-      if (result && /^data:audio\/(mpeg|ogg|wav|mp4|webm|aac|flac);base64,/.test(result)) {
-        setSoundFile(result);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
+  const IMAGE_PATTERN = /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/;
+  const AUDIO_PATTERN = /^data:audio\/(mpeg|ogg|wav|mp4|webm|aac|flac);base64,/;
 
   function handlePreviewSound() {
     if (!soundFile) return;
@@ -207,7 +181,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
       closeLabel={t(language, "close")}
       onClose={onClose}
       maxWidth="420px"
-      panelClassName="add-tile-panel"
+      panelClassName="add-tile-panel dialog-panel--round-close"
       bodyClassName="add-tile-panel__body"
       initialFocusRef={labelInputRef}
       headerExtension={
@@ -223,12 +197,12 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
           </div>
 
           {/* Dialog tabs */}
-          <div className="add-tile-dialog-tabs" role="tablist" aria-label={t(language, isEditing ? "editTileTitle" : "addTileTitle")}>
+          <div className="dialog-tabs" role="tablist" aria-label={t(language, isEditing ? "editTileTitle" : "addTileTitle")}>
             <button
               type="button"
               role="tab"
               aria-selected={activeTab === "icon"}
-              className={`add-tile-dialog-tab${activeTab === "icon" ? " add-tile-dialog-tab--active" : ""}`}
+              className={`dialog-tab${activeTab === "icon" ? " dialog-tab--active" : ""}`}
               onClick={() => setActiveTab("icon")}
               tabIndex={activeTab === "icon" ? 0 : -1}
               onKeyDown={(e) => {
@@ -236,14 +210,14 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 else if (e.key === "ArrowLeft") setActiveTab("media");
               }}
             >
-              <ImageIcon className="add-tile-dialog-tab__icon" aria-hidden="true" focusable="false" />
+              <ImageIcon className="dialog-tab__icon" aria-hidden="true" focusable="false" />
               {t(language, "tileDlgTabIcon")}
             </button>
             <button
               type="button"
               role="tab"
               aria-selected={activeTab === "style"}
-              className={`add-tile-dialog-tab${activeTab === "style" ? " add-tile-dialog-tab--active" : ""}`}
+              className={`dialog-tab${activeTab === "style" ? " dialog-tab--active" : ""}`}
               onClick={() => setActiveTab("style")}
               tabIndex={activeTab === "style" ? 0 : -1}
               onKeyDown={(e) => {
@@ -251,14 +225,14 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 else if (e.key === "ArrowLeft") setActiveTab("icon");
               }}
             >
-              <Palette className="add-tile-dialog-tab__icon" aria-hidden="true" focusable="false" />
+              <Palette className="dialog-tab__icon" aria-hidden="true" focusable="false" />
               {t(language, "tileDlgTabStyle")}
             </button>
             <button
               type="button"
               role="tab"
               aria-selected={activeTab === "media"}
-              className={`add-tile-dialog-tab${activeTab === "media" ? " add-tile-dialog-tab--active" : ""}${(backgroundImage || soundFile) ? " add-tile-dialog-tab--has-content" : ""}`}
+              className={`dialog-tab${activeTab === "media" ? " dialog-tab--active" : ""}${(backgroundImage || soundFile) ? " dialog-tab--has-content" : ""}`}
               onClick={() => setActiveTab("media")}
               tabIndex={activeTab === "media" ? 0 : -1}
               onKeyDown={(e) => {
@@ -266,7 +240,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 else if (e.key === "ArrowLeft") setActiveTab("style");
               }}
             >
-              <Music className="add-tile-dialog-tab__icon" aria-hidden="true" focusable="false" />
+              <Music className="dialog-tab__icon" aria-hidden="true" focusable="false" />
               {t(language, "tileDlgTabMedia")}
             </button>
           </div>
@@ -400,7 +374,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                   type="file"
                   accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
                   className="add-tile-image-upload__input"
-                  onChange={handleImageUpload}
+                  onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setImageDataUrl)}
                   aria-hidden="true"
                   tabIndex={-1}
                 />
@@ -547,7 +521,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 type="file"
                 accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
                 className="add-tile-image-upload__input"
-                onChange={handleBgImageUpload}
+                onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setBackgroundImage)}
                 aria-hidden="true"
                 tabIndex={-1}
               />
@@ -592,7 +566,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 type="file"
                 accept="audio/mpeg,audio/ogg,audio/wav,audio/mp4,audio/webm,audio/aac,audio/flac"
                 className="add-tile-image-upload__input"
-                onChange={handleSoundUpload}
+                onChange={(e) => readUploadedFile(e, AUDIO_PATTERN, setSoundFile)}
                 aria-hidden="true"
                 tabIndex={-1}
               />

@@ -244,17 +244,17 @@ export function Settings({
     {
       id: "speech",
       label: t(language, "settingsTabSpeech"),
-      icon: <Volume2 className="settings-tab__icon" aria-hidden="true" focusable="false" />,
+      icon: <Volume2 className="dialog-tab__icon" aria-hidden="true" focusable="false" />,
     },
     {
       id: "display",
       label: t(language, "settingsTabDisplay"),
-      icon: <AppWindow className="settings-tab__icon" aria-hidden="true" focusable="false" />,
+      icon: <AppWindow className="dialog-tab__icon" aria-hidden="true" focusable="false" />,
     },
     {
       id: "app",
       label: t(language, "settingsTabApp"),
-      icon: <Languages className="settings-tab__icon" aria-hidden="true" focusable="false" />,
+      icon: <Languages className="dialog-tab__icon" aria-hidden="true" focusable="false" />,
     },
   ];
 
@@ -272,11 +272,11 @@ export function Settings({
       maxWidth="480px"
       maxHeight="90vh"
       dismissOnOverlayClick
-      panelClassName="settings-panel"
+      panelClassName="settings-panel dialog-panel--round-close"
       bodyClassName="settings-panel__body"
       headerExtension={
         <div
-          className="settings-tabs"
+          className="dialog-tabs"
           role="tablist"
           aria-label={t(language, "settings")}
         >
@@ -287,7 +287,7 @@ export function Settings({
               id={`settings-tab-${tab.id}`}
               aria-selected={activeTab === tab.id}
               aria-controls={`${tabPanelId}-${tab.id}`}
-              className={`settings-tab${activeTab === tab.id ? " settings-tab--active" : ""}`}
+              className={`dialog-tab${activeTab === tab.id ? " dialog-tab--active" : ""}`}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               tabIndex={activeTab === tab.id ? 0 : -1}
@@ -306,7 +306,7 @@ export function Settings({
               }}
             >
               {tab.icon}
-              <span className="settings-tab__label">{tab.label}</span>
+              <span className="dialog-tab__label">{tab.label}</span>
             </button>
           ))}
         </div>

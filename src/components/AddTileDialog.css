@@ -1,24 +1,5 @@
 /* ── Dialog shell overrides for AddTileDialog ── */
 
-/* Circular close button (overrides Dialog default rectangular style) */
-.add-tile-panel .dialog-panel__close {
-  background: var(--bg-subtle);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  transition: background 0.15s ease;
-}
-
-.add-tile-panel .dialog-panel__close-icon {
-  width: 1rem;
-  height: 1rem;
-}
-
-.add-tile-panel .dialog-panel__close:hover {
-  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
-}
-
 /* Body: padded with tighter gap than the default padded variant */
 .add-tile-panel__body {
   padding: 1rem 1.25rem;
@@ -38,64 +19,18 @@
   flex-shrink: 0;
 }
 
-/* Dialog-level tabs (Icon / Style / Media) */
-.add-tile-dialog-tabs {
-  display: flex;
-  border-bottom: 2px solid var(--border-soft);
-  background: var(--bg-subtle);
-  flex-shrink: 0;
+/* ── "has content" dot indicator on the Media tab ── */
+.dialog-tab--has-content {
+  position: relative;
 }
 
-.add-tile-dialog-tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.55rem 0.4rem;
-  background: transparent;
-  border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-  margin-bottom: -2px;
-}
-
-.add-tile-dialog-tab:hover {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--bg-surface));
-}
-
-.add-tile-dialog-tab--active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  background: var(--bg-surface);
-}
-
-.add-tile-dialog-tab--has-content::after {
+.dialog-tab--has-content::after {
   content: "●";
   font-size: 0.5rem;
   position: absolute;
   top: 6px;
   right: 8px;
   color: var(--primary);
-}
-
-.add-tile-dialog-tab {
-  position: relative;
-}
-
-.add-tile-dialog-tab__icon {
-  width: 1rem;
-  height: 1rem;
-}
-
-.add-tile-dialog-tab:focus-visible {
-  outline: 3px solid var(--button-focus);
-  outline-offset: -3px;
 }
 
 /* Live preview */

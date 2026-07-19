@@ -13,80 +13,15 @@
   height: 1.1rem;
 }
 
-/* Circular close button */
-.settings-panel .dialog-panel__close {
-  background: var(--bg-subtle);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  font-size: 1rem;
-  transition: background 0.15s ease;
-}
-
-.settings-panel .dialog-panel__close-icon {
-  width: 1rem;
-  height: 1rem;
-}
-
-.settings-panel .dialog-panel__close:hover {
-  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
-}
-
 /* Body: no padding — tabpanels handle their own */
 .settings-panel__body {
   padding: 0;
 }
 
-
-.settings-tabs {
-  display: flex;
-  border-bottom: 2px solid var(--border-soft);
-  background: var(--bg-subtle);
-  flex-shrink: 0;
-}
-
-.settings-tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.6rem 0.4rem;
-  background: transparent;
-  border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-  margin-bottom: -2px;
-}
-
-.settings-tab:hover {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--bg-surface));
-}
-
-.settings-tab--active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  background: var(--bg-surface);
-}
-
-.settings-tab:focus-visible {
-  outline: 3px solid var(--button-focus);
-  outline-offset: -3px;
-}
-
-.settings-tab__icon {
+/* Larger icons in Settings tabs vs the shared 1rem default */
+.settings-panel .dialog-tab__icon {
   width: 1.1rem;
   height: 1.1rem;
-}
-
-.settings-tab__label {
-  line-height: 1;
 }
 
 /* ── Panel body ── */

@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import type { Symbol, TileHeight } from "./data/vocabulary";
-import type { TileSize } from "./data/vocabulary";
+import type { Symbol, TileHeight, TileSize } from "./data/vocabulary";
 import { columnsToTileSize } from "./tileSize";
 import { useSpeech } from "./hooks/useSpeech";
 import { SentenceBar } from "./components/SentenceBar";
@@ -294,30 +293,23 @@ export default function App() {
   const [showManageBoards, setShowManageBoards] = useState(false);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
 
-  // All categories are user boards
-  const allCategories = useMemo(() => userBoards, [userBoards]);
-
-  const [activeCategoryId, setActiveCategoryId] = useState<string>(() => {
-    const boards = loadUserBoards();
-    return boards.length > 0 ? boards[0].id : DEFAULT_WELCOME_BOARD.id;
-  });
+  const [activeCategoryId, setActiveCategoryId] = useState<string>(
+    () => userBoards[0].id
+  );
 
   // Keep activeCategoryId valid when boards change
   useEffect(() => {
-    if (allCategories.length > 0 && !allCategories.find((c) => c.id === activeCategoryId)) {
-      setActiveCategoryId(allCategories[0].id);
+    if (userBoards.length > 0 && !userBoards.find((c) => c.id === activeCategoryId)) {
+      setActiveCategoryId(userBoards[0].id);
     }
-  }, [allCategories, activeCategoryId]);
+  }, [userBoards, activeCategoryId]);
 
-  const activeCategory =
-    allCategories.find((c) => c.id === activeCategoryId) ?? allCategories[0];
+  const activeCategory = userBoards.find((c) => c.id === activeCategoryId) ?? userBoards[0];
 
-  const isUserBoard = userBoards.some((b) => b.id === activeCategoryId);
-
-  // Flat list of all symbols across all categories for keyboard search in SentenceBar
+  // Flat list of all symbols across all boards for keyboard search in SentenceBar
   const allSymbols = useMemo(
-    () => allCategories.flatMap((c) => c.symbols),
-    [allCategories]
+    () => userBoards.flatMap((c) => c.symbols),
+    [userBoards]
   );
 
   const { capture: captureFocus, restore: restoreFocus } = useRestoreFocus();
@@ -361,10 +353,9 @@ export default function App() {
 
   const handleAddToBoard = useCallback(
     (word: string) => {
-      if (!isUserBoard) return;
       handleOpenAddTile(word);
     },
-    [isUserBoard, handleOpenAddTile]
+    [handleOpenAddTile]
   );
 
   const handleOpenManageBoards = useCallback(() => {
@@ -411,7 +402,7 @@ export default function App() {
     document.documentElement.lang = settings.language;
   }, [settings.language]);
 
-  function playSymbol(sym: Symbol) {
+  const playSymbol = useCallback((sym: Symbol) => {
     if (sym.soundFile) {
       const audio = new Audio(sym.soundFile);
       audio.volume = settings.volume;
@@ -419,7 +410,7 @@ export default function App() {
     } else {
       speak(sym.speak ?? sym.label);
     }
-  }
+  }, [settings.volume, speak]);
 
   const handleSymbolSelect = useCallback((sym: Symbol) => {
     if (!settings.sentenceBuilderEnabled) {
@@ -427,8 +418,7 @@ export default function App() {
     } else {
       setSentence((prev) => [...prev, sym]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.sentenceBuilderEnabled, settings.volume, speak]);
+  }, [settings.sentenceBuilderEnabled, playSymbol]);
 
   const handleSpeak = useCallback(() => {
     if (sentence.length === 0) return;
@@ -437,11 +427,8 @@ export default function App() {
   }, [sentence, speak]);
 
   const handleSpeakWord = useCallback(
-    (sym: Symbol) => {
-      playSymbol(sym);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [speak, settings.volume]
+    (sym: Symbol) => playSymbol(sym),
+    [playSymbol]
   );
 
   const handleRemoveLast = useCallback(() => {
@@ -514,10 +501,6 @@ export default function App() {
     [activeCategoryId, handleCloseEditTile]
   );
 
-  const handleUpdateUserBoards = useCallback((boards: UserBoard[]) => {
-    setUserBoards(boards);
-  }, []);
-
   const handlePreviewVoice = useCallback(
     (voiceId: string) => {
       const sampleText = t(settings.language, "voicePreviewSample");
@@ -536,46 +519,19 @@ export default function App() {
   const applyVoicePreset = (preset: string) => {
     switch (preset) {
       case "baritone":
-      case "male":
-        setSettings((prev) => ({
-          ...prev,
-          voicePreset: "baritone",
-          rate: 0.95,
-          pitch: 0.75,
-        }));
+        setSettings((prev) => ({ ...prev, voicePreset: "baritone", rate: 0.95, pitch: 0.75 }));
         return;
       case "alto":
-      case "female":
-        setSettings((prev) => ({
-          ...prev,
-          voicePreset: "alto",
-          rate: 1.05,
-          pitch: 1.25,
-        }));
+        setSettings((prev) => ({ ...prev, voicePreset: "alto", rate: 1.05, pitch: 1.25 }));
         return;
       case "soprano":
-      case "child":
-        setSettings((prev) => ({
-          ...prev,
-          voicePreset: "soprano",
-          rate: 1.15,
-          pitch: 1.45,
-        }));
+        setSettings((prev) => ({ ...prev, voicePreset: "soprano", rate: 1.15, pitch: 1.45 }));
         return;
       case "bass":
-      case "deep":
-        setSettings((prev) => ({
-          ...prev,
-          voicePreset: "bass",
-          rate: 0.85,
-          pitch: 0.6,
-        }));
+        setSettings((prev) => ({ ...prev, voicePreset: "bass", rate: 0.85, pitch: 0.6 }));
         return;
       default:
-        setSettings((prev) => ({
-          ...prev,
-          voicePreset: "custom",
-        }));
+        setSettings((prev) => ({ ...prev, voicePreset: "custom" }));
     }
   };
 
@@ -597,12 +553,12 @@ export default function App() {
           language={settings.language}
           allSymbols={allSymbols}
           onSelectSymbol={handleSymbolSelect}
-          onAddToBoard={isUserBoard ? handleAddToBoard : undefined}
+          onAddToBoard={handleAddToBoard}
         />
       )}
 
       <CategoryNav
-        categories={allCategories}
+        categories={userBoards}
         activeId={activeCategoryId}
         onSelect={(id) => {
           setActiveCategoryId(id);
@@ -613,7 +569,7 @@ export default function App() {
         language={settings.language}
         sentenceBuilderEnabled={settings.sentenceBuilderEnabled}
         onToggleSentenceBuilder={() => updateSetting("sentenceBuilderEnabled", !settings.sentenceBuilderEnabled)}
-        canEditActiveBoard={isUserBoard && activeCategory.symbols.length > 0}
+        canEditActiveBoard={activeCategory.symbols.length > 0}
         isEditingActiveBoard={isEditingTiles}
         onToggleEditActiveBoard={() => setIsEditingTiles((prev) => !prev)}
       />
@@ -623,10 +579,10 @@ export default function App() {
         tileSize={settings.tileSize}
         onSelect={handleSymbolSelect}
         language={settings.language}
-        onAddWord={isUserBoard ? handleOpenAddTile : undefined}
-        onDeleteSymbol={isUserBoard ? handleDeleteCustomTile : undefined}
-        onEditSymbol={isUserBoard ? handleOpenEditTile : undefined}
-        onReorderSymbols={isUserBoard ? handleReorderTiles : undefined}
+        onAddWord={handleOpenAddTile}
+        onDeleteSymbol={handleDeleteCustomTile}
+        onEditSymbol={handleOpenEditTile}
+        onReorderSymbols={handleReorderTiles}
         isEditMode={isEditingTiles}
       />
 
@@ -690,7 +646,7 @@ export default function App() {
         <ManageBoardsDialog
           language={settings.language}
           userBoards={userBoards}
-          onUpdateUserBoards={handleUpdateUserBoards}
+          onUpdateUserBoards={setUserBoards}
           onClose={handleCloseManageBoards}
         />
       )}
