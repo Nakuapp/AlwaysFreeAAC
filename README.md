@@ -20,11 +20,11 @@ The web app works on any device and can be added to your home screen for quick a
 
 ## Features
 
-- **Symbol boards** — 8 categories with 100+ symbols using emoji visuals and clear text labels
+- **Welcome board** — starts with a single customisable board containing a curated welcome layout with varied tile sizes; add more boards whenever you're ready
 - **Sentence builder** — tap symbols or type into the built-in search bar to compose sentences
 - **Keyboard search** — type any word to find matching tiles instantly; tap a result to add it to the sentence; if a word isn't on any board and a custom board is active, an "Add to board" shortcut opens the tile editor pre-filled
 - **Text-to-speech** — speaks sentences aloud using your device's built-in voice
-- **Category navigation** — Core, People, Actions, Feelings, Food & Drink, Places, Describe, Social
+- **Custom boards** — create as many boards as you need, each with its own tiles, icon, and name; rename, reorder, and delete at any time
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
 - **Accessible** — WCAG 2.1 AA compliant; works with screen readers, keyboard navigation, and respects reduced-motion preferences

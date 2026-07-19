@@ -122,10 +122,7 @@ type UiStringKey =
   | "confirmDeleteBoard"
   | "moveUp"
   | "moveDown"
-  | "showBoard"
-  | "hideBoard"
   | "userBoards"
-  | "builtInBoards"
   | "renameBoard"
   | "importExport"
   | "exportSection"
@@ -270,10 +267,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     confirmDeleteBoard: "Delete this board and all its tiles?",
     moveUp: "Move up",
     moveDown: "Move down",
-    showBoard: "Show board",
-    hideBoard: "Hide board",
     userBoards: "My Boards",
-    builtInBoards: "Built-in Boards",
     renameBoard: "Rename board",
     importExport: "Import / Export",
     exportSection: "Export Boards",
@@ -417,10 +411,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     confirmDeleteBoard: "¿Eliminar este tablero y todos sus mosaicos?",
     moveUp: "Mover arriba",
     moveDown: "Mover abajo",
-    showBoard: "Mostrar tablero",
-    hideBoard: "Ocultar tablero",
     userBoards: "Mis tableros",
-    builtInBoards: "Tableros predeterminados",
     renameBoard: "Renombrar tablero",
     importExport: "Importar / Exportar",
     exportSection: "Exportar tableros",
@@ -564,10 +555,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     confirmDeleteBoard: "Supprimer ce tableau et toutes ses fiches ?",
     moveUp: "Monter",
     moveDown: "Descendre",
-    showBoard: "Afficher le tableau",
-    hideBoard: "Masquer le tableau",
     userBoards: "Mes tableaux",
-    builtInBoards: "Tableaux intégrés",
     renameBoard: "Renommer le tableau",
     importExport: "Importer / Exporter",
     exportSection: "Exporter des tableaux",

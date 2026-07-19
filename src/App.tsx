@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { CATEGORIES } from "./data/vocabulary";
 import type { Symbol } from "./data/vocabulary";
 import type { TileSize } from "./data/vocabulary";
 import { columnsToTileSize } from "./tileSize";
@@ -11,14 +10,13 @@ import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
 import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
 import { ImportExportDialog } from "./components/ImportExportDialog";
-import { localizeCategories, t, type Language, type Theme, type LayoutOrder } from "./i18n";
+import { t, type Language, type Theme, type LayoutOrder } from "./i18n";
 import { useRestoreFocus } from "./hooks/useRestoreFocus";
 import "./App.css";
 
 const STORAGE_KEY = "aac_settings";
 const LEGACY_CUSTOM_TILES_KEY = "aac_custom_tiles";
 const USER_BOARDS_KEY = "aac_user_boards";
-const HIDDEN_BUILTIN_KEY = "aac_hidden_builtin";
 
 export interface UserBoard {
   id: string;
@@ -161,6 +159,34 @@ function parseSymbol(tile: Record<string, unknown>): Symbol {
   };
 }
 
+/** Default welcome board shown on first launch */
+const DEFAULT_WELCOME_BOARD: UserBoard = {
+  id: "welcome",
+  label: "Welcome",
+  emoji: "star",
+  symbols: [
+    // Row 1: full-width banner (xl = 4 cols at default grid)
+    { id: "welcome-title", label: "Welcome!", emoji: "🎉", color: "yellow", tileSize: "xl", isCustom: true },
+    // Row 2: greeting + pronouns
+    { id: "welcome-hello", label: "Hello", emoji: "👋", color: "yellow", tileSize: "lg", isCustom: true },
+    { id: "welcome-i", label: "I", emoji: "👤", color: "blue", tileSize: "sm", isCustom: true },
+    { id: "welcome-you", label: "You", emoji: "👉", color: "blue", tileSize: "sm", isCustom: true },
+    // Row 3: core responses (4 × 1 col)
+    { id: "welcome-yes", label: "Yes", emoji: "✅", color: "green", tileSize: "sm", isCustom: true },
+    { id: "welcome-no", label: "No", emoji: "❌", color: "red", tileSize: "sm", isCustom: true },
+    { id: "welcome-please", label: "Please", emoji: "🙏", color: "purple", tileSize: "sm", isCustom: true },
+    { id: "welcome-thank-you", label: "Thank You", emoji: "🙌", color: "green", tileSize: "sm", isCustom: true },
+    // Row 4: help + quick actions
+    { id: "welcome-help", label: "Help", emoji: "🆘", color: "red", tileSize: "lg", isCustom: true },
+    { id: "welcome-more", label: "More", emoji: "➕", color: "orange", tileSize: "sm", isCustom: true },
+    { id: "welcome-all-done", label: "All Done", emoji: "🏁", color: "purple", tileSize: "sm", isCustom: true },
+    // Row 5: feelings + intent
+    { id: "welcome-happy", label: "Happy", emoji: "😊", color: "yellow", tileSize: "sm", isCustom: true },
+    { id: "welcome-want", label: "Want", emoji: "🌟", color: "orange", tileSize: "lg", isCustom: true },
+    { id: "welcome-good", label: "Good", emoji: "⭐", color: "green", tileSize: "sm", isCustom: true },
+  ],
+};
+
 function loadUserBoards(): UserBoard[] {
   try {
     const raw = localStorage.getItem(USER_BOARDS_KEY);
@@ -227,35 +253,14 @@ function saveUserBoards(boards: UserBoard[]) {
   }
 }
 
-function loadHiddenBuiltinIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(HIDDEN_BUILTIN_KEY);
-    if (raw) {
-      const parsed: unknown = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        return new Set(parsed.filter((x): x is string => typeof x === "string"));
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return new Set();
-}
-
-function saveHiddenBuiltinIds(ids: Set<string>) {
-  try {
-    localStorage.setItem(HIDDEN_BUILTIN_KEY, JSON.stringify([...ids]));
-  } catch {
-    // ignore
-  }
-}
-
 export default function App() {
   const [sentence, setSentence] = useState<Symbol[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
-  const [userBoards, setUserBoards] = useState<UserBoard[]>(loadUserBoards);
-  const [hiddenBuiltinIds, setHiddenBuiltinIds] = useState<Set<string>>(loadHiddenBuiltinIds);
+  const [userBoards, setUserBoards] = useState<UserBoard[]>(() => {
+    const boards = loadUserBoards();
+    return boards.length > 0 ? boards : [DEFAULT_WELCOME_BOARD];
+  });
   const [showAddTile, setShowAddTile] = useState(false);
   const [addTileInitialLabel, setAddTileInitialLabel] = useState<string | undefined>();
   const [editingTile, setEditingTile] = useState<Symbol | null>(null);
@@ -263,21 +268,12 @@ export default function App() {
   const [showImportExport, setShowImportExport] = useState(false);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
 
-  // Localized built-in categories (minus hidden ones)
-  const localizedBuiltIn = useMemo(
-    () => localizeCategories(settings.language, CATEGORIES),
-    [settings.language]
-  );
-
-  // All categories: user boards first, then visible built-in boards
-  const allCategories = useMemo(() => {
-    const visible = localizedBuiltIn.filter((c) => !hiddenBuiltinIds.has(c.id));
-    return [...userBoards, ...visible];
-  }, [userBoards, localizedBuiltIn, hiddenBuiltinIds]);
+  // All categories are user boards
+  const allCategories = useMemo(() => userBoards, [userBoards]);
 
   const [activeCategoryId, setActiveCategoryId] = useState<string>(() => {
     const boards = loadUserBoards();
-    return boards.length > 0 ? boards[0].id : (CATEGORIES[0]?.id ?? "");
+    return boards.length > 0 ? boards[0].id : DEFAULT_WELCOME_BOARD.id;
   });
 
   // Keep activeCategoryId valid when boards change
@@ -379,10 +375,6 @@ export default function App() {
   useEffect(() => {
     saveUserBoards(userBoards);
   }, [userBoards]);
-
-  useEffect(() => {
-    saveHiddenBuiltinIds(hiddenBuiltinIds);
-  }, [hiddenBuiltinIds]);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
@@ -488,18 +480,6 @@ export default function App() {
 
   const handleUpdateUserBoards = useCallback((boards: UserBoard[]) => {
     setUserBoards(boards);
-  }, []);
-
-  const handleToggleBuiltIn = useCallback((id: string) => {
-    setHiddenBuiltinIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   }, []);
 
   const handlePreviewVoice = useCallback(
@@ -664,10 +644,7 @@ export default function App() {
         <ManageBoardsDialog
           language={settings.language}
           userBoards={userBoards}
-          builtInCategories={localizedBuiltIn}
-          hiddenBuiltinIds={hiddenBuiltinIds}
           onUpdateUserBoards={handleUpdateUserBoards}
-          onToggleBuiltIn={handleToggleBuiltIn}
           onClose={handleCloseManageBoards}
         />
       )}

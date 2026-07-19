@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, X } from "lucide-react";
-import type { Category } from "../data/vocabulary";
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { t, type Language } from "../i18n";
 import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
@@ -11,20 +10,14 @@ import "./ManageBoardsDialog.css";
 interface ManageBoardsDialogProps {
   language: Language;
   userBoards: UserBoard[];
-  builtInCategories: Category[];
-  hiddenBuiltinIds: Set<string>;
   onUpdateUserBoards: (boards: UserBoard[]) => void;
-  onToggleBuiltIn: (id: string) => void;
   onClose: () => void;
 }
 
 export function ManageBoardsDialog({
   language,
   userBoards,
-  builtInCategories,
-  hiddenBuiltinIds,
   onUpdateUserBoards,
-  onToggleBuiltIn,
   onClose,
 }: ManageBoardsDialogProps) {
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
@@ -201,8 +194,7 @@ export function ManageBoardsDialog({
               {userBoards.length === 0 && !showNewBoardForm && (
                 <li className="manage-boards-list__empty">{t(language, "noCustomTiles")}</li>
               )}
-              {userBoards.map((board, index) => (
-                <li key={board.id} className="manage-boards-list__item">
+              {userBoards.map((board, index) => (                <li key={board.id} className="manage-boards-list__item">
                   <IconVisual value={board.emoji} className="manage-boards-list__icon" />
                   {renamingId === board.id ? (
                     <input
@@ -268,37 +260,6 @@ export function ManageBoardsDialog({
                   </div>
                 </li>
               ))}
-            </ul>
-          </div>
-
-          {/* Built-in boards section */}
-          <div className="manage-boards-section">
-            <h3 className="manage-boards-section__title">{t(language, "builtInBoards")}</h3>
-            <ul className="manage-boards-list" role="list">
-              {builtInCategories.map((cat) => {
-                const hidden = hiddenBuiltinIds.has(cat.id);
-                return (
-                  <li key={cat.id} className={`manage-boards-list__item${hidden ? " manage-boards-list__item--hidden" : ""}`}>
-                    <IconVisual value={cat.emoji} className="manage-boards-list__icon" />
-                    <span className="manage-boards-list__label">{cat.label}</span>
-                    <div className="manage-boards-list__actions">
-                      <button
-                        type="button"
-                        className="manage-boards-list__btn"
-                        onClick={() => onToggleBuiltIn(cat.id)}
-                        aria-label={hidden ? `${t(language, "showBoard")}: ${cat.label}` : `${t(language, "hideBoard")}: ${cat.label}`}
-                        aria-pressed={!hidden}
-                      >
-                        {hidden ? (
-                          <EyeOff className="manage-boards-list__btn-icon" aria-hidden="true" focusable="false" />
-                        ) : (
-                          <Eye className="manage-boards-list__btn-icon" aria-hidden="true" focusable="false" />
-                        )}
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
             </ul>
           </div>
         </div>
