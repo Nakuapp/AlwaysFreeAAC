@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import type { Symbol } from "./data/vocabulary";
+import type { Symbol, TileHeight } from "./data/vocabulary";
 import type { TileSize } from "./data/vocabulary";
 import { columnsToTileSize } from "./tileSize";
 import { useSpeech } from "./hooks/useSpeech";
@@ -36,6 +36,8 @@ interface AppSettings {
   language: Language;
   theme: Theme;
   layoutOrder: LayoutOrder;
+  /** When false, tiles immediately speak/play (soundboard mode) instead of building a sentence */
+  sentenceBuilderEnabled: boolean;
 }
 
 function defaultSettings(): AppSettings {
@@ -50,6 +52,7 @@ function defaultSettings(): AppSettings {
     language: "en",
     theme: "light",
     layoutOrder: "tabs-top",
+    sentenceBuilderEnabled: true,
   };
 }
 
@@ -117,6 +120,10 @@ function loadSettings(): AppSettings {
         theme: normalizedTheme,
         tileSize: normalizedTileSize,
         layoutOrder: normalizedLayoutOrder,
+        sentenceBuilderEnabled:
+          typeof parsed.sentenceBuilderEnabled === "boolean"
+            ? parsed.sentenceBuilderEnabled
+            : true,
       };
     }
   } catch {
@@ -143,6 +150,8 @@ function isValidSymbol(tile: unknown): tile is Record<string, unknown> {
   );
 }
 
+const VALID_TILE_HEIGHTS = new Set<TileHeight>(["tall", "taller"]);
+
 function parseSymbol(tile: Record<string, unknown>): Symbol {
   return {
     id: tile.id as string,
@@ -154,6 +163,18 @@ function parseSymbol(tile: Record<string, unknown>): Symbol {
     tileSize:
       typeof tile.tileSize === "string" && VALID_TILE_SIZES.has(tile.tileSize as TileSize)
         ? (tile.tileSize as TileSize)
+        : undefined,
+    tileHeight:
+      typeof tile.tileHeight === "string" && VALID_TILE_HEIGHTS.has(tile.tileHeight as TileHeight)
+        ? (tile.tileHeight as TileHeight)
+        : undefined,
+    backgroundImage:
+      typeof tile.backgroundImage === "string" && tile.backgroundImage.startsWith("data:image/")
+        ? tile.backgroundImage
+        : undefined,
+    soundFile:
+      typeof tile.soundFile === "string" && tile.soundFile.startsWith("data:audio/")
+        ? tile.soundFile
         : undefined,
     isCustom: true,
   };
@@ -391,9 +412,24 @@ export default function App() {
     document.documentElement.lang = settings.language;
   }, [settings.language]);
 
+  function playSymbol(sym: Symbol) {
+    if (sym.soundFile) {
+      const audio = new Audio(sym.soundFile);
+      audio.volume = settings.volume;
+      audio.play().catch(() => {});
+    } else {
+      speak(sym.speak ?? sym.label);
+    }
+  }
+
   const handleSymbolSelect = useCallback((sym: Symbol) => {
-    setSentence((prev) => [...prev, sym]);
-  }, []);
+    if (!settings.sentenceBuilderEnabled) {
+      playSymbol(sym);
+    } else {
+      setSentence((prev) => [...prev, sym]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.sentenceBuilderEnabled, settings.volume, speak]);
 
   const handleSpeak = useCallback(() => {
     if (sentence.length === 0) return;
@@ -403,9 +439,10 @@ export default function App() {
 
   const handleSpeakWord = useCallback(
     (sym: Symbol) => {
-      speak(sym.speak ?? sym.label);
+      playSymbol(sym);
     },
-    [speak]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [speak, settings.volume]
   );
 
   const handleClear = useCallback(() => {
@@ -549,18 +586,20 @@ export default function App() {
         {t(settings.language, "skipToMain")}
       </a>
 
-      <SentenceBar
-        sentence={sentence}
-        speaking={speaking}
-        onSpeak={handleSpeak}
-        onClear={handleClear}
-        onRemoveLast={handleRemoveLast}
-        onSpeakWord={handleSpeakWord}
-        language={settings.language}
-        allSymbols={allSymbols}
-        onSelectSymbol={handleSymbolSelect}
-        onAddToBoard={isUserBoard ? handleAddToBoard : undefined}
-      />
+      {settings.sentenceBuilderEnabled && (
+        <SentenceBar
+          sentence={sentence}
+          speaking={speaking}
+          onSpeak={handleSpeak}
+          onClear={handleClear}
+          onRemoveLast={handleRemoveLast}
+          onSpeakWord={handleSpeakWord}
+          language={settings.language}
+          allSymbols={allSymbols}
+          onSelectSymbol={handleSymbolSelect}
+          onAddToBoard={isUserBoard ? handleAddToBoard : undefined}
+        />
+      )}
 
       <CategoryNav
         categories={allCategories}
@@ -602,6 +641,7 @@ export default function App() {
           language={settings.language}
           theme={settings.theme}
           layoutOrder={settings.layoutOrder}
+          sentenceBuilderEnabled={settings.sentenceBuilderEnabled}
           onVoiceChange={(v) => updateSetting("voiceName", v)}
           onVoicePresetChange={applyVoicePreset}
           onRateChange={(r) =>
@@ -616,6 +656,7 @@ export default function App() {
           onLanguageChange={(language) => updateSetting("language", language)}
           onThemeChange={(theme) => updateSetting("theme", theme)}
           onLayoutOrderChange={(order) => updateSetting("layoutOrder", order)}
+          onSentenceBuilderToggle={(enabled) => updateSetting("sentenceBuilderEnabled", enabled)}
           onPreviewVoice={handlePreviewVoice}
           onClose={handleCloseSettings}
         />

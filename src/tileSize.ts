@@ -1,4 +1,4 @@
-import type { TileSize } from "./data/vocabulary";
+import type { TileSize, TileHeight } from "./data/vocabulary";
 
 export const TILE_SIZES: readonly TileSize[] = ["xs", "sm", "md", "lg", "xl"] as const;
 
@@ -24,6 +24,14 @@ export const TILE_SIZE_SPAN: Record<TileSize, number> = {
   xl: 4,
 };
 
+/** Row span values for per-tile height overrides. */
+export const TILE_HEIGHT_ROW_SPAN: Record<TileHeight, number> = {
+  tall: 2,
+  taller: 3,
+};
+
+export const TILE_HEIGHTS: readonly TileHeight[] = ["tall", "taller"] as const;
+
 /**
  * Returns how many grid columns a tile should span given its per-tile size
  * override and the current grid column count derived from the global tile size.
@@ -37,6 +45,15 @@ export function getTileColSpan(
 ): number {
   if (!tileSize) return 1;
   return Math.min(TILE_SIZE_SPAN[tileSize], gridColumns);
+}
+
+/**
+ * Returns how many grid rows a tile should span.
+ * Tiles without an explicit height override span exactly 1 row.
+ */
+export function getTileRowSpan(tileHeight: TileHeight | undefined): number {
+  if (!tileHeight) return 1;
+  return TILE_HEIGHT_ROW_SPAN[tileHeight];
 }
 
 /** Map a legacy numeric column count (2-8) to the nearest named TileSize */

@@ -1,7 +1,7 @@
 import { useState, type CSSProperties, type DragEvent } from "react";
 import { Check, Pencil, Plus } from "lucide-react";
 import type { TileSize, Symbol } from "../data/vocabulary";
-import { TILE_SIZE_COLUMNS, getTileColSpan } from "../tileSize";
+import { TILE_SIZE_COLUMNS, getTileColSpan, getTileRowSpan } from "../tileSize";
 import { t, type Language } from "../i18n";
 import { SymbolButton } from "./SymbolButton";
 import "./SymbolGrid.css";
@@ -106,6 +106,7 @@ export function SymbolGrid({
         )}
         {symbols.map((sym, index) => {
           const colSpan = getTileColSpan(sym.tileSize, gridColumns);
+          const rowSpan = getTileRowSpan(sym.tileHeight);
           return (
             <SymbolButton
               key={sym.id}
@@ -113,6 +114,7 @@ export function SymbolGrid({
               onClick={onSelect}
               disabled={Boolean(isEditMode) && !onEditSymbol}
               colSpan={colSpan}
+              rowSpan={rowSpan}
               onDelete={isEditMode && onDeleteSymbol ? onDeleteSymbol : undefined}
               deleteAriaLabel={(symbol) => `${t(language, "deleteTile")}: ${symbol.label}`}
               onEdit={isEditMode && onEditSymbol ? onEditSymbol : undefined}

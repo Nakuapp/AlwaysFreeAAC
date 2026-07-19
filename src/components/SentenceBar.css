@@ -82,81 +82,166 @@
   outline-offset: 2px;
 }
 
-/* ── Keyboard input ─────────────────────────────────────────── */
-.sentence-bar__input-row {
+/* ── Chip input area ─────────────────────────────────────────── */
+.sentence-bar__chip-input {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 36px;
+  padding: 0.25rem 0.4rem;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  cursor: text;
+  transition: border-color 0.15s ease;
 }
 
+.sentence-bar__chip-input:focus-within {
+  border-color: var(--header-bg);
+  background: var(--bg-surface);
+}
+
+/* Individual chips */
+.sentence-bar__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  max-width: 140px;
+  flex-shrink: 0;
+}
+
+.sentence-bar__chip--matched {
+  background: color-mix(in srgb, var(--header-bg) 16%, var(--bg-surface));
+  border: 1.5px solid color-mix(in srgb, var(--header-bg) 55%, transparent);
+  color: var(--text-primary);
+}
+
+.sentence-bar__chip--unmatched {
+  background: var(--bg-subtle);
+  border: 1.5px dashed var(--border-medium);
+  color: var(--text-secondary);
+}
+
+/* Matched chip: clickable part that adds to sentence */
+.sentence-bar__chip-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.4rem 0.2rem 0.35rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 20px 0 0 20px;
+  transition: background 0.1s ease;
+}
+
+.sentence-bar__chip-add-btn:hover {
+  background: color-mix(in srgb, var(--header-bg) 20%, transparent);
+}
+
+.sentence-bar__chip-add-btn:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__chip-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sentence-bar__chip-label {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Unmatched chip label + add-to-board button */
+.sentence-bar__chip--unmatched .sentence-bar__chip-label {
+  padding: 0.2rem 0.35rem 0.2rem 0.5rem;
+}
+
+.sentence-bar__chip-new-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.3rem;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-medium);
+  cursor: pointer;
+  color: var(--header-bg);
+  transition: background 0.1s ease;
+}
+
+.sentence-bar__chip-new-btn:hover {
+  background: color-mix(in srgb, var(--header-bg) 12%, transparent);
+}
+
+.sentence-bar__chip-new-btn:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__chip-new-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Chip remove button */
+.sentence-bar__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.35rem;
+  background: none;
+  border: none;
+  border-left: 1px solid rgba(0,0,0,0.12);
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 0 20px 20px 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.sentence-bar__chip-remove:hover {
+  background: rgba(0,0,0,0.08);
+  color: var(--text-primary);
+}
+
+.sentence-bar__chip-remove:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__chip-remove-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+/* Inline text input inside chip container */
 .sentence-bar__type-input {
   flex: 1;
-  border: 1.5px solid var(--border-soft);
-  border-radius: 6px;
-  padding: 0.3rem 0.5rem;
+  min-width: 80px;
+  border: none;
+  outline: none;
+  padding: 0.15rem 0.2rem;
   font-size: 0.85rem;
   font-family: inherit;
-  background: var(--bg-subtle);
+  background: transparent;
   color: var(--text-primary);
-  outline: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .sentence-bar__type-input::placeholder {
   color: var(--text-muted);
-}
-
-.sentence-bar__type-input:focus {
-  border-color: var(--header-bg);
-  background: var(--bg-surface);
-}
-
-/* ── Suggestions row ─────────────────────────────────────────── */
-.sentence-bar__suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  max-height: 80px;
-  overflow-y: auto;
-}
-
-.sentence-bar__suggestion-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.55rem;
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-medium);
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: background 0.1s ease, border-color 0.1s ease;
-  white-space: nowrap;
-}
-
-.sentence-bar__suggestion-item:hover {
-  background: color-mix(in srgb, var(--header-bg) 12%, var(--bg-surface));
-  border-color: var(--header-bg);
-}
-
-.sentence-bar__suggestion-item:focus-visible {
-  outline: 3px solid var(--button-focus);
-  outline-offset: 2px;
-}
-
-.sentence-bar__suggestion-item--add {
-  border-style: dashed;
-  color: var(--header-bg);
-}
-
-.sentence-bar__suggestion-item--add:hover {
-  background: color-mix(in srgb, var(--header-bg) 10%, var(--bg-surface));
-}
-
-.sentence-bar__suggestion-icon {
-  width: 0.9rem;
-  height: 0.9rem;
-  flex-shrink: 0;
 }
 
 /* ── Controls ────────────────────────────────────────────────── */

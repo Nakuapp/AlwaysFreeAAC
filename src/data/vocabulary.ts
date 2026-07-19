@@ -1,5 +1,8 @@
 export type TileSize = "xs" | "sm" | "md" | "lg" | "xl";
 
+/** Per-tile row span; when absent the tile occupies 1 grid row */
+export type TileHeight = "tall" | "taller";
+
 export interface Symbol {
   id: string;
   label: string;
@@ -10,6 +13,12 @@ export interface Symbol {
   iconColor?: string; // icon fill/stroke color category
   /** Per-tile size override; when absent the global tile size is used */
   tileSize?: TileSize;
+  /** Per-tile row span override; when absent the tile spans 1 row */
+  tileHeight?: TileHeight;
+  /** Background image data URL rendered behind the icon + label */
+  backgroundImage?: string;
+  /** Audio file data URL; when present plays instead of TTS on tile press */
+  soundFile?: string;
   /** When true this tile was created by the user and can be deleted */
   isCustom?: boolean;
 }

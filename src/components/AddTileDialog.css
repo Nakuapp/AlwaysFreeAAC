@@ -449,3 +449,62 @@ details[open] .add-tile-advanced__summary {
   outline: 3px solid #ffcc00;
   outline-offset: 2px;
 }
+
+/* Sound upload */
+.add-tile-sound-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.add-tile-sound-upload__preview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--header-bg);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--header-bg) 12%, var(--bg-surface));
+  color: var(--header-bg);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.add-tile-sound-upload__preview-btn:hover {
+  background: color-mix(in srgb, var(--header-bg) 22%, var(--bg-surface));
+}
+
+.add-tile-sound-upload__preview-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+/* Remove button for optional fields */
+.add-tile-image-upload__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.add-tile-image-upload__remove:hover {
+  background: var(--color-red);
+  color: #fff;
+  border-color: var(--color-red);
+}
+
+.add-tile-image-upload__remove:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}

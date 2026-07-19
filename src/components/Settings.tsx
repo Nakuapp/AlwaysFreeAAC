@@ -5,7 +5,7 @@ import {
   Grid3X3,
   Languages,
   MoonStar,
-  Music,
+  Music2,
   PanelTop,
   Settings as SettingsIcon,
   SlidersHorizontal,
@@ -37,6 +37,7 @@ interface SettingsProps {
   language: Language;
   theme: Theme;
   layoutOrder: LayoutOrder;
+  sentenceBuilderEnabled: boolean;
   onVoiceChange: (name: string) => void;
   onVoicePresetChange: (preset: string) => void;
   onRateChange: (rate: number) => void;
@@ -47,6 +48,7 @@ interface SettingsProps {
   onLanguageChange: (language: Language) => void;
   onThemeChange: (theme: Theme) => void;
   onLayoutOrderChange: (order: LayoutOrder) => void;
+  onSentenceBuilderToggle: (enabled: boolean) => void;
   onPreviewVoice: (voiceId: string) => void;
   onClose: () => void;
 }
@@ -64,6 +66,7 @@ export function Settings({
   language,
   theme,
   layoutOrder,
+  sentenceBuilderEnabled,
   onVoiceChange,
   onVoicePresetChange,
   onRateChange,
@@ -74,6 +77,7 @@ export function Settings({
   onLanguageChange,
   onThemeChange,
   onLayoutOrderChange,
+  onSentenceBuilderToggle,
   onPreviewVoice,
   onClose,
 }: SettingsProps) {
@@ -520,6 +524,37 @@ export function Settings({
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Sentence Builder toggle */}
+            <div className="settings-field">
+              <span className="settings-field__label">
+                <Music2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+                {t(language, "sentenceBuilderMode")}
+              </span>
+              <div className="settings-toggle-group" role="group" aria-label={t(language, "sentenceBuilderMode")}>
+                <button
+                  type="button"
+                  className={`settings-toggle-btn${sentenceBuilderEnabled ? " settings-toggle-btn--active" : ""}`}
+                  onClick={() => onSentenceBuilderToggle(true)}
+                  aria-pressed={sentenceBuilderEnabled}
+                >
+                  {t(language, "sentenceBuilderOn")}
+                </button>
+                <button
+                  type="button"
+                  className={`settings-toggle-btn${!sentenceBuilderEnabled ? " settings-toggle-btn--active" : ""}`}
+                  onClick={() => onSentenceBuilderToggle(false)}
+                  aria-pressed={!sentenceBuilderEnabled}
+                >
+                  {t(language, "sentenceBuilderOff")}
+                </button>
+              </div>
+              <p className="settings-field__hint">
+                {sentenceBuilderEnabled
+                  ? t(language, "sentenceBuilderOnHint")
+                  : t(language, "sentenceBuilderOffHint")}
+              </p>
             </div>
           </div>
         </div>

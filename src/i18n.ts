@@ -145,6 +145,18 @@ type UiStringKey =
   | "tileSizeMd"
   | "tileSizeLg"
   | "tileSizeXl"
+  | "tileHeightLabel"
+  | "tileHeightNormal"
+  | "tileHeightTall"
+  | "tileHeightTaller"
+  | "tileBackgroundImage"
+  | "removeBackgroundImage"
+  | "tileSoundFile"
+  | "uploadSoundFile"
+  | "changeSoundFile"
+  | "previewSound"
+  | "removeSoundFile"
+  | "soundFileHint"
   | "moveTile"
   | "moveTileUp"
   | "moveTileDown"
@@ -153,12 +165,18 @@ type UiStringKey =
   | "layoutSpeechTop"
   | "typeToSearch"
   | "addWordToBoard"
+  | "addToSentence"
   | "settingsTabSpeech"
   | "settingsTabDisplay"
   | "settingsTabApp"
   | "ttsEngine"
   | "ttsEngineAll"
-  | "suggestions";
+  | "suggestions"
+  | "sentenceBuilderMode"
+  | "sentenceBuilderOn"
+  | "sentenceBuilderOff"
+  | "sentenceBuilderOnHint"
+  | "sentenceBuilderOffHint";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -289,27 +307,45 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     selectAll: "Select all",
     deselectAll: "Deselect all",
     editTile: "Edit tile",
-    tileSizeLabel: "Tile size",
+    tileSizeLabel: "Tile width",
     tileSizeDefault: "Default",
     tileSizeXs: "XS — Extra small",
     tileSizeSm: "SM — Small",
     tileSizeMd: "MD — Medium",
     tileSizeLg: "LG — Large",
     tileSizeXl: "XL — Extra large",
+    tileHeightLabel: "Tile height",
+    tileHeightNormal: "Normal (1 row)",
+    tileHeightTall: "Tall (2 rows)",
+    tileHeightTaller: "Taller (3 rows)",
+    tileBackgroundImage: "Background Image",
+    removeBackgroundImage: "Remove background image",
+    tileSoundFile: "Sound File (replaces TTS)",
+    uploadSoundFile: "Upload Sound",
+    changeSoundFile: "Change Sound",
+    previewSound: "Preview",
+    removeSoundFile: "Remove sound file",
+    soundFileHint: "This tile will play the uploaded audio instead of text-to-speech.",
     moveTile: "Move tile",
     moveTileUp: "Move tile left",
     moveTileDown: "Move tile right",
     layoutOrder: "Layout order",
     layoutTabsTop: "Tabs on top, speech at bottom",
     layoutSpeechTop: "Speech on top, tabs below",
-    typeToSearch: "Type to search or add a word…",
+    typeToSearch: "Type words… (space to chip)",
     addWordToBoard: "Add \"{{word}}\" to board",
+    addToSentence: "Add to sentence",
     settingsTabSpeech: "Speech",
     settingsTabDisplay: "Display",
     settingsTabApp: "App",
     ttsEngine: "TTS Engine",
     ttsEngineAll: "All engines",
     suggestions: "Suggestions",
+    sentenceBuilderMode: "Interaction mode",
+    sentenceBuilderOn: "Sentence Builder",
+    sentenceBuilderOff: "Soundboard",
+    sentenceBuilderOnHint: "Tap tiles to build a sentence, then speak it.",
+    sentenceBuilderOffHint: "Tap tiles to immediately play their sound or speech.",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -439,27 +475,45 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     selectAll: "Seleccionar todo",
     deselectAll: "Deseleccionar todo",
     editTile: "Editar ficha",
-    tileSizeLabel: "Tamaño de ficha",
+    tileSizeLabel: "Ancho de ficha",
     tileSizeDefault: "Por defecto",
     tileSizeXs: "XS — Extra pequeño",
     tileSizeSm: "SM — Pequeño",
     tileSizeMd: "MD — Mediano",
     tileSizeLg: "LG — Grande",
     tileSizeXl: "XL — Extra grande",
+    tileHeightLabel: "Alto de ficha",
+    tileHeightNormal: "Normal (1 fila)",
+    tileHeightTall: "Alto (2 filas)",
+    tileHeightTaller: "Más alto (3 filas)",
+    tileBackgroundImage: "Imagen de fondo",
+    removeBackgroundImage: "Eliminar imagen de fondo",
+    tileSoundFile: "Archivo de sonido (reemplaza TTS)",
+    uploadSoundFile: "Subir sonido",
+    changeSoundFile: "Cambiar sonido",
+    previewSound: "Vista previa",
+    removeSoundFile: "Eliminar archivo de sonido",
+    soundFileHint: "Esta ficha reproducirá el audio cargado en lugar de la síntesis de voz.",
     moveTile: "Mover ficha",
     moveTileUp: "Mover ficha a la izquierda",
     moveTileDown: "Mover ficha a la derecha",
     layoutOrder: "Orden del diseño",
     layoutTabsTop: "Pestañas arriba, voz abajo",
     layoutSpeechTop: "Voz arriba, pestañas abajo",
-    typeToSearch: "Escribe para buscar o agregar una palabra…",
+    typeToSearch: "Escribe palabras… (espacio para chip)",
     addWordToBoard: "Agregar \"{{word}}\" al tablero",
+    addToSentence: "Agregar a la frase",
     settingsTabSpeech: "Voz",
     settingsTabDisplay: "Pantalla",
     settingsTabApp: "App",
     ttsEngine: "Motor TTS",
     ttsEngineAll: "Todos los motores",
     suggestions: "Sugerencias",
+    sentenceBuilderMode: "Modo de interacción",
+    sentenceBuilderOn: "Constructor de frases",
+    sentenceBuilderOff: "Tablero de sonidos",
+    sentenceBuilderOnHint: "Toca fichas para construir una frase y luego hablarla.",
+    sentenceBuilderOffHint: "Toca fichas para reproducir su sonido o voz inmediatamente.",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -589,27 +643,45 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     selectAll: "Tout sélectionner",
     deselectAll: "Tout désélectionner",
     editTile: "Modifier la fiche",
-    tileSizeLabel: "Taille de la fiche",
+    tileSizeLabel: "Largeur de la fiche",
     tileSizeDefault: "Par défaut",
     tileSizeXs: "XS — Très petite",
     tileSizeSm: "SM — Petite",
     tileSizeMd: "MD — Moyenne",
     tileSizeLg: "LG — Grande",
     tileSizeXl: "XL — Très grande",
+    tileHeightLabel: "Hauteur de la fiche",
+    tileHeightNormal: "Normal (1 ligne)",
+    tileHeightTall: "Haut (2 lignes)",
+    tileHeightTaller: "Plus haut (3 lignes)",
+    tileBackgroundImage: "Image de fond",
+    removeBackgroundImage: "Supprimer l'image de fond",
+    tileSoundFile: "Fichier audio (remplace TTS)",
+    uploadSoundFile: "Charger un son",
+    changeSoundFile: "Changer le son",
+    previewSound: "Aperçu",
+    removeSoundFile: "Supprimer le fichier audio",
+    soundFileHint: "Cette fiche jouera l'audio chargé au lieu de la synthèse vocale.",
     moveTile: "Déplacer la fiche",
     moveTileUp: "Déplacer la fiche à gauche",
     moveTileDown: "Déplacer la fiche à droite",
     layoutOrder: "Ordre de mise en page",
     layoutTabsTop: "Onglets en haut, parole en bas",
     layoutSpeechTop: "Parole en haut, onglets en bas",
-    typeToSearch: "Tapez pour rechercher ou ajouter un mot…",
+    typeToSearch: "Tapez des mots… (espace pour chip)",
     addWordToBoard: "Ajouter « {{word}} » au tableau",
+    addToSentence: "Ajouter à la phrase",
     settingsTabSpeech: "Voix",
     settingsTabDisplay: "Affichage",
     settingsTabApp: "App",
     ttsEngine: "Moteur TTS",
     ttsEngineAll: "Tous les moteurs",
     suggestions: "Suggestions",
+    sentenceBuilderMode: "Mode d'interaction",
+    sentenceBuilderOn: "Constructeur de phrases",
+    sentenceBuilderOff: "Tableau de sons",
+    sentenceBuilderOnHint: "Tapez sur les fiches pour construire une phrase, puis parlez.",
+    sentenceBuilderOffHint: "Tapez sur les fiches pour jouer immédiatement leur son ou voix.",
   },
 };
 

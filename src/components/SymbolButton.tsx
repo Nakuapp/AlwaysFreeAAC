@@ -12,6 +12,8 @@ interface SymbolButtonProps {
   disabled?: boolean;
   /** Column span for masonry/variable-size grid layouts */
   colSpan?: number;
+  /** Row span for variable-height grid layouts */
+  rowSpan?: number;
   /** When provided, renders a delete badge that calls this handler */
   onDelete?: (symbol: Symbol) => void;
   deleteAriaLabel?: (symbol: Symbol) => string;
@@ -46,6 +48,7 @@ export function SymbolButton({
   size = "normal",
   disabled = false,
   colSpan,
+  rowSpan,
   onDelete,
   deleteAriaLabel,
   onEdit,
@@ -65,6 +68,16 @@ export function SymbolButton({
   if (colSpan && colSpan > 1) {
     wrapperStyle.gridColumn = `span ${colSpan}`;
   }
+  if (rowSpan && rowSpan > 1) {
+    wrapperStyle.gridRow = `span ${rowSpan}`;
+  }
+
+  const btnStyle: CSSProperties = { "--symbol-bg": bg } as CSSProperties;
+  if (symbol.backgroundImage) {
+    btnStyle.backgroundImage = `url(${JSON.stringify(symbol.backgroundImage)})`;
+    btnStyle.backgroundSize = "cover";
+    btnStyle.backgroundPosition = "center";
+  }
 
   return (
     <div
@@ -83,13 +96,14 @@ export function SymbolButton({
         </span>
       )}
       <button
-        className={`symbol-btn symbol-btn--${size}${onEdit ? " symbol-btn--editable" : ""}`}
-        style={{ "--symbol-bg": bg } as CSSProperties}
+        className={`symbol-btn symbol-btn--${size}${onEdit ? " symbol-btn--editable" : ""}${symbol.backgroundImage ? " symbol-btn--has-bg-image" : ""}`}
+        style={btnStyle}
         onClick={() => onEdit ? onEdit(symbol) : onClick(symbol)}
         aria-label={onEdit ? (editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`) : (symbol.speak ?? symbol.label)}
         disabled={disabled && !onEdit}
         type="button"
       >
+        {symbol.backgroundImage && <span className="symbol-btn__bg-overlay" aria-hidden="true" />}
         <IconVisual value={symbol.emoji} className="symbol-btn__icon" iconColor={iconColor} />
         <span className="symbol-btn__label">{symbol.label}</span>
         {onEdit && (

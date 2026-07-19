@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent } from "react";
-import { ImageIcon, Search, Upload, X } from "lucide-react";
-import type { TileSize, Symbol } from "../data/vocabulary";
-import { TILE_SIZES } from "../tileSize";
+import { ImageIcon, Music, Search, Upload, X } from "lucide-react";
+import type { TileSize, TileHeight, Symbol } from "../data/vocabulary";
+import { TILE_SIZES, TILE_HEIGHTS } from "../tileSize";
 import { t, type Language } from "../i18n";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { type AppIconName, type AppIconStyle } from "../icons";
@@ -102,7 +102,12 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
   const [color, setColor] = useState(initialSymbol?.color ?? "blue");
   const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
   const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
+  const [tileHeight, setTileHeight] = useState<TileHeight | "">(initialSymbol?.tileHeight ?? "");
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(initialSymbol?.backgroundImage ?? null);
+  const [soundFile, setSoundFile] = useState<string | null>(initialSymbol?.soundFile ?? null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bgImageInputRef = useRef<HTMLInputElement>(null);
+  const soundInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef);
@@ -134,6 +139,38 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
     reader.readAsDataURL(file);
   }
 
+  function handleBgImageUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string;
+      if (result && /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(result)) {
+        setBackgroundImage(result);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleSoundUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string;
+      if (result && /^data:audio\/(mpeg|ogg|wav|mp4|webm|aac|flac);base64,/.test(result)) {
+        setSoundFile(result);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handlePreviewSound() {
+    if (!soundFile) return;
+    const audio = new Audio(soundFile);
+    audio.play().catch(() => {});
+  }
+
   function handleSave() {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
@@ -148,6 +185,9 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
       color,
       iconColor: iconColor || undefined,
       tileSize: tileSize || undefined,
+      tileHeight: tileHeight || undefined,
+      backgroundImage: backgroundImage ?? undefined,
+      soundFile: soundFile ?? undefined,
       isCustom: true,
     });
   }
@@ -351,7 +391,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
             </div>
           </div>
 
-          {/* Tile Size */}
+          {/* Tile Size (width) */}
           <div className="add-tile-field">
             <label className="add-tile-field__label" htmlFor="tile-size-select">
               {t(language, "tileSizeLabel")}
@@ -372,6 +412,111 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Tile Height (row span) */}
+          <div className="add-tile-field">
+            <label className="add-tile-field__label" htmlFor="tile-height-select">
+              {t(language, "tileHeightLabel")}
+            </label>
+            <select
+              id="tile-height-select"
+              className="add-tile-field__input"
+              value={tileHeight}
+              onChange={(e) => setTileHeight(e.target.value as TileHeight | "")}
+            >
+              <option value="">{t(language, "tileHeightNormal")}</option>
+              {TILE_HEIGHTS.map((h) => (
+                <option key={h} value={h}>
+                  {t(language, h === "tall" ? "tileHeightTall" : "tileHeightTaller")}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Background Image */}
+          <div className="add-tile-field">
+            <span className="add-tile-field__label">{t(language, "tileBackgroundImage")}</span>
+            <div className="add-tile-image-upload">
+              {backgroundImage && (
+                <img src={backgroundImage} alt="" className="add-tile-image-upload__preview" />
+              )}
+              <button
+                type="button"
+                className="add-tile-image-upload__btn"
+                onClick={() => bgImageInputRef.current?.click()}
+              >
+                <ImageIcon className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                {backgroundImage ? t(language, "changeImage") : t(language, "uploadImage")}
+              </button>
+              {backgroundImage && (
+                <button
+                  type="button"
+                  className="add-tile-image-upload__remove"
+                  onClick={() => setBackgroundImage(null)}
+                  aria-label={t(language, "removeBackgroundImage")}
+                >
+                  <X className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                </button>
+              )}
+              <input
+                ref={bgImageInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
+                className="add-tile-image-upload__input"
+                onChange={handleBgImageUpload}
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+            </div>
+          </div>
+
+          {/* Sound File */}
+          <div className="add-tile-field">
+            <span className="add-tile-field__label">{t(language, "tileSoundFile")}</span>
+            <div className="add-tile-sound-upload">
+              <button
+                type="button"
+                className="add-tile-image-upload__btn"
+                onClick={() => soundInputRef.current?.click()}
+              >
+                <Music className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                {soundFile ? t(language, "changeSoundFile") : t(language, "uploadSoundFile")}
+              </button>
+              {soundFile && (
+                <>
+                  <button
+                    type="button"
+                    className="add-tile-sound-upload__preview-btn"
+                    onClick={handlePreviewSound}
+                    aria-label={t(language, "previewSound")}
+                  >
+                    <Music className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                    {t(language, "previewSound")}
+                  </button>
+                  <button
+                    type="button"
+                    className="add-tile-image-upload__remove"
+                    onClick={() => setSoundFile(null)}
+                    aria-label={t(language, "removeSoundFile")}
+                  >
+                    <X className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                  </button>
+                </>
+              )}
+              <input
+                ref={soundInputRef}
+                type="file"
+                accept="audio/mpeg,audio/ogg,audio/wav,audio/mp4,audio/webm,audio/aac,audio/flac"
+                className="add-tile-image-upload__input"
+                onChange={handleSoundUpload}
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+            </div>
+            {soundFile && (
+              <p className="add-tile-field__hint">{t(language, "soundFileHint")}</p>
+            )}
           </div>
 
           {/* Spoken text override */}
