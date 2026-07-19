@@ -364,3 +364,130 @@
   width: 1rem;
   height: 1rem;
 }
+
+.manage-boards-export-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.manage-boards-export-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.manage-boards-export-row:hover {
+  background: var(--bg-subtle);
+}
+
+.manage-boards-export-row__checkbox {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+
+.manage-boards-export-row__icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+}
+
+.manage-boards-export-row__label {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.manage-boards-export-shortcuts {
+  margin-bottom: 0.25rem;
+}
+
+.manage-boards-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.manage-boards-link-btn:hover {
+  color: var(--primary-hover);
+}
+
+.manage-boards-link-btn:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.manage-boards-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.manage-boards-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+  margin-top: 0.5rem;
+}
+
+.manage-boards-action-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.manage-boards-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.manage-boards-action-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.manage-boards-action-btn__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.manage-boards-file-input {
+  display: none;
+}
+
+.manage-boards-status {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.manage-boards-status--success {
+  background: color-mix(in srgb, var(--color-green) 12%, transparent);
+  color: var(--color-green-dark, #15803d);
+  border: 1px solid color-mix(in srgb, var(--color-green) 30%, transparent);
+}
+
+.manage-boards-status--error {
+  background: color-mix(in srgb, var(--color-red) 12%, transparent);
+  color: var(--color-red-dark, #b91c1c);
+  border: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent);
+}

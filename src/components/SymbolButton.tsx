@@ -1,5 +1,5 @@
 import type { CSSProperties, DragEvent } from "react";
-import { GripVertical, Pencil, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, Pencil, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
 import { ICON_COLOR_HEX } from "../colors";
 import { IconVisual } from "./IconVisual";
@@ -28,6 +28,10 @@ interface SymbolButtonProps {
   onDragOver?: (e: DragEvent) => void;
   onDrop?: () => void;
   onDragEnd?: () => void;
+  onMoveBackward?: () => void;
+  onMoveForward?: () => void;
+  moveBackwardAriaLabel?: (symbol: Symbol) => string;
+  moveForwardAriaLabel?: (symbol: Symbol) => string;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -60,6 +64,10 @@ export function SymbolButton({
   onDragOver,
   onDrop,
   onDragEnd,
+  onMoveBackward,
+  onMoveForward,
+  moveBackwardAriaLabel,
+  moveForwardAriaLabel,
 }: SymbolButtonProps) {
   const bg = symbol.color ? (COLOR_MAP[symbol.color] ?? "var(--color-default)") : "var(--color-default)";
   const iconColor = symbol.iconColor ? (ICON_COLOR_HEX[symbol.iconColor] ?? undefined) : undefined;
@@ -122,6 +130,30 @@ export function SymbolButton({
           <X className="symbol-btn__delete-icon" aria-hidden="true" focusable="false" />
           <span className="sr-only">{deleteAriaLabel?.(symbol) ?? `Delete ${symbol.label}`}</span>
         </button>
+      )}
+      {(onMoveBackward || onMoveForward) && (
+        <div className="symbol-btn__move-actions">
+          {onMoveBackward && (
+            <button
+              type="button"
+              className="symbol-btn__move"
+              onClick={onMoveBackward}
+              aria-label={moveBackwardAriaLabel?.(symbol) ?? `Move ${symbol.label} left`}
+            >
+              <ChevronLeft className="symbol-btn__move-icon" aria-hidden="true" focusable="false" />
+            </button>
+          )}
+          {onMoveForward && (
+            <button
+              type="button"
+              className="symbol-btn__move"
+              onClick={onMoveForward}
+              aria-label={moveForwardAriaLabel?.(symbol) ?? `Move ${symbol.label} right`}
+            >
+              <ChevronRight className="symbol-btn__move-icon" aria-hidden="true" focusable="false" />
+            </button>
+          )}
+        </div>
       )}
       {onEdit && !onDelete && (
         <span className="sr-only">{editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`}</span>

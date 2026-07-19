@@ -123,6 +123,42 @@
   height: 0.72rem;
 }
 
+.symbol-btn__move-actions {
+  position: absolute;
+  bottom: -6px;
+  left: -6px;
+  display: flex;
+  gap: 0.2rem;
+  z-index: 1;
+}
+
+.symbol-btn__move {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-medium);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.symbol-btn__move:hover {
+  background: var(--bg-subtle);
+}
+
+.symbol-btn__move:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.symbol-btn__move-icon {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
 .symbol-btn__icon--img {
   object-fit: cover;
   border-radius: 6px;

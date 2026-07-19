@@ -514,10 +514,6 @@ export default function App() {
     [activeCategoryId, handleCloseEditTile]
   );
 
-  const handleImportBoards = useCallback((boards: UserBoard[]) => {
-    setUserBoards((prev) => [...prev, ...boards]);
-  }, []);
-
   const handleUpdateUserBoards = useCallback((boards: UserBoard[]) => {
     setUserBoards(boards);
   }, []);
@@ -665,8 +661,6 @@ export default function App() {
           onSentenceBuilderToggle={(enabled) => updateSetting("sentenceBuilderEnabled", enabled)}
           onThemeAccentChange={(accent) => updateSetting("themeAccent", accent)}
           themeAccent={settings.themeAccent}
-          allCategories={allCategories}
-          onImportBoards={handleImportBoards}
           onPreviewVoice={handlePreviewVoice}
           onClose={handleCloseSettings}
         />
