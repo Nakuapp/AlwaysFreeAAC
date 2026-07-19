@@ -1,4 +1,4 @@
-import { Settings2 } from "lucide-react";
+import { MessageSquare, Settings2, Zap } from "lucide-react";
 import type { Category } from "../data/vocabulary";
 import { t, type Language } from "../i18n";
 import { IconVisual } from "./IconVisual";
@@ -11,6 +11,8 @@ interface CategoryNavProps {
   onManageBoards: () => void;
   onOpenSettings: () => void;
   language: Language;
+  sentenceBuilderEnabled: boolean;
+  onToggleSentenceBuilder: () => void;
 }
 
 export function CategoryNav({
@@ -20,6 +22,8 @@ export function CategoryNav({
   onManageBoards,
   onOpenSettings,
   language,
+  sentenceBuilderEnabled,
+  onToggleSentenceBuilder,
 }: CategoryNavProps) {
   return (
     <nav className="category-nav" aria-label={t(language, "symbolCategories")}>
@@ -56,6 +60,23 @@ export function CategoryNav({
           ))}
         </ul>
       </div>
+
+      <button
+        type="button"
+        className={`category-nav__mode-btn${sentenceBuilderEnabled ? " category-nav__mode-btn--sentence" : " category-nav__mode-btn--soundboard"}`}
+        onClick={onToggleSentenceBuilder}
+        aria-label={t(language, "toggleModeLabel")}
+        title={sentenceBuilderEnabled ? t(language, "sentenceBuilderOn") : t(language, "sentenceBuilderOff")}
+      >
+        {sentenceBuilderEnabled ? (
+          <MessageSquare className="category-nav__mode-icon" aria-hidden="true" focusable="false" />
+        ) : (
+          <Zap className="category-nav__mode-icon" aria-hidden="true" focusable="false" />
+        )}
+        <span className="category-nav__mode-label">
+          {sentenceBuilderEnabled ? t(language, "sentenceBuilderOn") : t(language, "sentenceBuilderOff")}
+        </span>
+      </button>
 
       <button
         type="button"

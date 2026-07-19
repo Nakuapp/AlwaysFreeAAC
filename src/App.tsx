@@ -615,6 +615,8 @@ export default function App() {
         onManageBoards={handleOpenManageBoards}
         onOpenSettings={handleOpenSettings}
         language={settings.language}
+        sentenceBuilderEnabled={settings.sentenceBuilderEnabled}
+        onToggleSentenceBuilder={() => updateSetting("sentenceBuilderEnabled", !settings.sentenceBuilderEnabled)}
       />
 
       <SymbolGrid

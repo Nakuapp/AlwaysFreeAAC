@@ -85,8 +85,8 @@
 
 .category-nav__btn--active {
   background: var(--bg-surface);
-  border-bottom-color: var(--header-bg);
-  color: var(--header-bg);
+  border-bottom-color: var(--primary);
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -153,6 +153,59 @@
 .category-nav__btn--manage:hover {
   background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
   color: var(--text-primary);
+}
+
+/* ── Right-side mode toggle button ──────────────────────────── */
+.category-nav__mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 0.3rem;
+  padding: 0 0.6rem;
+  background: none;
+  border: none;
+  border-left: 2px solid var(--border-medium);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.category-nav__mode-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--primary));
+  color: var(--primary);
+}
+
+.category-nav__mode-btn--sentence {
+  color: var(--primary);
+}
+
+.category-nav__mode-btn--soundboard {
+  color: var(--text-secondary);
+}
+
+.category-nav__mode-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.category-nav__mode-label {
+  display: none;
+}
+
+@media (min-width: 500px) {
+  .category-nav__mode-label {
+    display: inline;
+  }
+}
+
+.category-nav__mode-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: -3px;
 }
 
 /* ── Right-side manage boards button ────────────────────────── */

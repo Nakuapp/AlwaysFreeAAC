@@ -178,7 +178,11 @@ type UiStringKey =
   | "sentenceBuilderOn"
   | "sentenceBuilderOff"
   | "sentenceBuilderOnHint"
-  | "sentenceBuilderOffHint";
+  | "sentenceBuilderOffHint"
+  | "tileDlgTabIcon"
+  | "tileDlgTabStyle"
+  | "tileDlgTabMedia"
+  | "toggleModeLabel";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -350,6 +354,10 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     sentenceBuilderOff: "Soundboard",
     sentenceBuilderOnHint: "Tap tiles to build a sentence, then speak it.",
     sentenceBuilderOffHint: "Tap tiles to immediately play their sound or speech.",
+    tileDlgTabIcon: "Icon",
+    tileDlgTabStyle: "Style",
+    tileDlgTabMedia: "Media",
+    toggleModeLabel: "Toggle interaction mode",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -520,6 +528,10 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     sentenceBuilderOff: "Tablero de sonidos",
     sentenceBuilderOnHint: "Toca fichas para construir una frase y luego hablarla.",
     sentenceBuilderOffHint: "Toca fichas para reproducir su sonido o voz inmediatamente.",
+    tileDlgTabIcon: "Ícono",
+    tileDlgTabStyle: "Estilo",
+    tileDlgTabMedia: "Medios",
+    toggleModeLabel: "Cambiar modo de interacción",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -690,6 +702,10 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     sentenceBuilderOff: "Tableau de sons",
     sentenceBuilderOnHint: "Tapez sur les fiches pour construire une phrase, puis parlez.",
     sentenceBuilderOffHint: "Tapez sur les fiches pour jouer immédiatement leur son ou voix.",
+    tileDlgTabIcon: "Icône",
+    tileDlgTabStyle: "Style",
+    tileDlgTabMedia: "Médias",
+    toggleModeLabel: "Changer le mode d'interaction",
   },
 };
 

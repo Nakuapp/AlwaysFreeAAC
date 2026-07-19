@@ -77,6 +77,74 @@
   gap: 1rem;
 }
 
+/* Preview row — sits above the tab panels */
+.add-tile-preview-row {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1.25rem 0;
+  flex-shrink: 0;
+}
+
+/* Dialog-level tabs (Icon / Style / Media) */
+.add-tile-dialog-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-soft);
+  background: var(--bg-subtle);
+  flex-shrink: 0;
+}
+
+.add-tile-dialog-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.55rem 0.4rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  margin-bottom: -2px;
+}
+
+.add-tile-dialog-tab:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--bg-surface));
+}
+
+.add-tile-dialog-tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: var(--bg-surface);
+}
+
+.add-tile-dialog-tab--has-content::after {
+  content: "●";
+  font-size: 0.5rem;
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--primary);
+}
+
+.add-tile-dialog-tab {
+  position: relative;
+}
+
+.add-tile-dialog-tab__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.add-tile-dialog-tab:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: -3px;
+}
+
 /* Live preview */
 .add-tile-preview {
   display: flex;

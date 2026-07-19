@@ -159,6 +159,13 @@ export function Settings({
     }
   }, [selectedEngine, selectedVoice, voices, onVoiceChange]);
 
+  // Auto-select engine when only one is available
+  useEffect(() => {
+    if (availableEngines.length === 1 && !selectedEngine) {
+      setSelectedEngine(availableEngines[0]);
+    }
+  }, [availableEngines, selectedEngine]);
+
   const normalizedFilter = voiceFilter.trim().toLowerCase();
 
   const engineFilteredVoices = selectedEngine
@@ -173,7 +180,7 @@ export function Settings({
       )
     : engineFilteredVoices;
 
-  const showEngineSelector = availableEngines.length > 1;
+  const showEngineSelector = voices.length > 0;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -338,7 +345,7 @@ export function Settings({
             hidden={activeTab !== "speech"}
             className="settings-tabpanel"
           >
-            {/* TTS Engine (only shown when multiple engines detected) */}
+            {/* TTS Engine (shown whenever voices are available to clarify engine/filter voices) */}
             {showEngineSelector && (
               <div className="settings-field">
                 <label className="settings-field__label" htmlFor="engine-select">
@@ -351,7 +358,9 @@ export function Settings({
                   value={selectedEngine}
                   onChange={(e) => handleEngineChange(e.target.value)}
                 >
-                  <option value="">{t(language, "ttsEngineAll")}</option>
+                  {availableEngines.length > 1 && (
+                    <option value="">{t(language, "ttsEngineAll")}</option>
+                  )}
                   {availableEngines.map((eng) => (
                     <option key={eng} value={eng}>{eng}</option>
                   ))}
