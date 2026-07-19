@@ -1,5 +1,5 @@
-import { useState, type CSSProperties, type DragEvent } from "react";
-import { Check, Pencil, Plus } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from "react";
+import { Plus } from "lucide-react";
 import type { TileSize, Symbol } from "../data/vocabulary";
 import { TILE_SIZE_COLUMNS, getTileColSpan, getTileRowSpan } from "../tileSize";
 import { t, type Language } from "../i18n";
@@ -21,8 +21,16 @@ interface SymbolGridProps {
   onReorderSymbols?: (fromIndex: number, toIndex: number) => void;
   /** Toggles between normal and edit mode for the custom category */
   isEditMode?: boolean;
-  onToggleEditMode?: () => void;
 }
+
+const GRID_GAP_PX = 8;
+const MIN_GRID_COLUMN_WIDTH: Record<TileSize, number> = {
+  xs: 72,
+  sm: 88,
+  md: 104,
+  lg: 132,
+  xl: 168,
+};
 
 export function SymbolGrid({
   symbols,
@@ -34,15 +42,48 @@ export function SymbolGrid({
   onEditSymbol,
   onReorderSymbols,
   isEditMode,
-  onToggleEditMode,
 }: SymbolGridProps) {
   const showAddControls = onAddWord !== undefined;
-  const gridColumns = TILE_SIZE_COLUMNS[tileSize];
+  const preferredColumns = TILE_SIZE_COLUMNS[tileSize];
+  const [gridColumns, setGridColumns] = useState(preferredColumns);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const canDrag = Boolean(isEditMode && onReorderSymbols);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      setGridColumns(preferredColumns);
+      return;
+    }
+
+    const minColumnWidth = MIN_GRID_COLUMN_WIDTH[tileSize];
+    const updateColumns = () => {
+      const availableWidth = container.clientWidth;
+      if (availableWidth <= 0) {
+        setGridColumns(preferredColumns);
+        return;
+      }
+
+      const fittedColumns = Math.max(
+        1,
+        Math.floor((availableWidth + GRID_GAP_PX) / (minColumnWidth + GRID_GAP_PX))
+      );
+
+      setGridColumns(Math.min(preferredColumns, fittedColumns));
+    };
+
+    updateColumns();
+
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(updateColumns);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [preferredColumns, tileSize]);
 
   function handleDragStart(index: number) {
     setDragIndex(index);
@@ -75,26 +116,7 @@ export function SymbolGrid({
   }
 
   return (
-    <div className="symbol-grid-container">
-      {showAddControls && (
-        <div className="symbol-grid-toolbar">
-          {onToggleEditMode && symbols.length > 0 && (
-            <button
-              type="button"
-              className={`symbol-grid-toolbar__btn${isEditMode ? " symbol-grid-toolbar__btn--active" : ""}`}
-              onClick={onToggleEditMode}
-              aria-pressed={Boolean(isEditMode)}
-            >
-              {isEditMode ? (
-                <Check className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
-              ) : (
-                <Pencil className="symbol-grid-toolbar__btn-icon" aria-hidden="true" focusable="false" />
-              )}
-              {isEditMode ? t(language, "doneTiles") : t(language, "editTiles")}
-            </button>
-          )}
-        </div>
-      )}
+    <div className="symbol-grid-container" ref={containerRef}>
       <main
         id="main-content"
         className="symbol-grid"

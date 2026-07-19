@@ -29,6 +29,22 @@ const ENGINE_PATTERNS: Array<[RegExp, string]> = [
   [/espeak/i, "eSpeak"],
   [/com\.apple/i, "Apple"],
   [/^Apple\b/i, "Apple"],
+  [/com\.sobtec/i, "Speakng"],
+  [/speakng/i, "Speakng"],
+  [/com\.soft4m/i, "Capella"],
+  [/capella/i, "Capella"],
+  [/com\.cereproc/i, "CereProc"],
+  [/cereproc/i, "CereProc"],
+  [/com\.acapela/i, "Acapela"],
+  [/acapela/i, "Acapela"],
+  [/com\.cepstral/i, "Cepstral"],
+  [/com\.vocalware/i, "VocalWare"],
+  [/com\.loquendo/i, "Loquendo"],
+  [/loquendo/i, "Loquendo"],
+  [/com\.microsoft/i, "Microsoft"],
+  [/^Microsoft\b/i, "Microsoft"],
+  [/com\.amazon/i, "Amazon"],
+  [/^Amazon\b/i, "Amazon"],
 ];
 
 /** Derive a human-readable TTS engine name from a voice's id and name fields.
@@ -56,6 +72,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [speaking, setSpeaking] = useState(false);
   const [supported, setSupported] = useState(false);
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
   const optionsRef = useRef(options);
   optionsRef.current = options;
   const nativeVoicesRef = useRef<VoiceInfo[]>([]);
@@ -64,22 +81,44 @@ export function useSpeech(options: UseSpeechOptions = {}) {
   useEffect(() => {
     if (isNative) {
       setSupported(true);
-      SpeechSynthesis.getVoices()
-        .then(({ voices: nativeVoices }) => {
-          nativeVoicesRef.current = nativeVoices;
-          setVoices(
-            nativeVoices.map((v) => ({
-              id: v.id,
-              name: v.name,
-              lang: v.language,
-              engine: detectTTSEngine(v),
-              isNetworkConnectionRequired: v.isNetworkConnectionRequired,
-            }))
-          );
-        })
-        .catch(() => {
-          // Voice enumeration unavailable on some Android versions; default voice will be used
-        });
+
+      /**
+       * Attempt to load voices from the native TTS engine.  The engine is
+       * initialised asynchronously so the first call may return an empty list;
+       * retry with exponential back-off (500 ms, 1.5 s, 3 s) before giving up.
+       */
+      let cancelled = false;
+      const loadVoicesWithRetry = (attempt: number) => {
+        SpeechSynthesis.getVoices()
+          .then(({ voices: nativeVoices }) => {
+            if (cancelled) return;
+            nativeVoicesRef.current = nativeVoices;
+            if (nativeVoices.length === 0 && attempt < 3) {
+              // TTS engine not yet ready — retry with back-off
+              setTimeout(() => loadVoicesWithRetry(attempt + 1), (attempt + 1) * 750);
+              return;
+            }
+            setVoices(
+              nativeVoices.map((v) => ({
+                id: v.id,
+                name: v.name,
+                lang: v.language,
+                engine: detectTTSEngine(v),
+                isNetworkConnectionRequired: v.isNetworkConnectionRequired,
+              }))
+            );
+            setVoicesLoaded(true);
+          })
+          .catch(() => {
+            if (cancelled) return;
+            if (attempt < 3) {
+              setTimeout(() => loadVoicesWithRetry(attempt + 1), (attempt + 1) * 750);
+            } else {
+              setVoicesLoaded(true);
+            }
+          });
+      };
+      loadVoicesWithRetry(0);
 
       // Use plugin events for accurate speaking state on native (the promise resolves
       // before speech actually starts, so the indicator would otherwise flicker off immediately).
@@ -92,6 +131,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       SpeechSynthesis.addListener("error", () => setSpeaking(false)).then((h) => { errorHandle = h; }).catch(() => {});
 
       return () => {
+        cancelled = true;
         startHandle?.remove().catch(() => {});
         endHandle?.remove().catch(() => {});
         errorHandle?.remove().catch(() => {});
@@ -112,12 +152,31 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           engine: detectTTSEngine({ id: v.voiceURI ?? "", name: v.name }),
         }))
       );
+      setVoicesLoaded(true);
     };
 
     loadVoices();
+    // voiceschanged fires in most browsers once voices are ready
     window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+    // If voiceschanged never fires (e.g. Firefox, some Safari versions), make one
+    // final attempt to read voices before marking as loaded so the UI settles.
+    const fallbackTimer = setTimeout(() => {
+      const available = window.speechSynthesis.getVoices();
+      if (available.length > 0) {
+        setVoices(
+          available.map((v) => ({
+            id: v.name,
+            name: v.name,
+            lang: v.lang,
+            engine: detectTTSEngine({ id: v.voiceURI ?? "", name: v.name }),
+          }))
+        );
+      }
+      setVoicesLoaded(true);
+    }, 3000);
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+      clearTimeout(fallbackTimer);
     };
   }, [isNative]);
 
@@ -252,5 +311,5 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     }
   }, [isNative]);
 
-  return { speak, previewVoice, cancel, pause, resume, speaking, voices, availableEngines, supported };
+  return { speak, previewVoice, cancel, pause, resume, speaking, voices, availableEngines, supported, voicesLoaded };
 }

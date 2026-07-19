@@ -617,6 +617,9 @@ export default function App() {
         language={settings.language}
         sentenceBuilderEnabled={settings.sentenceBuilderEnabled}
         onToggleSentenceBuilder={() => updateSetting("sentenceBuilderEnabled", !settings.sentenceBuilderEnabled)}
+        canEditActiveBoard={isUserBoard && activeCategory.symbols.length > 0}
+        isEditingActiveBoard={isEditingTiles}
+        onToggleEditActiveBoard={() => setIsEditingTiles((prev) => !prev)}
       />
 
       <SymbolGrid
@@ -629,7 +632,6 @@ export default function App() {
         onEditSymbol={isUserBoard ? handleOpenEditTile : undefined}
         onReorderSymbols={isUserBoard ? handleReorderTiles : undefined}
         isEditMode={isEditingTiles}
-        onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
       />
 
       {showSettings && (
