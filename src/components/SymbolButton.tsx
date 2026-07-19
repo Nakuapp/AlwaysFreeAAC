@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
-import { Pencil, X } from "lucide-react";
+import { GripVertical, Pencil, X } from "lucide-react";
 import type { Symbol } from "../data/vocabulary";
+import { ICON_COLOR_HEX } from "../colors";
 import { IconVisual } from "./IconVisual";
 import "./SymbolButton.css";
 
@@ -9,12 +10,22 @@ interface SymbolButtonProps {
   onClick: (symbol: Symbol) => void;
   size?: "normal" | "large";
   disabled?: boolean;
+  /** Column span for masonry/variable-size grid layouts */
+  colSpan?: number;
   /** When provided, renders a delete badge that calls this handler */
   onDelete?: (symbol: Symbol) => void;
   deleteAriaLabel?: (symbol: Symbol) => string;
   /** When provided, clicking the tile calls this instead of onClick (edit mode) */
   onEdit?: (symbol: Symbol) => void;
   editAriaLabel?: (symbol: Symbol) => string;
+  /** Drag-and-drop support for edit-mode reordering */
+  isDraggable?: boolean;
+  isDragOver?: boolean;
+  onDragStart?: () => void;
+  onDragEnter?: () => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDrop?: () => void;
+  onDragEnd?: () => void;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -29,33 +40,48 @@ const COLOR_MAP: Record<string, string> = {
   gray: "var(--color-gray)",
 };
 
-const ICON_COLOR_MAP: Record<string, string> = {
-  red: "#e53935",
-  orange: "#f57c00",
-  yellow: "#f9a825",
-  green: "#2e7d32",
-  blue: "#1565c0",
-  purple: "#6a1b9a",
-  pink: "#ad1457",
-  teal: "#00695c",
-  gray: "#546e7a",
-};
-
 export function SymbolButton({
   symbol,
   onClick,
   size = "normal",
   disabled = false,
+  colSpan,
   onDelete,
   deleteAriaLabel,
   onEdit,
   editAriaLabel,
+  isDraggable,
+  isDragOver,
+  onDragStart,
+  onDragEnter,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: SymbolButtonProps) {
   const bg = symbol.color ? (COLOR_MAP[symbol.color] ?? "var(--color-default)") : "var(--color-default)";
-  const iconColor = symbol.iconColor ? (ICON_COLOR_MAP[symbol.iconColor] ?? undefined) : undefined;
+  const iconColor = symbol.iconColor ? (ICON_COLOR_HEX[symbol.iconColor] ?? undefined) : undefined;
+
+  const wrapperStyle: CSSProperties = {};
+  if (colSpan && colSpan > 1) {
+    wrapperStyle.gridColumn = `span ${colSpan}`;
+  }
 
   return (
-    <div className="symbol-btn-wrapper">
+    <div
+      className={`symbol-btn-wrapper${isDragOver ? " symbol-btn-wrapper--drag-over" : ""}${isDraggable ? " symbol-btn-wrapper--draggable" : ""}`}
+      style={wrapperStyle}
+      draggable={isDraggable}
+      onDragStart={onDragStart}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
+      {isDraggable && (
+        <span className="symbol-btn__drag-handle" aria-hidden="true">
+          <GripVertical className="symbol-btn__drag-handle-icon" aria-hidden="true" focusable="false" />
+        </span>
+      )}
       <button
         className={`symbol-btn symbol-btn--${size}${onEdit ? " symbol-btn--editable" : ""}`}
         style={{ "--symbol-bg": bg } as CSSProperties}

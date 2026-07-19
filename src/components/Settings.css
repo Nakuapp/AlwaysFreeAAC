@@ -240,3 +240,49 @@
   outline: 3px solid #ffcc00;
   outline-offset: 2px;
 }
+
+/* Tile size picker */
+.settings-tile-size-picker {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.settings-tile-size-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.2rem;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  color: var(--text-secondary);
+}
+
+.settings-tile-size-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+}
+
+.settings-tile-size-btn--active {
+  background: var(--header-bg);
+  border-color: var(--header-bg);
+  color: var(--header-text);
+}
+
+.settings-tile-size-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.settings-tile-size-btn__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.settings-tile-size-btn__hint {
+  font-size: 0.68rem;
+  opacity: 0.75;
+}

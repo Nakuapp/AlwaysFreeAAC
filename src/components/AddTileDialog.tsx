@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { ImageIcon, Search, Upload, X } from "lucide-react";
-import type { Symbol } from "../data/vocabulary";
+import type { TileSize, Symbol } from "../data/vocabulary";
+import { TILE_SIZES } from "../tileSize";
 import { t, type Language } from "../i18n";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { type AppIconName, type AppIconStyle } from "../icons";
 import { CUSTOM_TILE_ICON_OPTIONS, getAppIconName, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl, toAppIconValue } from "../iconUtils";
+import { ICON_COLOR_HEX } from "../colors";
 import { IconVisual } from "./IconVisual";
 import "./AddTileDialog.css";
 
@@ -46,15 +48,15 @@ type IconColorLabelKey =
 
 const ICON_COLOR_OPTIONS = [
   { value: "", color: null, labelKey: "tileIconColorDefault" },
-  { value: "red", color: "#e53935", labelKey: "tileColorRed" },
-  { value: "orange", color: "#f57c00", labelKey: "tileColorOrange" },
-  { value: "yellow", color: "#f9a825", labelKey: "tileColorYellow" },
-  { value: "green", color: "#2e7d32", labelKey: "tileColorGreen" },
-  { value: "blue", color: "#1565c0", labelKey: "tileColorBlue" },
-  { value: "purple", color: "#6a1b9a", labelKey: "tileColorPurple" },
-  { value: "pink", color: "#ad1457", labelKey: "tileColorPink" },
-  { value: "teal", color: "#00695c", labelKey: "tileColorTeal" },
-  { value: "gray", color: "#546e7a", labelKey: "tileColorGray" },
+  { value: "red", color: ICON_COLOR_HEX.red, labelKey: "tileColorRed" },
+  { value: "orange", color: ICON_COLOR_HEX.orange, labelKey: "tileColorOrange" },
+  { value: "yellow", color: ICON_COLOR_HEX.yellow, labelKey: "tileColorYellow" },
+  { value: "green", color: ICON_COLOR_HEX.green, labelKey: "tileColorGreen" },
+  { value: "blue", color: ICON_COLOR_HEX.blue, labelKey: "tileColorBlue" },
+  { value: "purple", color: ICON_COLOR_HEX.purple, labelKey: "tileColorPurple" },
+  { value: "pink", color: ICON_COLOR_HEX.pink, labelKey: "tileColorPink" },
+  { value: "teal", color: ICON_COLOR_HEX.teal, labelKey: "tileColorTeal" },
+  { value: "gray", color: ICON_COLOR_HEX.gray, labelKey: "tileColorGray" },
 ] as const satisfies ReadonlyArray<{ value: string; color: string | null; labelKey: IconColorLabelKey }>;
 
 interface AddTileDialogProps {
@@ -63,6 +65,8 @@ interface AddTileDialogProps {
   onClose: () => void;
   /** When provided, pre-fills the dialog for editing an existing tile */
   initialSymbol?: Symbol;
+  /** Global tile size (used to show "Default" label in the size picker) */
+  defaultTileSize?: TileSize;
 }
 
 function deriveIconState(emoji: string | undefined): {
@@ -82,7 +86,7 @@ function deriveIconState(emoji: string | undefined): {
   return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null };
 }
 
-export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddTileDialogProps) {
+export function AddTileDialog({ language, onSave, onClose, initialSymbol, defaultTileSize }: AddTileDialogProps) {
   const isEditing = initialSymbol !== undefined;
   const initial = deriveIconState(initialSymbol?.emoji);
 
@@ -95,6 +99,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddT
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
   const [color, setColor] = useState(initialSymbol?.color ?? "blue");
   const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
+  const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -140,6 +145,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddT
       speak: speakOverride.trim() || undefined,
       color,
       iconColor: iconColor || undefined,
+      tileSize: tileSize || undefined,
       isCustom: true,
     });
   }
@@ -341,6 +347,29 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol }: AddT
                 />
               ))}
             </div>
+          </div>
+
+          {/* Tile Size */}
+          <div className="add-tile-field">
+            <label className="add-tile-field__label" htmlFor="tile-size-select">
+              {t(language, "tileSizeLabel")}
+            </label>
+            <select
+              id="tile-size-select"
+              className="add-tile-field__input"
+              value={tileSize}
+              onChange={(e) => setTileSize(e.target.value as TileSize | "")}
+            >
+              <option value="">
+                {t(language, "tileSizeDefault")}
+                {defaultTileSize ? ` (${defaultTileSize.toUpperCase()})` : ""}
+              </option>
+              {TILE_SIZES.map((s) => (
+                <option key={s} value={s}>
+                  {t(language, `tileSize${s.charAt(0).toUpperCase() + s.slice(1)}` as Parameters<typeof t>[1])}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Spoken text override */}

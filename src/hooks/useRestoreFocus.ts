@@ -7,16 +7,30 @@ import { useCallback, useRef } from "react";
  */
 export function useRestoreFocus() {
   const triggerRef = useRef<HTMLElement | null>(null);
+  const pendingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const capture = useCallback(() => {
+    // Cancel any pending restore so it does not steal focus from the newly
+    // opened dialog when a second modal opens before the first has closed.
+    if (pendingRef.current !== null) {
+      clearTimeout(pendingRef.current);
+      pendingRef.current = null;
+    }
     if (document.activeElement instanceof HTMLElement) {
       triggerRef.current = document.activeElement;
     }
   }, []);
 
   const restore = useCallback(() => {
+    // Cancel any previously scheduled restore before scheduling a new one so
+    // only the latest restore runs if capture+restore are called in quick
+    // succession (e.g., user opens a second dialog immediately).
+    if (pendingRef.current !== null) {
+      clearTimeout(pendingRef.current);
+    }
     // Defer so focus restoration happens after React has flushed state updates.
-    setTimeout(() => {
+    pendingRef.current = setTimeout(() => {
+      pendingRef.current = null;
       triggerRef.current?.focus();
       triggerRef.current = null;
     }, 0);

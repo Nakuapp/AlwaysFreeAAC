@@ -15,6 +15,8 @@ import {
 import type { VoiceOption } from "../hooks/useSpeech";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { LANGUAGE_OPTIONS, t, type Language, type Theme } from "../i18n";
+import type { TileSize } from "../data/vocabulary";
+import { TILE_SIZES, TILE_SIZE_COLUMNS } from "../tileSize";
 import "./Settings.css";
 
 interface SettingsProps {
@@ -24,7 +26,7 @@ interface SettingsProps {
   rate: number;
   pitch: number;
   volume: number;
-  columns: number;
+  tileSize: TileSize;
   fontSize: number;
   language: Language;
   theme: Theme;
@@ -33,7 +35,7 @@ interface SettingsProps {
   onRateChange: (rate: number) => void;
   onPitchChange: (pitch: number) => void;
   onVolumeChange: (volume: number) => void;
-  onColumnsChange: (cols: number) => void;
+  onTileSizeChange: (size: TileSize) => void;
   onFontSizeChange: (size: number) => void;
   onLanguageChange: (language: Language) => void;
   onThemeChange: (theme: Theme) => void;
@@ -48,7 +50,7 @@ export function Settings({
   rate,
   pitch,
   volume,
-  columns,
+  tileSize,
   fontSize,
   language,
   theme,
@@ -57,7 +59,7 @@ export function Settings({
   onRateChange,
   onPitchChange,
   onVolumeChange,
-  onColumnsChange,
+  onTileSizeChange,
   onFontSizeChange,
   onLanguageChange,
   onThemeChange,
@@ -300,23 +302,24 @@ export function Settings({
           </div>
 
           <div className="settings-field">
-            <label className="settings-field__label" htmlFor="columns-range">
-              <Grid3X3 className="settings-field__label-icon" aria-hidden="true" focusable="false" /> {t(language, "gridSize")}: <strong>{columns} {t(language, "columns")}</strong>
-            </label>
-            <input
-              id="columns-range"
-              type="range"
-              className="settings-field__range"
-              min={2}
-              max={8}
-              step={1}
-              value={columns}
-              aria-valuetext={`${columns} ${t(language, "columns")}`}
-              onChange={(e) => onColumnsChange(Number(e.target.value))}
-            />
-            <div className="settings-field__range-labels">
-              <span>{t(language, "fewerLarger")}</span>
-              <span>{t(language, "moreSmaller")}</span>
+            <span className="settings-field__label">
+              <Grid3X3 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+              {t(language, "gridSize")}
+            </span>
+            <div className="settings-tile-size-picker" role="group" aria-label={t(language, "gridSize")}>
+              {TILE_SIZES.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  className={`settings-tile-size-btn${tileSize === size ? " settings-tile-size-btn--active" : ""}`}
+                  onClick={() => onTileSizeChange(size)}
+                  aria-pressed={tileSize === size}
+                  title={`${TILE_SIZE_COLUMNS[size]} ${t(language, "columns")}`}
+                >
+                  <span className="settings-tile-size-btn__label">{size.toUpperCase()}</span>
+                  <span className="settings-tile-size-btn__hint">{TILE_SIZE_COLUMNS[size]}</span>
+                </button>
+              ))}
             </div>
           </div>
 

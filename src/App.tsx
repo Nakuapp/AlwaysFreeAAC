@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { Settings as SettingsIcon } from "lucide-react";
 import { CATEGORIES } from "./data/vocabulary";
 import type { Symbol } from "./data/vocabulary";
+import type { TileSize } from "./data/vocabulary";
+import { columnsToTileSize } from "./tileSize";
 import { useSpeech } from "./hooks/useSpeech";
 import { SentenceBar } from "./components/SentenceBar";
 import { CategoryNav } from "./components/CategoryNav";
@@ -32,7 +34,7 @@ interface AppSettings {
   rate: number;
   pitch: number;
   volume: number;
-  columns: number;
+  tileSize: TileSize;
   fontSize: number;
   language: Language;
   theme: Theme;
@@ -45,7 +47,7 @@ function defaultSettings(): AppSettings {
     rate: 1,
     pitch: 1,
     volume: 1,
-    columns: 4,
+    tileSize: "md",
     fontSize: 14,
     language: "en",
     theme: "light",
@@ -69,6 +71,7 @@ const VALID_VOICE_PRESETS = new Set<AppSettings["voicePreset"]>([
 
 const VALID_LANGUAGES = new Set<Language>(["en", "es", "fr"]);
 const VALID_THEMES = new Set<Theme>(["light", "dark"]);
+const VALID_TILE_SIZES = new Set<TileSize>(["xs", "sm", "md", "lg", "xl"]);
 
 function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
   if (typeof preset !== "string") return "custom";
@@ -82,7 +85,7 @@ function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as Partial<AppSettings>;
+      const parsed = JSON.parse(raw) as Partial<AppSettings> & { columns?: number };
       const normalizedPreset = normalizeVoicePreset(parsed.voicePreset);
       const normalizedLanguage =
         typeof parsed.language === "string" && VALID_LANGUAGES.has(parsed.language as Language)
@@ -93,12 +96,22 @@ function loadSettings(): AppSettings {
           ? (parsed.theme as Theme)
           : "light";
 
+      // Migrate legacy numeric columns → named tileSize
+      let normalizedTileSize: TileSize =
+        typeof parsed.tileSize === "string" && VALID_TILE_SIZES.has(parsed.tileSize as TileSize)
+          ? (parsed.tileSize as TileSize)
+          : "md";
+      if (normalizedTileSize === "md" && typeof parsed.columns === "number") {
+        normalizedTileSize = columnsToTileSize(parsed.columns);
+      }
+
       return {
         ...defaultSettings(),
         ...parsed,
         voicePreset: normalizedPreset,
         language: normalizedLanguage,
         theme: normalizedTheme,
+        tileSize: normalizedTileSize,
       };
     }
   } catch {
@@ -133,6 +146,10 @@ function parseSymbol(tile: Record<string, unknown>): Symbol {
     speak: typeof tile.speak === "string" ? tile.speak : undefined,
     color: typeof tile.color === "string" ? tile.color : undefined,
     iconColor: typeof tile.iconColor === "string" ? tile.iconColor : undefined,
+    tileSize:
+      typeof tile.tileSize === "string" && VALID_TILE_SIZES.has(tile.tileSize as TileSize)
+        ? (tile.tileSize as TileSize)
+        : undefined,
     isCustom: true,
   };
 }
@@ -412,6 +429,21 @@ export default function App() {
     [activeCategoryId]
   );
 
+  const handleReorderTiles = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      setUserBoards((prev) =>
+        prev.map((b) => {
+          if (b.id !== activeCategoryId) return b;
+          const symbols = [...b.symbols];
+          const [moved] = symbols.splice(fromIndex, 1);
+          symbols.splice(toIndex, 0, moved);
+          return { ...b, symbols };
+        })
+      );
+    },
+    [activeCategoryId]
+  );
+
   const handleUpdateCustomTile = useCallback(
     (sym: Symbol, data: Omit<Symbol, "id">) => {
       setUserBoards((prev) =>
@@ -553,12 +585,13 @@ export default function App() {
 
       <SymbolGrid
         symbols={activeCategory?.symbols ?? []}
-        columns={settings.columns}
+        tileSize={settings.tileSize}
         onSelect={handleSymbolSelect}
         language={settings.language}
         onAddWord={isUserBoard ? handleOpenAddTile : undefined}
         onDeleteSymbol={isUserBoard ? handleDeleteCustomTile : undefined}
         onEditSymbol={isUserBoard ? handleOpenEditTile : undefined}
+        onReorderSymbols={isUserBoard ? handleReorderTiles : undefined}
         isEditMode={isEditingTiles}
         onToggleEditMode={() => setIsEditingTiles((prev) => !prev)}
       />
@@ -571,7 +604,7 @@ export default function App() {
           rate={settings.rate}
           pitch={settings.pitch}
           volume={settings.volume}
-          columns={settings.columns}
+          tileSize={settings.tileSize}
           fontSize={settings.fontSize}
           language={settings.language}
           theme={settings.theme}
@@ -584,7 +617,7 @@ export default function App() {
             setSettings((prev) => ({ ...prev, pitch: p, voicePreset: "custom" }))
           }
           onVolumeChange={(v) => updateSetting("volume", v)}
-          onColumnsChange={(c) => updateSetting("columns", c)}
+          onTileSizeChange={(s) => updateSetting("tileSize", s)}
           onFontSizeChange={(f) => updateSetting("fontSize", f)}
           onLanguageChange={(language) => updateSetting("language", language)}
           onThemeChange={(theme) => updateSetting("theme", theme)}
@@ -596,6 +629,7 @@ export default function App() {
       {showAddTile && (
         <AddTileDialog
           language={settings.language}
+          defaultTileSize={settings.tileSize}
           onSave={handleAddCustomTile}
           onClose={handleCloseAddTile}
         />
@@ -605,6 +639,7 @@ export default function App() {
         <AddTileDialog
           language={settings.language}
           initialSymbol={editingTile}
+          defaultTileSize={settings.tileSize}
           onSave={(data) => handleUpdateCustomTile(editingTile, data)}
           onClose={handleCloseEditTile}
         />

@@ -157,6 +157,42 @@
 .symbol-btn--editable:hover .symbol-btn__edit-overlay {
   background: rgba(0, 0, 0, 0.65);
 }
+
+/* Drag-and-drop */
+.symbol-btn-wrapper--draggable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.symbol-btn-wrapper--draggable:active {
+  cursor: grabbing;
+}
+
+.symbol-btn-wrapper--drag-over > .symbol-btn {
+  outline: 3px dashed var(--header-bg);
+  outline-offset: 2px;
+}
+
+.symbol-btn__drag-handle {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.symbol-btn__drag-handle-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+  color: #fff;
+}
 .symbol-btn--large .symbol-btn__icon {
   width: 2.8rem;
   height: 2.8rem;

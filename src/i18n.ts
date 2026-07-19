@@ -138,7 +138,18 @@ type UiStringKey =
   | "importSuccess"
   | "importedBoard"
   | "selectAll"
-  | "deselectAll";
+  | "deselectAll"
+  | "editTile"
+  | "tileSizeLabel"
+  | "tileSizeDefault"
+  | "tileSizeXs"
+  | "tileSizeSm"
+  | "tileSizeMd"
+  | "tileSizeLg"
+  | "tileSizeXl"
+  | "moveTile"
+  | "moveTileUp"
+  | "moveTileDown";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -271,6 +282,17 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     importedBoard: "Imported Board",
     selectAll: "Select all",
     deselectAll: "Deselect all",
+    editTile: "Edit tile",
+    tileSizeLabel: "Tile size",
+    tileSizeDefault: "Default",
+    tileSizeXs: "XS — Extra small",
+    tileSizeSm: "SM — Small",
+    tileSizeMd: "MD — Medium",
+    tileSizeLg: "LG — Large",
+    tileSizeXl: "XL — Extra large",
+    moveTile: "Move tile",
+    moveTileUp: "Move tile left",
+    moveTileDown: "Move tile right",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -402,6 +424,17 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     importedBoard: "Tablero importado",
     selectAll: "Seleccionar todo",
     deselectAll: "Deseleccionar todo",
+    editTile: "Editar ficha",
+    tileSizeLabel: "Tamaño de ficha",
+    tileSizeDefault: "Por defecto",
+    tileSizeXs: "XS — Extra pequeño",
+    tileSizeSm: "SM — Pequeño",
+    tileSizeMd: "MD — Mediano",
+    tileSizeLg: "LG — Grande",
+    tileSizeXl: "XL — Extra grande",
+    moveTile: "Mover ficha",
+    moveTileUp: "Mover ficha a la izquierda",
+    moveTileDown: "Mover ficha a la derecha",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -533,6 +566,17 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     importedBoard: "Tableau importé",
     selectAll: "Tout sélectionner",
     deselectAll: "Tout désélectionner",
+    editTile: "Modifier la fiche",
+    tileSizeLabel: "Taille de la fiche",
+    tileSizeDefault: "Par défaut",
+    tileSizeXs: "XS — Très petite",
+    tileSizeSm: "SM — Petite",
+    tileSizeMd: "MD — Moyenne",
+    tileSizeLg: "LG — Grande",
+    tileSizeXl: "XL — Très grande",
+    moveTile: "Déplacer la fiche",
+    moveTileUp: "Déplacer la fiche à gauche",
+    moveTileDown: "Déplacer la fiche à droite",
   },
 };
 
