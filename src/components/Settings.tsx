@@ -161,11 +161,9 @@ export function Settings({
   const handleEngineChange = useCallback((engine: string) => {
     engineAutoSetRef.current = true; // prevent async re-init from overriding user choice
     setSelectedEngine(engine);
-    if (!engine) {
-      // "System" selected — clear any specific voice so TTS uses the device default.
-      onVoiceChange("");
-    } else {
-      // Switching engine: clear voice if it belongs to a different engine.
+    // When switching to a specific engine, clear the voice only if it belongs to a different engine.
+    // Switching to "System" keeps the current voice selection (all voices remain available).
+    if (engine) {
       const currentVoiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
       if (currentVoiceEngine !== engine) {
         onVoiceChange("");
@@ -173,10 +171,11 @@ export function Settings({
     }
   }, [onVoiceChange, voices, selectedVoice]);
 
-  // Voices for the currently-selected engine (empty when engine is "" / System).
+  // Voices for the currently-selected engine; when "System" is selected (engine = "")
+  // all available voices are shown so the user can still pick one.
   const voicesForEngine = selectedEngine
     ? voices.filter((v) => v.engine === selectedEngine)
-    : [];
+    : voices;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -360,8 +359,8 @@ export function Settings({
               </select>
             </div>
 
-            {/* Voice selection — only shown when a specific engine is selected */}
-            {selectedEngine && (
+            {/* Voice selection — shown whenever voices are available */}
+            {voices.length > 0 && (
               <div className="settings-field">
                 <label className="settings-field__label" htmlFor="voice-select">
                   <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
