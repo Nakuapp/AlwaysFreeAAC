@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useId, type ReactNode, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, useId, useMemo, type ReactNode, type ChangeEvent } from "react";
 import type React from "react";
 import { Capacitor } from "@capacitor/core";
 import {
@@ -11,13 +11,13 @@ import {
   Music2,
   Palette,
   PanelTop,
+  Search,
   Settings as SettingsIcon,
   SlidersHorizontal,
   Type,
   Upload,
   Volume2,
   X,
-  Cpu,
   Info,
 } from "lucide-react";
 import type { VoiceOption } from "../hooks/useSpeech";
@@ -44,7 +44,6 @@ type ThemeAccent = "blue" | "green" | "purple" | "teal" | "orange";
 
 interface SettingsProps {
   voices: VoiceOption[];
-  availableEngines: string[];
   selectedVoice: string;
   voicePreset: string;
   rate: number;
@@ -77,6 +76,12 @@ interface SettingsProps {
 
 type ImportStatus = "idle" | "success" | "error";
 
+interface VoiceListOption extends VoiceOption {
+  displayLabel: string;
+  groupLabel: string;
+  searchText: string;
+}
+
 const ACCENT_OPTIONS: Array<{ value: ThemeAccent; label: string; color: string }> = [
   { value: "blue",   label: "Blue",   color: "#1a73e8" },
   { value: "teal",   label: "Teal",   color: "#0d9488" },
@@ -84,6 +89,89 @@ const ACCENT_OPTIONS: Array<{ value: ThemeAccent; label: string; color: string }
   { value: "purple", label: "Purple", color: "#7c3aed" },
   { value: "orange", label: "Orange", color: "#ea6c00" },
 ];
+
+const FRIENDLY_VOICE_TOKEN_LABELS: Record<string, string> = {
+  neural: "Neural",
+  neural2: "Neural 2",
+  standard: "Standard",
+  studio: "Studio",
+  wavenet: "WaveNet",
+  news: "News",
+  journey: "Journey",
+  premium: "Premium",
+  natural: "Natural",
+  compact: "Compact",
+};
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function formatLocaleLabel(locale: string, displayLocale: string): string {
+  if (!locale) return "Voice";
+
+  try {
+    const canonical = Intl.getCanonicalLocales(locale)[0];
+    const displayNames = new Intl.DisplayNames([displayLocale], { type: "language" });
+    return displayNames.of(canonical) ?? canonical;
+  } catch {
+    return locale.replace(/-/g, " ");
+  }
+}
+
+function humanizeVoiceToken(token: string): string {
+  const normalized = token.trim().toLowerCase();
+  if (!normalized) return "";
+  if (FRIENDLY_VOICE_TOKEN_LABELS[normalized]) return FRIENDLY_VOICE_TOKEN_LABELS[normalized];
+
+  return token
+    .replace(/([a-z])([A-Z0-9])/g, "$1 $2")
+    .replace(/([0-9])([A-Za-z])/g, "$1 $2")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function extractVoiceDescriptor(voice: VoiceOption): string | null {
+  const candidates = [voice.name, voice.id];
+
+  for (const candidate of candidates) {
+    const trimmed = candidate.trim();
+    if (!trimmed) continue;
+
+    const looksTechnical =
+      /^[a-z]{2,3}(?:[-_][A-Za-z0-9]{2,8}){2,}$/i.test(trimmed) ||
+      (!/\s/.test(trimmed) && /\b(?:neural|wavenet|standard|studio|journey|news|premium|compact)\b/i.test(trimmed));
+
+    if (!looksTechnical) continue;
+
+    const withoutLocalePrefix = voice.lang
+      ? trimmed.replace(new RegExp(`^${escapeRegExp(voice.lang)}[-_]?`, "i"), "")
+      : trimmed;
+    const descriptor = withoutLocalePrefix.replace(/^[a-z]{2,3}(?:[-_][A-Za-z0-9]{2,8}){1,2}[-_]?/i, "");
+    const label = descriptor
+      .split(/[-_]+/)
+      .map(humanizeVoiceToken)
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    if (label) return label;
+  }
+
+  return null;
+}
+
+function formatVoiceLabel(voice: VoiceOption, displayLocale: string): string {
+  const localeLabel = formatLocaleLabel(voice.lang, displayLocale);
+  const technicalDescriptor = extractVoiceDescriptor(voice);
+  if (technicalDescriptor) return `${localeLabel} — ${technicalDescriptor}`;
+
+  const trimmedName = voice.name.trim();
+  if (!trimmedName) return localeLabel;
+  if (trimmedName.toLocaleLowerCase().includes(localeLabel.toLocaleLowerCase())) return trimmedName;
+  return `${localeLabel} — ${trimmedName}`;
+}
 
 function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
   const symbols = importOBFToSymbols(board);
@@ -98,7 +186,6 @@ function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
 
 export function Settings({
   voices,
-  availableEngines,
   selectedVoice,
   voicePreset,
   rate,
@@ -129,12 +216,7 @@ export function Settings({
   onClose,
 }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>("speech");
-  const [selectedEngine, setSelectedEngine] = useState<string>(() => {
-    // Initialise from the currently-saved voice so the UI reflects stored settings.
-    if (!selectedVoice) return "";
-    return voices.find((v) => v.id === selectedVoice)?.engine ?? "";
-  });
-  const engineAutoSetRef = useRef(false);
+  const [voiceSearch, setVoiceSearch] = useState("");
   const platform = Capacitor.getPlatform();
   const panelRef = useRef<HTMLDivElement>(null);
   const tabPanelId = useId();
@@ -146,36 +228,6 @@ export function Settings({
   const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
   const [importCount, setImportCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Once voices load asynchronously, sync selectedEngine to match the saved voice.
-  useEffect(() => {
-    if (engineAutoSetRef.current || voices.length === 0) return;
-    engineAutoSetRef.current = true;
-    if (selectedVoice) {
-      const voiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
-      if (voiceEngine) setSelectedEngine(voiceEngine);
-    }
-  }, [voices, selectedVoice]);
-
-  // Handle engine dropdown change.
-  const handleEngineChange = useCallback((engine: string) => {
-    engineAutoSetRef.current = true; // prevent async re-init from overriding user choice
-    setSelectedEngine(engine);
-    // When switching to a specific engine, clear the voice only if it belongs to a different engine.
-    // Switching to "System" keeps the current voice selection (all voices remain available).
-    if (engine) {
-      const currentVoiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
-      if (currentVoiceEngine !== engine) {
-        onVoiceChange("");
-      }
-    }
-  }, [onVoiceChange, voices, selectedVoice]);
-
-  // Voices for the currently-selected engine; when "System" is selected (engine = "")
-  // all available voices are shown so the user can still pick one.
-  const voicesForEngine = selectedEngine
-    ? voices.filter((v) => v.engine === selectedEngine)
-    : voices;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -242,6 +294,58 @@ export function Settings({
       : selectedBoardCount === 1
         ? t(language, "exportFormatOBF")
         : t(language, "exportFormatOBZ");
+  const voiceDisplayLocale = language === "es" ? "es" : language === "fr" ? "fr" : "en";
+  const voiceOptions = useMemo<VoiceListOption[]>(
+    () =>
+      voices
+        .map((voice) => {
+          const groupLabel = formatLocaleLabel(voice.lang, voiceDisplayLocale);
+          const displayLabel = formatVoiceLabel(voice, voiceDisplayLocale);
+          return {
+            ...voice,
+            displayLabel,
+            groupLabel,
+            searchText: [
+              displayLabel,
+              groupLabel,
+              voice.name,
+              voice.id,
+              voice.lang,
+              voice.engine,
+            ]
+              .join(" ")
+              .toLocaleLowerCase(),
+          };
+        })
+        .sort(
+          (a, b) =>
+            a.groupLabel.localeCompare(b.groupLabel, voiceDisplayLocale) ||
+            a.displayLabel.localeCompare(b.displayLabel, voiceDisplayLocale)
+        ),
+    [voiceDisplayLocale, voices]
+  );
+  const visibleVoiceOptions = useMemo(() => {
+    const query = voiceSearch.trim().toLocaleLowerCase();
+    if (!query) return voiceOptions;
+
+    const matched = voiceOptions.filter((voice) => voice.searchText.includes(query));
+    if (selectedVoice && !matched.some((voice) => voice.id === selectedVoice)) {
+      const selectedOption = voiceOptions.find((voice) => voice.id === selectedVoice);
+      if (selectedOption) return [selectedOption, ...matched];
+    }
+    return matched;
+  }, [selectedVoice, voiceOptions, voiceSearch]);
+  const voiceGroups = useMemo(
+    () =>
+      Array.from(
+        visibleVoiceOptions.reduce((groups, voice) => {
+          if (!groups.has(voice.groupLabel)) groups.set(voice.groupLabel, []);
+          groups.get(voice.groupLabel)!.push(voice);
+          return groups;
+        }, new Map<string, VoiceListOption[]>())
+      ),
+    [visibleVoiceOptions]
+  );
 
   const tabs: Array<{ id: SettingsTab; label: string; icon: ReactNode }> = [
     {
@@ -340,25 +444,6 @@ export function Settings({
             hidden={activeTab !== "speech"}
             className="settings-tabpanel"
           >
-            {/* TTS Engine — always visible; "System" means use the device default */}
-            <div className="settings-field">
-              <label className="settings-field__label" htmlFor="engine-select">
-                <Cpu className="settings-field__label-icon" aria-hidden="true" focusable="false" />
-                {t(language, "ttsEngine")}
-              </label>
-              <select
-                id="engine-select"
-                className="settings-field__select"
-                value={selectedEngine}
-                onChange={(e) => handleEngineChange(e.target.value)}
-              >
-                <option value="">{t(language, "ttsEngineAll")}</option>
-                {availableEngines.map((eng) => (
-                  <option key={eng} value={eng}>{eng}</option>
-                ))}
-              </select>
-            </div>
-
             {/* Voice selection — shown whenever voices are available */}
             {voices.length > 0 && (
               <div className="settings-field">
@@ -366,8 +451,20 @@ export function Settings({
                   <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
                   {t(language, "voice")}
                 </label>
-                {voicesForEngine.length === 0 ? (
-                  <p className="settings-field__hint">{t(language, "noVoices")}</p>
+                <label className="settings-field__label settings-field__label--subtle" htmlFor="voice-search">
+                  <Search className="settings-field__label-icon" aria-hidden="true" focusable="false" />
+                  {t(language, "voiceFilterLabel")}
+                </label>
+                <input
+                  id="voice-search"
+                  type="search"
+                  className="settings-field__search"
+                  placeholder={t(language, "voiceFilterPlaceholder")}
+                  value={voiceSearch}
+                  onChange={(e) => setVoiceSearch(e.target.value)}
+                />
+                {visibleVoiceOptions.length === 0 ? (
+                  <p className="settings-field__hint">{t(language, "voiceFilterNoMatch")}</p>
                 ) : (
                   <>
                     <div className="settings-field__voice-row">
@@ -378,29 +475,21 @@ export function Settings({
                         onChange={(e) => onVoiceChange(e.target.value)}
                       >
                         <option value="">{t(language, "defaultVoice")}</option>
-                        {Array.from(
-                          voicesForEngine.reduce((groups, v) => {
-                            const lang = v.lang.split("-")[0].toUpperCase();
-                            if (!groups.has(lang)) groups.set(lang, []);
-                            groups.get(lang)!.push(v);
-                            return groups;
-                          }, new Map<string, VoiceOption[]>()),
-                          ([lang, group]) => (
-                            <optgroup key={lang} label={lang}>
-                              {group.map((v) => (
-                                <option key={v.id} value={v.id}>
-                                  {v.name}
-                                  {v.isNetworkConnectionRequired ? ` ${t(language, "onlineVoiceSuffix")}` : ""}
-                                </option>
-                              ))}
-                            </optgroup>
-                          )
-                        )}
+                        {voiceGroups.map(([groupLabel, group]) => (
+                          <optgroup key={groupLabel} label={groupLabel}>
+                            {group.map((voice) => (
+                              <option key={voice.id} value={voice.id}>
+                                {voice.displayLabel}
+                                {voice.isNetworkConnectionRequired ? ` ${t(language, "onlineVoiceSuffix")}` : ""}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
                       </select>
                       <button
                         type="button"
                         className="settings-field__preview-btn"
-                        onClick={() => onPreviewVoice(selectedVoice || (voicesForEngine[0]?.id ?? ""))}
+                        onClick={() => onPreviewVoice(selectedVoice || (visibleVoiceOptions[0]?.id ?? ""))}
                         aria-label={t(language, "previewVoice")}
                         title={t(language, "previewVoice")}
                       >
