@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Capacitor } from "@capacitor/core";
 import { SpeechSynthesis } from "@capgo/capacitor-speech-synthesis";
 import type { VoiceInfo } from "@capgo/capacitor-speech-synthesis";
@@ -8,8 +8,36 @@ export interface VoiceOption {
   id: string;
   name: string;
   lang: string;
+  /** TTS engine that provides this voice (derived heuristically) */
+  engine: string;
   /** true when the voice needs a network connection (native) */
   isNetworkConnectionRequired?: boolean;
+}
+
+/** Known TTS engine identifier patterns → human-readable engine name. */
+const ENGINE_PATTERNS: Array<[RegExp, string]> = [
+  [/com\.google/i, "Google"],
+  [/^Google\b/i, "Google"],
+  [/com\.samsung/i, "Samsung"],
+  [/^Samsung\b/i, "Samsung"],
+  [/com\.nuance/i, "Nuance"],
+  [/^Nuance\b/i, "Nuance"],
+  [/com\.svox/i, "SVOX"],
+  [/^SVOX\b/i, "SVOX"],
+  [/com\.ivona/i, "Ivona"],
+  [/^Ivona\b/i, "Ivona"],
+  [/espeak/i, "eSpeak"],
+  [/com\.apple/i, "Apple"],
+  [/^Apple\b/i, "Apple"],
+];
+
+/** Derive a human-readable TTS engine name from a voice's id and name fields. */
+export function detectTTSEngine(voice: { id: string; name: string }): string {
+  const candidate = `${voice.id} ${voice.name}`;
+  for (const [pattern, label] of ENGINE_PATTERNS) {
+    if (pattern.test(candidate)) return label;
+  }
+  return "System";
 }
 
 export interface UseSpeechOptions {
@@ -40,6 +68,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
               id: v.id,
               name: v.name,
               lang: v.language,
+              engine: detectTTSEngine(v),
               isNetworkConnectionRequired: v.isNetworkConnectionRequired,
             }))
           );
@@ -57,7 +86,12 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       const available = window.speechSynthesis.getVoices();
       if (available.length === 0) return;
       setVoices(
-        available.map((v) => ({ id: v.name, name: v.name, lang: v.lang }))
+        available.map((v) => ({
+          id: v.name,
+          name: v.name,
+          lang: v.lang,
+          engine: detectTTSEngine({ id: v.voiceURI ?? "", name: v.name }),
+        }))
       );
     };
 
@@ -67,6 +101,12 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
     };
   }, [isNative]);
+
+  /** Sorted, deduplicated list of TTS engine names derived from the loaded voices. */
+  const availableEngines = useMemo(
+    () => Array.from(new Set(voices.map((v) => v.engine))).sort(),
+    [voices]
+  );
 
   const speakText = useCallback(
     (text: string, overrideOptions?: UseSpeechOptions) => {
@@ -171,5 +211,5 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     }
   }, [isNative]);
 
-  return { speak, previewVoice, cancel, pause, resume, speaking, voices, supported };
+  return { speak, previewVoice, cancel, pause, resume, speaking, voices, availableEngines, supported };
 }

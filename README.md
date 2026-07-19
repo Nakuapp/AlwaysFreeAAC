@@ -28,7 +28,7 @@ The web app works on any device and can be added to your home screen for quick a
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
 - **Accessible** — WCAG 2.1 AA compliant; works with screen readers, keyboard navigation, and respects reduced-motion preferences
-- **Customisable** — adjust voice, speech rate/pitch, tile size (XS–XL), font size, language, theme, layout order, and custom tiles
+- **Customisable** — settings panel with three tabs (Speech, Display, App); adjust TTS engine (auto-detected, shown when multiple engines are installed), voice, vocal style, speed, pitch, volume, tile size (XS–XL), font size, language, theme, and layout order
 - **Layout order** — choose "Tabs on top, speech at bottom" (default) or "Speech on top, tabs below" to suit your workflow
 - **Icon styles & colours** — choose outlined or filled icon styles and a custom accent colour for each tile
 - **In-place tile editing** — tap any custom tile in edit mode to update its label, icon, colour, and spoken text
@@ -173,7 +173,7 @@ src/
 │   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
 │   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete) and toggle built-in board visibility
 │   ├── SentenceBar.tsx   # Sentence builder: word chips + keyboard search input with live suggestions + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog (voice, speed, tile size XS–XL, language, theme, layout order)
+│   ├── Settings.tsx      # Settings dialog with 3 tabs: Speech (TTS engine, voice, style, rate/pitch/volume), Display (theme, layout, grid, text size), App (language)
 │   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
 │   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
 ├── data/
@@ -181,7 +181,7 @@ src/
 ├── hooks/
 │   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
 │   ├── useRestoreFocus.ts # Capture/restore keyboard focus when dialogs open and close
-│   └── useSpeech.ts      # Native speech + web fallback React hook
+│   └── useSpeech.ts      # Native speech + web fallback React hook; derives TTS engine name from voice metadata
 ├── utils/
 │   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
 ├── colors.ts             # Shared icon-colour hex values (used by SymbolButton & AddTileDialog)
@@ -205,12 +205,17 @@ resources/
 
 ## Accessibility
 
-AlwaysFreeAAC is built with accessibility at its core:
+AlwaysFreeAAC is built with accessibility at its core, targeting WCAG 2.1 AA:
 
 - Every symbol button has an `aria-label` announcing its spoken word
 - The sentence bar uses `aria-live="polite"` so screen readers announce additions
 - Category tabs use `aria-pressed` to indicate the active state
 - All dialogs use `role="dialog"`, `aria-modal="true"`, and `aria-labelledby` pointing at the heading
+- The settings dialog uses `role="tablist"` / `role="tab"` / `role="tabpanel"` with full arrow-key navigation (←/→/Home/End) and `aria-selected`
+- Clicking the backdrop closes the settings dialog (in addition to the close button and Escape key)
+- Range inputs carry `aria-valuetext` with a human-readable description (e.g. "Slow (0.7×)")
+- Grid size buttons carry descriptive `aria-label` (e.g. "MD – 4 columns")
+- Decorative `aria-hidden="true"` range endpoint labels avoid redundant readout
 - Keyboard focus is restored to the trigger element when a dialog closes (`useRestoreFocus`)
 - All interactive elements are reachable by keyboard
 - Focus indicators and text contrast meet WCAG 2.1 AA requirements

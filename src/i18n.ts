@@ -152,7 +152,12 @@ type UiStringKey =
   | "layoutTabsTop"
   | "layoutSpeechTop"
   | "typeToSearch"
-  | "addWordToBoard";
+  | "addWordToBoard"
+  | "settingsTabSpeech"
+  | "settingsTabDisplay"
+  | "settingsTabApp"
+  | "ttsEngine"
+  | "ttsEngineAll";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -298,6 +303,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     layoutSpeechTop: "Speech on top, tabs below",
     typeToSearch: "Type to search or add a word…",
     addWordToBoard: "Add \"{{word}}\" to board",
+    settingsTabSpeech: "Speech",
+    settingsTabDisplay: "Display",
+    settingsTabApp: "App",
+    ttsEngine: "TTS Engine",
+    ttsEngineAll: "All engines",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -442,6 +452,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     layoutSpeechTop: "Voz arriba, pestañas abajo",
     typeToSearch: "Escribe para buscar o agregar una palabra…",
     addWordToBoard: "Agregar \"{{word}}\" al tablero",
+    settingsTabSpeech: "Voz",
+    settingsTabDisplay: "Pantalla",
+    settingsTabApp: "App",
+    ttsEngine: "Motor TTS",
+    ttsEngineAll: "Todos los motores",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -586,6 +601,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     layoutSpeechTop: "Parole en haut, onglets en bas",
     typeToSearch: "Tapez pour rechercher ou ajouter un mot…",
     addWordToBoard: "Ajouter « {{word}} » au tableau",
+    settingsTabSpeech: "Voix",
+    settingsTabDisplay: "Affichage",
+    settingsTabApp: "App",
+    ttsEngine: "Moteur TTS",
+    ttsEngineAll: "Tous les moteurs",
   },
 };
 

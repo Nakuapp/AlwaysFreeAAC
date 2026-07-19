@@ -22,6 +22,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Header ── */
 .settings-panel__header {
   display: flex;
   align-items: center;
@@ -73,15 +74,76 @@
   outline-offset: 2px;
 }
 
+/* ── Tab bar ── */
+.settings-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-soft);
+  background: var(--bg-subtle);
+  flex-shrink: 0;
+}
+
+.settings-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.4rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  margin-bottom: -2px;
+}
+
+.settings-tab:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--bg-surface));
+}
+
+.settings-tab--active {
+  color: var(--header-bg);
+  border-bottom-color: var(--header-bg);
+  background: var(--bg-surface);
+}
+
+.settings-tab:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: -3px;
+}
+
+.settings-tab__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.settings-tab__label {
+  line-height: 1;
+}
+
+/* ── Panel body ── */
 .settings-panel__body {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem 1.25rem;
+  padding: 0;
+}
+
+.settings-tabpanel {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  padding: 1rem 1.25rem;
 }
 
+.settings-tabpanel[hidden] {
+  display: none;
+}
+
+/* ── Fields ── */
 .settings-field {
   display: flex;
   flex-direction: column;
@@ -138,6 +200,7 @@
   margin: 0;
 }
 
+/* Voice row: search + preview button side-by-side */
 .settings-field__voice-row {
   display: flex;
   gap: 0.5rem;
@@ -153,6 +216,11 @@
   color: var(--text-primary);
   width: 100%;
   box-sizing: border-box;
+}
+
+.settings-field__search--inline {
+  flex: 1;
+  width: auto;
 }
 
 .settings-field__search:focus {
@@ -181,11 +249,6 @@
   flex-shrink: 0;
 }
 
-.settings-field__select--voice {
-  flex: 1;
-  min-width: 0;
-}
-
 .settings-field__preview-btn {
   flex-shrink: 0;
   background: var(--bg-subtle);
@@ -212,8 +275,7 @@
   outline-offset: 2px;
 }
 
-
-
+/* ── Footer ── */
 .settings-panel__footer {
   padding: 1rem 1.25rem;
   border-top: 2px solid var(--border-soft);
@@ -241,7 +303,7 @@
   outline-offset: 2px;
 }
 
-/* Tile size picker */
+/* ── Tile size picker ── */
 .settings-tile-size-picker {
   display: flex;
   gap: 0.4rem;
@@ -286,3 +348,4 @@
   font-size: 0.68rem;
   opacity: 0.75;
 }
+
