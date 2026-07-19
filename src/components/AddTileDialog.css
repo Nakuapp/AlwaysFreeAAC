@@ -1,80 +1,33 @@
-.add-tile-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
+/* ── Dialog shell overrides for AddTileDialog ── */
 
-.add-tile-panel {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 420px;
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.add-tile-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 2px solid var(--border-soft);
-}
-
-.add-tile-panel__title {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.add-tile-panel__close {
+/* Circular close button (overrides Dialog default rectangular style) */
+.add-tile-panel .dialog-panel__close {
   background: var(--bg-subtle);
-  border: none;
   border-radius: 50%;
   width: 36px;
   height: 36px;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0;
   transition: background 0.15s ease;
-  color: var(--text-secondary);
 }
 
-.add-tile-panel__close-icon {
+.add-tile-panel .dialog-panel__close-icon {
   width: 1rem;
   height: 1rem;
 }
 
-.add-tile-panel__close:hover {
+.add-tile-panel .dialog-panel__close:hover {
   background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
 }
 
-.add-tile-panel__close:focus-visible {
-  outline: 3px solid var(--button-focus);
-  outline-offset: 2px;
+/* Body: padded with tighter gap than the default padded variant */
+.add-tile-panel__body {
+  padding: 1rem 1.25rem;
+  gap: 1rem;
 }
 
-.add-tile-panel__body {
-  flex: 1;
-  overflow-y: auto;
+/* Footer: slightly more padding than Dialog default */
+.add-tile-panel .dialog-panel__footer {
   padding: 1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 /* Preview row — sits above the tab panels */
@@ -461,14 +414,7 @@ details[open] .add-tile-advanced__summary {
   margin-bottom: 0.5rem;
 }
 
-/* Footer */
-.add-tile-panel__footer {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  border-top: 2px solid var(--border-soft);
-}
-
+/* Footer buttons */
 .add-tile-panel__cancel {
   flex: 1;
   background: var(--bg-subtle);

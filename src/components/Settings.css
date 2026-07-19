@@ -1,43 +1,11 @@
-.settings-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
+/* ── Dialog shell overrides for Settings ── */
 
-.settings-panel {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-/* ── Header ── */
-.settings-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 2px solid var(--border-soft);
-}
-
-.settings-panel__title {
+/* Title with icon alignment (overrides Dialog default) */
+.settings-panel .dialog-panel__title {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   font-size: 1.2rem;
-  font-weight: 700;
-  margin: 0;
 }
 
 .settings-panel__title-icon {
@@ -45,36 +13,32 @@
   height: 1.1rem;
 }
 
-.settings-panel__close {
+/* Circular close button */
+.settings-panel .dialog-panel__close {
   background: var(--bg-subtle);
-  border: none;
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  padding: 0;
   font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: background 0.15s ease;
-  color: var(--text-secondary);
 }
 
-.settings-panel__close-icon {
+.settings-panel .dialog-panel__close-icon {
   width: 1rem;
   height: 1rem;
 }
 
-.settings-panel__close:hover {
+.settings-panel .dialog-panel__close:hover {
   background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
 }
 
-.settings-panel__close:focus-visible {
-  outline: 3px solid var(--button-focus);
-  outline-offset: 2px;
+/* Body: no padding — tabpanels handle their own */
+.settings-panel__body {
+  padding: 0;
 }
 
-/* ── Tab bar ── */
+
 .settings-tabs {
   display: flex;
   border-bottom: 2px solid var(--border-soft);
@@ -126,11 +90,6 @@
 }
 
 /* ── Panel body ── */
-.settings-panel__body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-}
 
 .settings-tabpanel {
   display: flex;
@@ -288,34 +247,6 @@
 
 .settings-field__preview-btn:focus-visible {
   outline: 3px solid var(--button-focus);
-  outline-offset: 2px;
-}
-
-/* ── Footer ── */
-.settings-panel__footer {
-  padding: 1rem 1.25rem;
-  border-top: 2px solid var(--border-soft);
-}
-
-.settings-panel__done {
-  width: 100%;
-  background: var(--header-bg);
-  color: var(--header-text);
-  border: none;
-  border-radius: 10px;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.settings-panel__done:hover {
-  filter: brightness(0.92);
-}
-
-.settings-panel__done:focus-visible {
-  outline: 3px solid #ffcc00;
   outline-offset: 2px;
 }
 

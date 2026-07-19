@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useId, useMemo, type ReactNode } from "react";
+import { useState, useId, useMemo, type ReactNode } from "react";
 import type React from "react";
 import { Capacitor } from "@capacitor/core";
 import {
@@ -14,14 +14,13 @@ import {
   SlidersHorizontal,
   Type,
   Volume2,
-  X,
   Info,
 } from "lucide-react";
 import type { VoiceOption } from "../hooks/useSpeech";
-import { useFocusTrap } from "../hooks/useFocusTrap";
 import { LANGUAGE_OPTIONS, t, type Language, type Theme, type LayoutOrder } from "../i18n";
 import type { TileSize } from "../data/vocabulary";
 import { TILE_SIZES, TILE_SIZE_COLUMNS } from "../tileSize";
+import { Dialog } from "./Dialog";
 import "./Settings.css";
 
 type SettingsTab = "speech" | "display" | "app";
@@ -186,17 +185,7 @@ export function Settings({
   const [activeTab, setActiveTab] = useState<SettingsTab>("speech");
   const [voiceSearch, setVoiceSearch] = useState("");
   const platform = Capacitor.getPlatform();
-  const panelRef = useRef<HTMLDivElement>(null);
   const tabPanelId = useId();
-  useFocusTrap(panelRef);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   const voiceDisplayLocale = language === "es" ? "es" : language === "fr" ? "fr" : "en";
   const voiceOptions = useMemo<VoiceListOption[]>(
@@ -270,32 +259,22 @@ export function Settings({
   ];
 
   return (
-    <div className="settings-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div
-        className="settings-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="settings-title"
-        ref={panelRef}
-      >
-        {/* Header */}
-        <div className="settings-panel__header">
-          <h2 className="settings-panel__title" id="settings-title">
-            <SettingsIcon className="settings-panel__title-icon" aria-hidden="true" focusable="false" />
-            {t(language, "settings")}
-          </h2>
-          <button
-            className="settings-panel__close"
-            onClick={onClose}
-            aria-label={t(language, "closeSettings")}
-            type="button"
-            autoFocus
-          >
-            <X className="settings-panel__close-icon" aria-hidden="true" focusable="false" />
-          </button>
-        </div>
-
-        {/* Tab bar */}
+    <Dialog
+      title={
+        <>
+          <SettingsIcon className="settings-panel__title-icon" aria-hidden="true" focusable="false" />
+          {t(language, "settings")}
+        </>
+      }
+      titleId="settings-title"
+      closeLabel={t(language, "closeSettings")}
+      onClose={onClose}
+      maxWidth="480px"
+      maxHeight="90vh"
+      dismissOnOverlayClick
+      panelClassName="settings-panel"
+      bodyClassName="settings-panel__body"
+      headerExtension={
         <div
           className="settings-tabs"
           role="tablist"
@@ -331,9 +310,13 @@ export function Settings({
             </button>
           ))}
         </div>
-
-        {/* Tab panels */}
-        <div className="settings-panel__body">
+      }
+      footer={
+        <button className="dialog-done-btn" onClick={onClose} type="button">
+          {t(language, "done")}
+        </button>
+      }
+    >
 
           {/* ── Speech tab ── */}
           <div
@@ -679,14 +662,6 @@ export function Settings({
             </div>
           </div>
 
-        </div>
-
-        <div className="settings-panel__footer">
-          <button className="settings-panel__done" onClick={onClose} type="button">
-            {t(language, "done")}
-          </button>
-        </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }
