@@ -377,7 +377,7 @@ export default function App() {
     restoreFocus();
   }, [restoreFocus]);
 
-  const { speak, previewVoice, speaking, voices, availableEngines } = useSpeech({
+  const { speak, previewVoice, speaking, voices } = useSpeech({
     rate: settings.rate,
     pitch: settings.pitch,
     volume: settings.volume,
@@ -635,7 +635,6 @@ export default function App() {
       {showSettings && (
         <Settings
           voices={voices}
-          availableEngines={availableEngines}
           selectedVoice={settings.voiceName}
           voicePreset={settings.voicePreset}
           rate={settings.rate}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useId, type ReactNode, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, useId, type ReactNode, type ChangeEvent } from "react";
 import type React from "react";
 import { Capacitor } from "@capacitor/core";
 import {
@@ -17,7 +17,6 @@ import {
   Upload,
   Volume2,
   X,
-  Cpu,
   Info,
 } from "lucide-react";
 import type { VoiceOption } from "../hooks/useSpeech";
@@ -44,7 +43,6 @@ type ThemeAccent = "blue" | "green" | "purple" | "teal" | "orange";
 
 interface SettingsProps {
   voices: VoiceOption[];
-  availableEngines: string[];
   selectedVoice: string;
   voicePreset: string;
   rate: number;
@@ -98,7 +96,6 @@ function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
 
 export function Settings({
   voices,
-  availableEngines,
   selectedVoice,
   voicePreset,
   rate,
@@ -129,12 +126,6 @@ export function Settings({
   onClose,
 }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>("speech");
-  const [selectedEngine, setSelectedEngine] = useState<string>(() => {
-    // Initialise from the currently-saved voice so the UI reflects stored settings.
-    if (!selectedVoice) return "";
-    return voices.find((v) => v.id === selectedVoice)?.engine ?? "";
-  });
-  const engineAutoSetRef = useRef(false);
   const platform = Capacitor.getPlatform();
   const panelRef = useRef<HTMLDivElement>(null);
   const tabPanelId = useId();
@@ -146,36 +137,6 @@ export function Settings({
   const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
   const [importCount, setImportCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Once voices load asynchronously, sync selectedEngine to match the saved voice.
-  useEffect(() => {
-    if (engineAutoSetRef.current || voices.length === 0) return;
-    engineAutoSetRef.current = true;
-    if (selectedVoice) {
-      const voiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
-      if (voiceEngine) setSelectedEngine(voiceEngine);
-    }
-  }, [voices, selectedVoice]);
-
-  // Handle engine dropdown change.
-  const handleEngineChange = useCallback((engine: string) => {
-    engineAutoSetRef.current = true; // prevent async re-init from overriding user choice
-    setSelectedEngine(engine);
-    // When switching to a specific engine, clear the voice only if it belongs to a different engine.
-    // Switching to "System" keeps the current voice selection (all voices remain available).
-    if (engine) {
-      const currentVoiceEngine = voices.find((v) => v.id === selectedVoice)?.engine;
-      if (currentVoiceEngine !== engine) {
-        onVoiceChange("");
-      }
-    }
-  }, [onVoiceChange, voices, selectedVoice]);
-
-  // Voices for the currently-selected engine; when "System" is selected (engine = "")
-  // all available voices are shown so the user can still pick one.
-  const voicesForEngine = selectedEngine
-    ? voices.filter((v) => v.engine === selectedEngine)
-    : voices;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -340,25 +301,6 @@ export function Settings({
             hidden={activeTab !== "speech"}
             className="settings-tabpanel"
           >
-            {/* TTS Engine — always visible; "System" means use the device default */}
-            <div className="settings-field">
-              <label className="settings-field__label" htmlFor="engine-select">
-                <Cpu className="settings-field__label-icon" aria-hidden="true" focusable="false" />
-                {t(language, "ttsEngine")}
-              </label>
-              <select
-                id="engine-select"
-                className="settings-field__select"
-                value={selectedEngine}
-                onChange={(e) => handleEngineChange(e.target.value)}
-              >
-                <option value="">{t(language, "ttsEngineAll")}</option>
-                {availableEngines.map((eng) => (
-                  <option key={eng} value={eng}>{eng}</option>
-                ))}
-              </select>
-            </div>
-
             {/* Voice selection — shown whenever voices are available */}
             {voices.length > 0 && (
               <div className="settings-field">
@@ -366,11 +308,8 @@ export function Settings({
                   <Volume2 className="settings-field__label-icon" aria-hidden="true" focusable="false" />
                   {t(language, "voice")}
                 </label>
-                {voicesForEngine.length === 0 ? (
-                  <p className="settings-field__hint">{t(language, "noVoices")}</p>
-                ) : (
-                  <>
-                    <div className="settings-field__voice-row">
+                <>
+                  <div className="settings-field__voice-row">
                       <select
                         id="voice-select"
                         className="settings-field__select settings-field__select--inline"
@@ -379,7 +318,7 @@ export function Settings({
                       >
                         <option value="">{t(language, "defaultVoice")}</option>
                         {Array.from(
-                          voicesForEngine.reduce((groups, v) => {
+                          voices.reduce((groups, v) => {
                             const lang = v.lang.split("-")[0].toUpperCase();
                             if (!groups.has(lang)) groups.set(lang, []);
                             groups.get(lang)!.push(v);
@@ -400,7 +339,7 @@ export function Settings({
                       <button
                         type="button"
                         className="settings-field__preview-btn"
-                        onClick={() => onPreviewVoice(selectedVoice || (voicesForEngine[0]?.id ?? ""))}
+                        onClick={() => onPreviewVoice(selectedVoice || (voices[0]?.id ?? ""))}
                         aria-label={t(language, "previewVoice")}
                         title={t(language, "previewVoice")}
                       >
@@ -414,7 +353,6 @@ export function Settings({
                       </p>
                     )}
                   </>
-                )}
               </div>
             )}
 
