@@ -1,3 +1,40 @@
+.manage-boards-tabs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.manage-boards-tabs__tab {
+  border: 1.5px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.manage-boards-tabs__tab:hover {
+  color: var(--text-primary);
+}
+
+.manage-boards-tabs__tab--active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--bg-surface));
+}
+
+.manage-boards-tabs__tab:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.manage-boards-tabpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 
 /* Section */
 .manage-boards-section {

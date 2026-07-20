@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import type { Symbol, TileHeight, TileSize } from "./data/vocabulary";
-import { columnsToTileSize } from "./tileSize";
+import type { Symbol } from "./data/vocabulary";
 import { useSpeech } from "./hooks/useSpeech";
 import { SentenceBar } from "./components/SentenceBar";
 import { CategoryNav } from "./components/CategoryNav";
@@ -8,282 +7,19 @@ import { SymbolGrid } from "./components/SymbolGrid";
 import { Settings } from "./components/Settings";
 import { AddTileDialog } from "./components/AddTileDialog";
 import { ManageBoardsDialog } from "./components/ManageBoardsDialog";
-import { t, type Language, type Theme, type LayoutOrder } from "./i18n";
+import { t } from "./i18n";
 import { useRestoreFocus } from "./hooks/useRestoreFocus";
+import { loadSettings, saveSettings, type AppSettings } from "./appState/settings";
+import { DEFAULT_WELCOME_BOARD, loadUserBoards, saveUserBoards } from "./appState/userBoards";
 import "./App.css";
 
-const STORAGE_KEY = "aac_settings";
-const LEGACY_CUSTOM_TILES_KEY = "aac_custom_tiles";
-const USER_BOARDS_KEY = "aac_user_boards";
-
-export interface UserBoard {
-  id: string;
-  label: string;
-  emoji: string;
-  symbols: Symbol[];
-}
-
-interface AppSettings {
-  voiceName: string;
-  voicePreset: string;
-  rate: number;
-  pitch: number;
-  volume: number;
-  tileSize: TileSize;
-  fontSize: number;
-  language: Language;
-  theme: Theme;
-  themeAccent: "blue" | "green" | "purple" | "teal" | "orange";
-  layoutOrder: LayoutOrder;
-  /** When false, tiles immediately speak/play (soundboard mode) instead of building a sentence */
-  sentenceBuilderEnabled: boolean;
-}
-
-function defaultSettings(): AppSettings {
-  return {
-    voiceName: "",
-    voicePreset: "custom",
-    rate: 1,
-    pitch: 1,
-    volume: 1,
-    tileSize: "md",
-    fontSize: 14,
-    language: "en",
-    theme: "light",
-    themeAccent: "blue",
-    layoutOrder: "tabs-top",
-    sentenceBuilderEnabled: true,
-  };
-}
-
-const LEGACY_VOICE_PRESET_MAP: Record<string, AppSettings["voicePreset"]> = {
-  male: "baritone",
-  female: "alto",
-  child: "soprano",
-  deep: "bass",
-};
-
-const VALID_VOICE_PRESETS = new Set<AppSettings["voicePreset"]>([
-  "custom",
-  "baritone",
-  "alto",
-  "soprano",
-  "bass",
-]);
-
-const VALID_LANGUAGES = new Set<Language>(["en", "es", "fr"]);
-const VALID_THEMES = new Set<Theme>(["light", "dark"]);
-const VALID_TILE_SIZES = new Set<TileSize>(["xs", "sm", "md", "lg", "xl"]);
-const VALID_LAYOUT_ORDERS = new Set<LayoutOrder>(["tabs-top", "speech-top"]);
-const VALID_ACCENTS = new Set<AppSettings["themeAccent"]>(["blue", "green", "purple", "teal", "orange"]);
-
-function normalizeVoicePreset(preset: unknown): AppSettings["voicePreset"] {
-  if (typeof preset !== "string") return "custom";
-  const mapped = LEGACY_VOICE_PRESET_MAP[preset] ?? preset;
-  return VALID_VOICE_PRESETS.has(mapped as AppSettings["voicePreset"])
-    ? (mapped as AppSettings["voicePreset"])
-    : "custom";
-}
-
-function loadSettings(): AppSettings {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<AppSettings> & { columns?: number };
-      const normalizedPreset = normalizeVoicePreset(parsed.voicePreset);
-      const normalizedLanguage =
-        typeof parsed.language === "string" && VALID_LANGUAGES.has(parsed.language as Language)
-          ? (parsed.language as Language)
-          : "en";
-      const normalizedTheme =
-        typeof parsed.theme === "string" && VALID_THEMES.has(parsed.theme as Theme)
-          ? (parsed.theme as Theme)
-          : "light";
-      const normalizedLayoutOrder =
-        typeof parsed.layoutOrder === "string" && VALID_LAYOUT_ORDERS.has(parsed.layoutOrder as LayoutOrder)
-          ? (parsed.layoutOrder as LayoutOrder)
-          : "tabs-top";
-
-      // Migrate legacy numeric columns → named tileSize
-      let normalizedTileSize: TileSize =
-        typeof parsed.tileSize === "string" && VALID_TILE_SIZES.has(parsed.tileSize as TileSize)
-          ? (parsed.tileSize as TileSize)
-          : "md";
-      if (normalizedTileSize === "md" && typeof parsed.columns === "number") {
-        normalizedTileSize = columnsToTileSize(parsed.columns);
-      }
-
-      return {
-        ...defaultSettings(),
-        ...parsed,
-        voicePreset: normalizedPreset,
-        language: normalizedLanguage,
-        theme: normalizedTheme,
-        tileSize: normalizedTileSize,
-        layoutOrder: normalizedLayoutOrder,
-        themeAccent:
-          typeof parsed.themeAccent === "string" && VALID_ACCENTS.has(parsed.themeAccent as AppSettings["themeAccent"])
-            ? (parsed.themeAccent as AppSettings["themeAccent"])
-            : "blue",
-        sentenceBuilderEnabled:
-          typeof parsed.sentenceBuilderEnabled === "boolean"
-            ? parsed.sentenceBuilderEnabled
-            : true,
-      };
-    }
-  } catch {
-    // ignore
-  }
-  return defaultSettings();
-}
-
-function saveSettings(s: AppSettings) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch {
-    // ignore
-  }
-}
-
-function isValidSymbol(tile: unknown): tile is Record<string, unknown> {
-  if (typeof tile !== "object" || tile === null) return false;
-  const candidate = tile as Record<string, unknown>;
-  return (
-    typeof candidate.id === "string" &&
-    typeof candidate.label === "string" &&
-    (typeof candidate.emoji === "string" || typeof candidate.icon === "string")
-  );
-}
-
-const VALID_TILE_HEIGHTS = new Set<TileHeight>(["tall", "taller"]);
-
-function parseSymbol(tile: Record<string, unknown>): Symbol {
-  return {
-    id: tile.id as string,
-    label: tile.label as string,
-    emoji: (tile.emoji as string) || (tile.icon as string),
-    speak: typeof tile.speak === "string" ? tile.speak : undefined,
-    color: typeof tile.color === "string" ? tile.color : undefined,
-    iconColor: typeof tile.iconColor === "string" ? tile.iconColor : undefined,
-    tileSize:
-      typeof tile.tileSize === "string" && VALID_TILE_SIZES.has(tile.tileSize as TileSize)
-        ? (tile.tileSize as TileSize)
-        : undefined,
-    tileHeight:
-      typeof tile.tileHeight === "string" && VALID_TILE_HEIGHTS.has(tile.tileHeight as TileHeight)
-        ? (tile.tileHeight as TileHeight)
-        : undefined,
-    backgroundImage:
-      typeof tile.backgroundImage === "string" && tile.backgroundImage.startsWith("data:image/")
-        ? tile.backgroundImage
-        : undefined,
-    soundFile:
-      typeof tile.soundFile === "string" && tile.soundFile.startsWith("data:audio/")
-        ? tile.soundFile
-        : undefined,
-    isCustom: true,
-  };
-}
-
-/** Default welcome board shown on first launch */
-const DEFAULT_WELCOME_BOARD: UserBoard = {
-  id: "welcome",
-  label: "Welcome",
-  emoji: "star",
-  symbols: [
-    // Row 1: full-width banner (xl = 4 cols at default grid)
-    { id: "welcome-title", label: "Welcome!", emoji: "🎉", color: "yellow", tileSize: "xl", isCustom: true },
-    // Row 2: greeting + pronouns
-    { id: "welcome-hello", label: "Hello", emoji: "👋", color: "yellow", tileSize: "lg", isCustom: true },
-    { id: "welcome-i", label: "I", emoji: "👤", color: "blue", tileSize: "sm", isCustom: true },
-    { id: "welcome-you", label: "You", emoji: "👉", color: "blue", tileSize: "sm", isCustom: true },
-    // Row 3: core responses (4 × 1 col)
-    { id: "welcome-yes", label: "Yes", emoji: "✅", color: "green", tileSize: "sm", isCustom: true },
-    { id: "welcome-no", label: "No", emoji: "❌", color: "red", tileSize: "sm", isCustom: true },
-    { id: "welcome-please", label: "Please", emoji: "🙏", color: "purple", tileSize: "sm", isCustom: true },
-    { id: "welcome-thank-you", label: "Thank You", emoji: "🙌", color: "green", tileSize: "sm", isCustom: true },
-    // Row 4: help + quick actions
-    { id: "welcome-help", label: "Help", emoji: "🆘", color: "red", tileSize: "lg", isCustom: true },
-    { id: "welcome-more", label: "More", emoji: "➕", color: "orange", tileSize: "sm", isCustom: true },
-    { id: "welcome-all-done", label: "All Done", emoji: "🏁", color: "purple", tileSize: "sm", isCustom: true },
-    // Row 5: feelings + intent
-    { id: "welcome-happy", label: "Happy", emoji: "😊", color: "yellow", tileSize: "sm", isCustom: true },
-    { id: "welcome-want", label: "Want", emoji: "🌟", color: "orange", tileSize: "lg", isCustom: true },
-    { id: "welcome-good", label: "Good", emoji: "⭐", color: "green", tileSize: "sm", isCustom: true },
-  ],
-};
-
-function loadUserBoards(): UserBoard[] {
-  try {
-    const raw = localStorage.getItem(USER_BOARDS_KEY);
-    if (raw) {
-      const parsed: unknown = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
-      return parsed
-        .filter((board): board is Record<string, unknown> => {
-          if (typeof board !== "object" || board === null) return false;
-          const b = board as Record<string, unknown>;
-          return (
-            typeof b.id === "string" &&
-            typeof b.label === "string" &&
-            typeof b.emoji === "string" &&
-            Array.isArray(b.symbols)
-          );
-        })
-        .map(
-          (board): UserBoard => ({
-            id: board.id as string,
-            label: board.label as string,
-            emoji: board.emoji as string,
-            symbols: (board.symbols as unknown[])
-              .filter(isValidSymbol)
-              .map(parseSymbol),
-          })
-        );
-    }
-  } catch {
-    // ignore
-  }
-
-  // Migrate from legacy aac_custom_tiles key
-  try {
-    const legacy = localStorage.getItem(LEGACY_CUSTOM_TILES_KEY);
-    if (legacy) {
-      const tiles: unknown = JSON.parse(legacy);
-      if (Array.isArray(tiles)) {
-        const symbols = tiles.filter(isValidSymbol).map(parseSymbol);
-        if (symbols.length > 0) {
-          return [
-            {
-              id: "my-words",
-              label: "My Words",
-              emoji: "pen-square",
-              symbols,
-            },
-          ];
-        }
-      }
-    }
-  } catch {
-    // ignore
-  }
-
-  return [];
-}
-
-function saveUserBoards(boards: UserBoard[]) {
-  try {
-    localStorage.setItem(USER_BOARDS_KEY, JSON.stringify(boards));
-  } catch {
-    // ignore
-  }
-}
+export type { UserBoard } from "./types/userBoard";
 
 export default function App() {
   const [sentence, setSentence] = useState<Symbol[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
-  const [userBoards, setUserBoards] = useState<UserBoard[]>(() => {
+  const [userBoards, setUserBoards] = useState(() => {
     const boards = loadUserBoards();
     return boards.length > 0 ? boards : [DEFAULT_WELCOME_BOARD];
   });
@@ -297,7 +33,6 @@ export default function App() {
     () => userBoards[0].id
   );
 
-  // Keep activeCategoryId valid when boards change
   useEffect(() => {
     if (userBoards.length > 0 && !userBoards.find((c) => c.id === activeCategoryId)) {
       setActiveCategoryId(userBoards[0].id);
@@ -306,7 +41,6 @@ export default function App() {
 
   const activeCategory = userBoards.find((c) => c.id === activeCategoryId) ?? userBoards[0];
 
-  // Flat list of all symbols across all boards for keyboard search in SentenceBar
   const allSymbols = useMemo(
     () => userBoards.flatMap((c) => c.symbols),
     [userBoards]
@@ -408,7 +142,7 @@ export default function App() {
       audio.volume = settings.volume;
       audio.play().catch(() => {});
     } else {
-      speak(sym.speak ?? sym.label);
+      speak(sym.speak ?? sym.label, { queueStrategy: "queue" });
     }
   }, [settings.volume, speak]);
 
@@ -423,7 +157,7 @@ export default function App() {
   const handleSpeak = useCallback(() => {
     if (sentence.length === 0) return;
     const text = sentence.map((s) => s.speak ?? s.label).join(" ");
-    speak(text);
+    speak(text, { queueStrategy: "flush" });
   }, [sentence, speak]);
 
   const handleSpeakWord = useCallback(

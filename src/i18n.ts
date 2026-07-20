@@ -125,6 +125,8 @@ type UiStringKey =
   | "userBoards"
   | "renameBoard"
   | "importExport"
+  | "boardSettingsTab"
+  | "importExportTab"
   | "exportSection"
   | "importSection"
   | "exportBoardsLabel"
@@ -300,6 +302,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     userBoards: "My Boards",
     renameBoard: "Rename board",
     importExport: "Import / Export",
+    boardSettingsTab: "Board Settings",
+    importExportTab: "Import / Export",
     exportSection: "Export Boards",
     importSection: "Import Boards",
     exportBoardsLabel: "Select boards to export",
@@ -474,6 +478,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     userBoards: "Mis tableros",
     renameBoard: "Renombrar tablero",
     importExport: "Importar / Exportar",
+    boardSettingsTab: "Ajustes de tableros",
+    importExportTab: "Importar / Exportar",
     exportSection: "Exportar tableros",
     importSection: "Importar tableros",
     exportBoardsLabel: "Seleccionar tableros para exportar",
@@ -648,6 +654,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     userBoards: "Mes tableaux",
     renameBoard: "Renommer le tableau",
     importExport: "Importer / Exporter",
+    boardSettingsTab: "Réglages des tableaux",
+    importExportTab: "Importer / Exporter",
     exportSection: "Exporter des tableaux",
     importSection: "Importer des tableaux",
     exportBoardsLabel: "Sélectionner les tableaux à exporter",
