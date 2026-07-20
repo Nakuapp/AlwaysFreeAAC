@@ -92,7 +92,10 @@ export function SymbolButton({
       className={`symbol-btn-wrapper${isDragOver ? " symbol-btn-wrapper--drag-over" : ""}${isDraggable ? " symbol-btn-wrapper--draggable" : ""}`}
       style={wrapperStyle}
       draggable={isDraggable}
-      onDragStart={onDragStart}
+      onDragStart={(e) => {
+        e.dataTransfer?.setData("text/plain", symbol.id);
+        onDragStart?.();
+      }}
       onDragEnter={onDragEnter}
       onDragOver={onDragOver}
       onDrop={onDrop}
@@ -154,9 +157,6 @@ export function SymbolButton({
             </button>
           )}
         </div>
-      )}
-      {onEdit && !onDelete && (
-        <span className="sr-only">{editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`}</span>
       )}
     </div>
   );

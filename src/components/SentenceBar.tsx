@@ -85,18 +85,20 @@ export function SentenceBar({
   }
 
   function handleInputChange(val: string) {
-    // If a space appears in the value, auto-commit the word before the space
-    const spaceIdx = val.indexOf(" ");
-    if (spaceIdx !== -1) {
-      const before = val.slice(0, spaceIdx);
-      const after = val.slice(spaceIdx + 1);
-      if (before.trim()) {
-        commitWord(before);
-      }
-      setInputValue(after);
-    } else {
+    // If spaces appear in the value, commit all complete words and keep the trailing partial input.
+    if (!val.includes(" ")) {
       setInputValue(val);
+      return;
     }
+    const parts = val.split(/\s+/);
+    const hasTrailingSpace = /\s$/.test(val);
+    const completeWords = hasTrailingSpace ? parts : parts.slice(0, -1);
+    const trailingInput = hasTrailingSpace ? "" : (parts[parts.length - 1] ?? "");
+    completeWords
+      .map((word) => word.trim())
+      .filter(Boolean)
+      .forEach((word) => commitWord(word));
+    setInputValue(trailingInput);
   }
 
   function handleChipClick(chip: InputChip) {
@@ -153,7 +155,7 @@ export function SentenceBar({
                     type="button"
                     className="sentence-bar__word-remove"
                     onClick={() => onRemoveWord(idx)}
-                    aria-label={`Remove ${sym.label}`}
+                    aria-label={t(language, "removeWord", { word: sym.label })}
                   >
                     <X className="sentence-bar__word-remove-icon" aria-hidden="true" focusable="false" />
                   </button>
@@ -206,7 +208,7 @@ export function SentenceBar({
                 type="button"
                 className="sentence-bar__chip-remove"
                 onClick={(e) => { e.stopPropagation(); handleRemoveChip(chip); }}
-                aria-label={`Remove ${chip.word}`}
+                aria-label={t(language, "removeChip", { word: chip.word })}
               >
                 <X className="sentence-bar__chip-remove-icon" aria-hidden="true" focusable="false" />
               </button>
