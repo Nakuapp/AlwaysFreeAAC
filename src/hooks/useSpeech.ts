@@ -66,6 +66,7 @@ export interface UseSpeechOptions {
   volume?: number;
   /** Matches VoiceOption.id */
   voiceName?: string;
+  queueStrategy?: "flush" | "queue";
 }
 
 export function useSpeech(options: UseSpeechOptions = {}) {
@@ -190,7 +191,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     (text: string, overrideOptions?: UseSpeechOptions) => {
       if (!text.trim()) return;
       const merged = { ...optionsRef.current, ...overrideOptions };
-      const { rate = 1, pitch = 1, volume = 1, voiceName } = merged;
+      const { rate = 1, pitch = 1, volume = 1, voiceName, queueStrategy = "flush" } = merged;
 
       if (isNative) {
         const voiceInfo = voiceName
@@ -211,7 +212,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           rate,
           pitch,
           volume,
-          queueStrategy: "Flush",
+          queueStrategy: queueStrategy === "queue" ? "Add" : "Flush",
           language,
           ...(voiceInfo && { voiceId: voiceInfo.id }),
         })
@@ -221,16 +222,17 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
       if (!("speechSynthesis" in window)) return;
 
-      // Reset any stuck speaking state before starting new speech.
-      setSpeaking(false);
-
       // Resume synthesis if the browser paused it (e.g. page was backgrounded).
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
       }
 
-      // Cancel any in-progress or queued speech.
-      window.speechSynthesis.cancel();
+      if (queueStrategy === "flush") {
+        // Reset any stuck speaking state before starting new speech.
+        setSpeaking(false);
+        // Cancel any in-progress or queued speech.
+        window.speechSynthesis.cancel();
+      }
 
       // Speak synchronously — calling speak() inside setTimeout loses the
       // user-gesture context that iOS Safari requires, causing silent failures.
@@ -249,8 +251,8 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       }
 
       utterance.onstart = () => setSpeaking(true);
-      utterance.onend = () => setSpeaking(false);
-      utterance.onerror = () => setSpeaking(false);
+      utterance.onend = () => setSpeaking(window.speechSynthesis.speaking);
+      utterance.onerror = () => setSpeaking(window.speechSynthesis.speaking);
 
       window.speechSynthesis.speak(utterance);
     },
@@ -259,7 +261,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
   // Convenience wrapper that keeps the public API name "speak"
   const speak = useCallback(
-    (text: string) => speakText(text),
+    (text: string, overrideOptions?: UseSpeechOptions) => speakText(text, overrideOptions),
     [speakText]
   );
 

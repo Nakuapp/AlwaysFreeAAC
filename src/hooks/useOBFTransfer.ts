@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { Category } from "../data/vocabulary";
-import type { UserBoard } from "../App";
+import type { UserBoard } from "../types/userBoard";
 import { t, type Language } from "../i18n";
 import {
   exportCategoryToOBF,
