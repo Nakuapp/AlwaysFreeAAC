@@ -1,48 +1,55 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, X } from "lucide-react";
-import type { Category } from "../data/vocabulary";
-import { useFocusTrap } from "../hooks/useFocusTrap";
+import { useRef, useState } from "react";
+import { ArrowDown, ArrowUp, Download, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { t, type Language } from "../i18n";
 import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
 import { IconVisual } from "./IconVisual";
-import type { UserBoard } from "../App";
+import { Dialog } from "./Dialog";
+import { useOBFTransfer } from "../hooks/useOBFTransfer";
+import type { UserBoard } from "../types/userBoard";
 import "./ManageBoardsDialog.css";
 
 interface ManageBoardsDialogProps {
   language: Language;
   userBoards: UserBoard[];
-  builtInCategories: Category[];
-  hiddenBuiltinIds: Set<string>;
   onUpdateUserBoards: (boards: UserBoard[]) => void;
-  onToggleBuiltIn: (id: string) => void;
   onClose: () => void;
 }
 
 export function ManageBoardsDialog({
   language,
   userBoards,
-  builtInCategories,
-  hiddenBuiltinIds,
   onUpdateUserBoards,
-  onToggleBuiltIn,
   onClose,
 }: ManageBoardsDialogProps) {
+  const [activeTab, setActiveTab] = useState<"boards" | "transfer">("boards");
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [newBoardIcon, setNewBoardIcon] = useState("pen-square");
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renamingValue, setRenamingValue] = useState("");
   const skipRenameBlurRef = useRef(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(panelRef);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  const {
+    selectedIds,
+    toggleSelection,
+    selectAll,
+    deselectAll,
+    allSelected,
+    selectedCount,
+    exportFormatLabel,
+    isExporting,
+    handleExport,
+    fileInputRef,
+    importStatus,
+    importCount,
+    handleImportFile,
+    triggerImport,
+  } = useOBFTransfer({
+    items: userBoards,
+    language,
+    onImport: (importedBoards) =>
+      onUpdateUserBoards([...userBoards, ...importedBoards]),
+  });
 
   function handleCreateBoard() {
     const name = newBoardName.trim();
@@ -101,30 +108,54 @@ export function ManageBoardsDialog({
   }
 
   return (
-    <div
-      className="manage-boards-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t(language, "manageBoards")}
+    <Dialog
+      title={t(language, "manageBoards")}
+      titleId="manage-boards-title"
+      closeLabel={t(language, "close")}
+      onClose={onClose}
+      maxWidth="460px"
+      bodyClassName="dialog-panel__body--padded"
+      footer={
+        <button type="button" className="dialog-done-btn" onClick={onClose}>
+          {t(language, "done")}
+        </button>
+      }
     >
-      <div className="manage-boards-panel" ref={panelRef}>
-        <div className="manage-boards-panel__header">
-          <h2 className="manage-boards-panel__title">{t(language, "manageBoards")}</h2>
-          <button
-            className="manage-boards-panel__close"
-            onClick={onClose}
-            aria-label={t(language, "close")}
-            type="button"
-          >
-            <X className="manage-boards-panel__close-icon" aria-hidden="true" focusable="false" />
-          </button>
-        </div>
+      <div className="manage-boards-tabs" role="tablist" aria-label={t(language, "manageBoards")}>
+        <button
+          type="button"
+          role="tab"
+          id="manage-boards-tab-boards"
+          aria-controls="manage-boards-panel-boards"
+          aria-selected={activeTab === "boards"}
+          className={`manage-boards-tabs__tab${activeTab === "boards" ? " manage-boards-tabs__tab--active" : ""}`}
+          onClick={() => setActiveTab("boards")}
+        >
+          {t(language, "boardSettingsTab")}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="manage-boards-tab-transfer"
+          aria-controls="manage-boards-panel-transfer"
+          aria-selected={activeTab === "transfer"}
+          className={`manage-boards-tabs__tab${activeTab === "transfer" ? " manage-boards-tabs__tab--active" : ""}`}
+          onClick={() => setActiveTab("transfer")}
+        >
+          {t(language, "importExportTab")}
+        </button>
+      </div>
 
-        <div className="manage-boards-panel__body">
-          {/* User boards section */}
+      {activeTab === "boards" && (
+        <div
+          id="manage-boards-panel-boards"
+          role="tabpanel"
+          aria-labelledby="manage-boards-tab-boards"
+          className="manage-boards-tabpanel"
+        >
           <div className="manage-boards-section">
             <div className="manage-boards-section__header">
-              <span className="manage-boards-section__title">{t(language, "userBoards")}</span>
+              <h3 className="manage-boards-section__title">{t(language, "userBoards")}</h3>
               <button
                 type="button"
                 className="manage-boards-section__add-btn"
@@ -266,45 +297,82 @@ export function ManageBoardsDialog({
               ))}
             </ul>
           </div>
+        </div>
+      )}
 
-          {/* Built-in boards section */}
+      {activeTab === "transfer" && (
+        <div
+          id="manage-boards-panel-transfer"
+          role="tabpanel"
+          aria-labelledby="manage-boards-tab-transfer"
+          className="manage-boards-tabpanel"
+        >
           <div className="manage-boards-section">
-            <span className="manage-boards-section__title">{t(language, "builtInBoards")}</span>
-            <ul className="manage-boards-list" role="list">
-              {builtInCategories.map((cat) => {
-                const hidden = hiddenBuiltinIds.has(cat.id);
-                return (
-                  <li key={cat.id} className={`manage-boards-list__item${hidden ? " manage-boards-list__item--hidden" : ""}`}>
-                    <IconVisual value={cat.emoji} className="manage-boards-list__icon" />
-                    <span className="manage-boards-list__label">{cat.label}</span>
-                    <div className="manage-boards-list__actions">
-                      <button
-                        type="button"
-                        className="manage-boards-list__btn"
-                        onClick={() => onToggleBuiltIn(cat.id)}
-                        aria-label={hidden ? `${t(language, "showBoard")}: ${cat.label}` : `${t(language, "hideBoard")}: ${cat.label}`}
-                        aria-pressed={!hidden}
-                      >
-                        {hidden ? (
-                          <EyeOff className="manage-boards-list__btn-icon" aria-hidden="true" focusable="false" />
-                        ) : (
-                          <Eye className="manage-boards-list__btn-icon" aria-hidden="true" focusable="false" />
-                        )}
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <h3 className="manage-boards-section__title">{t(language, "exportSection")}</h3>
+            <div className="manage-boards-export-list" role="group" aria-label={t(language, "exportBoardsLabel")}>
+              {userBoards.map((board) => (
+                <label key={board.id} className="manage-boards-export-row">
+                  <input
+                    type="checkbox"
+                    className="manage-boards-export-row__checkbox"
+                    checked={selectedIds.has(board.id)}
+                    onChange={() => toggleSelection(board.id)}
+                  />
+                  <IconVisual value={board.emoji} className="manage-boards-export-row__icon" />
+                  <span className="manage-boards-export-row__label">{board.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="manage-boards-export-shortcuts">
+              <button
+                type="button"
+                className="manage-boards-link-btn"
+                onClick={allSelected ? deselectAll : selectAll}
+              >
+                {allSelected ? t(language, "deselectAll") : t(language, "selectAll")}
+              </button>
+            </div>
+            <p className="manage-boards-hint">{exportFormatLabel}</p>
+            <button
+              type="button"
+              className="manage-boards-action-btn"
+              onClick={handleExport}
+              disabled={selectedCount === 0 || isExporting}
+            >
+              <Download className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
+              {t(language, "exportSelected")}
+            </button>
+          </div>
+
+          <div className="manage-boards-section">
+            <h3 className="manage-boards-section__title">{t(language, "importSection")}</h3>
+            <p className="manage-boards-hint">{t(language, "importBoardHint")}</p>
+            <button type="button" className="manage-boards-action-btn" onClick={triggerImport}>
+              <Upload className="manage-boards-action-btn__icon" aria-hidden="true" focusable="false" />
+              {t(language, "importBoard")}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".obf,.obz,application/json,application/zip"
+              className="manage-boards-file-input"
+              onChange={handleImportFile}
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            {importStatus === "success" && (
+              <p className="manage-boards-status manage-boards-status--success" role="status">
+                {t(language, "importSuccess", { count: importCount })}
+              </p>
+            )}
+            {importStatus === "error" && (
+              <p className="manage-boards-status manage-boards-status--error" role="alert">
+                {t(language, "importBoardError")}
+              </p>
+            )}
           </div>
         </div>
-
-        <div className="manage-boards-panel__footer">
-          <button type="button" className="manage-boards-panel__done" onClick={onClose}>
-            {t(language, "done")}
-          </button>
-        </div>
-      </div>
-    </div>
+      )}
+    </Dialog>
   );
 }

@@ -20,16 +20,22 @@ The web app works on any device and can be added to your home screen for quick a
 
 ## Features
 
-- **Symbol boards** — 8 categories with 100+ symbols using emoji visuals and clear text labels
-- **Sentence builder** — tap symbols to compose sentences in the display bar
+- **Welcome board** — starts with a single customisable board containing a curated welcome layout with varied tile sizes; add more boards whenever you're ready
+- **Sentence builder** — tap symbols or type into the built-in search bar to compose sentences
+- **Keyboard search** — type any word to find matching tiles instantly; tap a result to add it to the sentence; if a word isn't on any board and a custom board is active, an "Add to board" shortcut opens the tile editor pre-filled
 - **Text-to-speech** — speaks sentences aloud using your device's built-in voice
-- **Category navigation** — Core, People, Actions, Feelings, Food & Drink, Places, Describe, Social
+- **Custom boards** — create as many boards as you need, each with its own tiles, icon, and name; rename, reorder, and delete at any time
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
-- **Accessible** — works with screen readers, keyboard navigation, and respects reduced-motion preferences
-- **Customisable** — adjust voice, speech rate/pitch, grid size, font size, language, theme, and custom tiles
-- **Icon styles** — choose outlined or filled icon styles for custom tiles
-- **Your preferences are saved** — settings are remembered between sessions
+- **Accessible** — targets WCAG 2.1 AA; works with screen readers, keyboard navigation, and respects reduced-motion preferences
+- **Customisable** — settings panel with three tabs (Speech, Display, App); adjust voice, vocal style, speed, pitch, volume, tile size (XS–XL), font size, language, theme, and layout order
+- **Layout order** — choose "Tabs on top, speech at bottom" (default) or "Speech on top, tabs below" to suit your workflow
+- **Icon styles & colours** — choose outlined or filled icon styles and a custom accent colour for each tile
+- **In-place tile editing** — tap any custom tile in edit mode to update its label, icon, colour, and spoken text
+- **Per-tile size override** — set an individual tile to a different size so important symbols stand out
+- **Drag-and-drop reorder** — drag tiles in edit mode to arrange them however you like
+- **Logo = settings** — the app logo in the navigation bar opens the settings panel; no separate header bar
+- **Your preferences are saved** — settings and custom boards are remembered between sessions
 
 ---
 
@@ -128,7 +134,7 @@ To generate a branch-specific test build without publishing a release, run the `
 ## App Logo & Native App Icons
 
 - Brand source icon: `resources/icon.png` (1024×1024)
-- Web icons: `public/app-logo.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
+- Web icons: `public/logo-300.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
 - Android/iOS launch icons are generated in CI with `@capacitor/assets` during Android and iOS workflows.
 
 To regenerate native icons locally (after `npx cap add android` / `npx cap add ios`):
@@ -161,33 +167,36 @@ npx cap sync
 src/
 ├── assets/               # Static assets bundled by Vite
 ├── components/
-│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (with icon picker & image upload)
-│   ├── CategoryNav.tsx   # Horizontal scrollable category tabs + Manage Boards / Import-Export buttons
+│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size, pre-fill from search)
+│   ├── CategoryNav.tsx   # Navigation bar: logo/settings button (fixed left) + scrollable category tabs + manage/import actions
 │   ├── IconVisual.tsx    # Renders icon or image for a tile
-│   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
-│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete) and toggle built-in board visibility
-│   ├── SentenceBar.tsx   # Sentence builder + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog (voice, speed, grid, language, theme)
-│   ├── SymbolButton.tsx  # Individual symbol tile
-│   └── SymbolGrid.tsx    # Responsive grid of symbol buttons
+│   ├── Dialog.tsx        # Shared accessible modal shell used by app dialogs
+│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete)
+│   ├── SentenceBar.tsx   # Sentence builder: word chips + keyboard search input with live suggestions + speak/clear controls
+│   ├── Settings.tsx      # Settings dialog with 3 tabs: Speech (voice, style, rate/pitch/volume), Display (theme, layout, grid, text size), App (language)
+│   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
+│   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
 ├── data/
-│   └── vocabulary.ts     # Built-in categories and symbols
+│   └── vocabulary.ts     # Symbol and Category type definitions; app uses user-created boards (default: single welcome board on first launch)
 ├── hooks/
 │   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
-│   └── useSpeech.ts      # Native speech + web fallback React hook
+│   ├── useRestoreFocus.ts # Capture/restore keyboard focus when dialogs open and close
+│   └── useSpeech.ts      # Native speech + web fallback React hook; derives TTS engine name from voice metadata
 ├── utils/
 │   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
-├── i18n.ts               # Internationalisation strings (en / es / fr)
+├── colors.ts             # Shared icon-colour hex values (used by SymbolButton & AddTileDialog)
+├── i18n.ts               # Internationalisation strings (en / es / fr); exports Language, Theme, LayoutOrder types
 ├── iconUtils.ts          # Lucide icon search and utility helpers
 ├── icons.tsx             # Shared Lucide icon registry
+├── tileSize.ts           # Named tile-size constants (xs–xl), column counts, and span helpers
 ├── App.tsx               # Root application component
-├── App.css               # App shell styles
+├── App.css               # App shell styles (layout order CSS using `order` + safe-area insets)
 ├── main.tsx              # App entry point
 └── index.css             # Global reset + CSS variables
 public/
 ├── app-icon-192.png      # PWA icon + browser favicon
 ├── app-icon-512.png      # PWA icon + maskable icon
-└── app-logo.png          # Header/app logo
+└── logo-300.png          # Logo shown in CategoryNav (tapping opens Settings)
 resources/
 └── icon.png              # Source image for native Android/iOS icon generation
 ```
@@ -196,14 +205,20 @@ resources/
 
 ## Accessibility
 
-AlwaysFreeAAC is built with accessibility at its core:
+AlwaysFreeAAC is built with accessibility at its core, targeting WCAG 2.1 AA:
 
 - Every symbol button has an `aria-label` announcing its spoken word
 - The sentence bar uses `aria-live="polite"` so screen readers announce additions
 - Category tabs use `aria-pressed` to indicate the active state
-- The settings dialog uses `role="dialog"` and `aria-modal="true"`
+- All dialogs use `role="dialog"`, `aria-modal="true"`, and `aria-labelledby` pointing at the heading
+- The settings dialog uses `role="tablist"` / `role="tab"` / `role="tabpanel"` with full arrow-key navigation (←/→/Home/End) and `aria-selected`
+- Clicking the backdrop closes the settings dialog (in addition to the close button and Escape key)
+- Range inputs carry `aria-valuetext` with a human-readable description (e.g. "Slow (0.7×)")
+- Grid size buttons carry descriptive `aria-label` (e.g. "MD – 4 columns")
+- Decorative `aria-hidden="true"` range endpoint labels avoid redundant readout
+- Keyboard focus is restored to the trigger element when a dialog closes (`useRestoreFocus`)
 - All interactive elements are reachable by keyboard
-- Focus indicators meet WCAG 2.1 AA contrast requirements
+- Focus indicators and text contrast meet WCAG 2.1 AA requirements
 - Motion is suppressed for users who prefer `prefers-reduced-motion`
 
 ---

@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { getAppIcon, getAppIconStyle, isImageDataUrl, isExternalImageUrl } from "../iconUtils";
 
 interface IconVisualProps {
   value: string;
   className: string;
+  /** Optional explicit icon color (CSS color value). Overrides the inherited text color. */
+  iconColor?: string;
 }
 
-export function IconVisual({ value, className }: IconVisualProps) {
+export function IconVisual({ value, className, iconColor }: IconVisualProps) {
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
@@ -56,9 +59,10 @@ export function IconVisual({ value, className }: IconVisualProps) {
         focusable="false"
         strokeWidth={style === "filled" ? 1.8 : 2.2}
         fill={style === "filled" ? "currentColor" : "none"}
+        style={iconColor ? ({ color: iconColor } as CSSProperties) : undefined}
       />
     );
   }
 
-  return <span className={className} aria-hidden="true">{value}</span>;
+  return <span className={className} aria-hidden="true" style={iconColor ? { color: iconColor } : undefined}>{value}</span>;
 }

@@ -2,6 +2,7 @@ import type { Category, Symbol } from "./data/vocabulary";
 
 export type Language = "en" | "es" | "fr";
 export type Theme = "light" | "dark";
+export type LayoutOrder = "tabs-top" | "speech-top";
 
 export const LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
   { code: "en", label: "English" },
@@ -69,6 +70,7 @@ type UiStringKey =
   | "doneTiles"
   | "deleteTile"
   | "addTileTitle"
+  | "editTileTitle"
   | "tileLabel"
   | "tileLabelPlaceholder"
   | "tileSpeak"
@@ -84,6 +86,8 @@ type UiStringKey =
   | "tileIconStyleOutline"
   | "tileIconStyleFilled"
   | "tileColor"
+  | "tileIconColor"
+  | "tileIconColorDefault"
   | "tileColorGreen"
   | "tileColorBlue"
   | "tileColorOrange"
@@ -118,12 +122,11 @@ type UiStringKey =
   | "confirmDeleteBoard"
   | "moveUp"
   | "moveDown"
-  | "showBoard"
-  | "hideBoard"
   | "userBoards"
-  | "builtInBoards"
   | "renameBoard"
   | "importExport"
+  | "boardSettingsTab"
+  | "importExportTab"
   | "exportSection"
   | "importSection"
   | "exportBoardsLabel"
@@ -135,7 +138,56 @@ type UiStringKey =
   | "importSuccess"
   | "importedBoard"
   | "selectAll"
-  | "deselectAll";
+  | "deselectAll"
+  | "editTile"
+  | "tileSizeLabel"
+  | "tileSizeDefault"
+  | "tileSizeXs"
+  | "tileSizeSm"
+  | "tileSizeMd"
+  | "tileSizeLg"
+  | "tileSizeXl"
+  | "tileHeightLabel"
+  | "tileHeightNormal"
+  | "tileHeightTall"
+  | "tileHeightTaller"
+  | "tileBackgroundImage"
+  | "removeBackgroundImage"
+  | "tileSoundFile"
+  | "uploadSoundFile"
+  | "changeSoundFile"
+  | "previewSound"
+  | "removeSoundFile"
+  | "mediaFileTooLarge"
+  | "soundFileHint"
+  | "moveTile"
+  | "moveTileUp"
+  | "moveTileDown"
+  | "layoutOrder"
+  | "layoutTabsTop"
+  | "layoutSpeechTop"
+  | "typeToSearch"
+  | "addWordToBoard"
+  | "addToSentence"
+  | "removeWord"
+  | "removeChip"
+  | "settingsTabSpeech"
+  | "settingsTabDisplay"
+  | "settingsTabApp"
+  | "settingsTabBoards"
+  | "accentColor"
+  | "ttsEngine"
+  | "ttsEngineAll"
+  | "suggestions"
+  | "sentenceBuilderMode"
+  | "sentenceBuilderOn"
+  | "sentenceBuilderOff"
+  | "sentenceBuilderOnHint"
+  | "sentenceBuilderOffHint"
+  | "tileDlgTabIcon"
+  | "tileDlgTabStyle"
+  | "tileDlgTabMedia"
+  | "toggleModeLabel";
 
 const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
   en: {
@@ -198,6 +250,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     doneTiles: "Done",
     deleteTile: "Delete tile",
     addTileTitle: "Add Word Tile",
+    editTileTitle: "Edit Word Tile",
     tileLabel: "Word / Label",
     tileLabelPlaceholder: "e.g. Cat",
     tileSpeak: "Spoken text (optional)",
@@ -212,7 +265,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconStyle: "Icon style",
     tileIconStyleOutline: "Outline",
     tileIconStyleFilled: "Filled",
-    tileColor: "Color",
+    tileColor: "Tile Color",
+    tileIconColor: "Icon Color",
+    tileIconColorDefault: "Default",
     tileColorGreen: "Green",
     tileColorBlue: "Blue",
     tileColorOrange: "Orange",
@@ -247,12 +302,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     confirmDeleteBoard: "Delete this board and all its tiles?",
     moveUp: "Move up",
     moveDown: "Move down",
-    showBoard: "Show board",
-    hideBoard: "Hide board",
     userBoards: "My Boards",
-    builtInBoards: "Built-in Boards",
     renameBoard: "Rename board",
     importExport: "Import / Export",
+    boardSettingsTab: "Board Settings",
+    importExportTab: "Import / Export",
     exportSection: "Export Boards",
     importSection: "Import Boards",
     exportBoardsLabel: "Select boards to export",
@@ -265,6 +319,55 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     importedBoard: "Imported Board",
     selectAll: "Select all",
     deselectAll: "Deselect all",
+    editTile: "Edit tile",
+    tileSizeLabel: "Tile width",
+    tileSizeDefault: "Default",
+    tileSizeXs: "XS — Extra small",
+    tileSizeSm: "SM — Small",
+    tileSizeMd: "MD — Medium",
+    tileSizeLg: "LG — Large",
+    tileSizeXl: "XL — Extra large",
+    tileHeightLabel: "Tile height",
+    tileHeightNormal: "Normal (1 row)",
+    tileHeightTall: "Tall (2 rows)",
+    tileHeightTaller: "Taller (3 rows)",
+    tileBackgroundImage: "Background Image",
+    removeBackgroundImage: "Remove background image",
+    tileSoundFile: "Sound File (replaces TTS)",
+    uploadSoundFile: "Upload Sound",
+    changeSoundFile: "Change Sound",
+    previewSound: "Preview",
+    removeSoundFile: "Remove sound file",
+    mediaFileTooLarge: "Selected file is too large. Please choose a file under 1.5 MB.",
+    soundFileHint: "This tile will play the uploaded audio instead of text-to-speech.",
+    moveTile: "Move tile",
+    moveTileUp: "Move tile left",
+    moveTileDown: "Move tile right",
+    layoutOrder: "Layout order",
+    layoutTabsTop: "Tabs on top, speech at bottom",
+    layoutSpeechTop: "Speech on top, tabs below",
+    typeToSearch: "Type words… (space to chip)",
+    addWordToBoard: "Add \"{{word}}\" to board",
+    addToSentence: "Add to sentence",
+    removeWord: "Remove {{word}}",
+    removeChip: "Remove {{word}}",
+    settingsTabSpeech: "Speech",
+    settingsTabDisplay: "Display",
+    settingsTabApp: "App",
+    settingsTabBoards: "Boards",
+    accentColor: "Accent Color",
+    ttsEngine: "TTS Engine",
+    ttsEngineAll: "System",
+    suggestions: "Suggestions",
+    sentenceBuilderMode: "Interaction mode",
+    sentenceBuilderOn: "Sentence Builder",
+    sentenceBuilderOff: "Soundboard",
+    sentenceBuilderOnHint: "Tap tiles to build a sentence, then speak it.",
+    sentenceBuilderOffHint: "Tap tiles to immediately play their sound or speech.",
+    tileDlgTabIcon: "Icon",
+    tileDlgTabStyle: "Style",
+    tileDlgTabMedia: "Media",
+    toggleModeLabel: "Toggle interaction mode",
   },
   es: {
     appName: "AlwaysFreeAAC",
@@ -326,6 +429,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     doneTiles: "Listo",
     deleteTile: "Eliminar ficha",
     addTileTitle: "Agregar ficha",
+    editTileTitle: "Editar ficha",
     tileLabel: "Palabra / Etiqueta",
     tileLabelPlaceholder: "Ej. Gato",
     tileSpeak: "Texto hablado (opcional)",
@@ -340,7 +444,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconStyle: "Estilo de ícono",
     tileIconStyleOutline: "Contorno",
     tileIconStyleFilled: "Relleno",
-    tileColor: "Color",
+    tileColor: "Color de ficha",
+    tileIconColor: "Color del ícono",
+    tileIconColorDefault: "Por defecto",
     tileColorGreen: "Verde",
     tileColorBlue: "Azul",
     tileColorOrange: "Naranja",
@@ -375,12 +481,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     confirmDeleteBoard: "¿Eliminar este tablero y todos sus mosaicos?",
     moveUp: "Mover arriba",
     moveDown: "Mover abajo",
-    showBoard: "Mostrar tablero",
-    hideBoard: "Ocultar tablero",
     userBoards: "Mis tableros",
-    builtInBoards: "Tableros predeterminados",
     renameBoard: "Renombrar tablero",
     importExport: "Importar / Exportar",
+    boardSettingsTab: "Ajustes de tableros",
+    importExportTab: "Importar / Exportar",
     exportSection: "Exportar tableros",
     importSection: "Importar tableros",
     exportBoardsLabel: "Seleccionar tableros para exportar",
@@ -393,6 +498,55 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     importedBoard: "Tablero importado",
     selectAll: "Seleccionar todo",
     deselectAll: "Deseleccionar todo",
+    editTile: "Editar ficha",
+    tileSizeLabel: "Ancho de ficha",
+    tileSizeDefault: "Por defecto",
+    tileSizeXs: "XS — Extra pequeño",
+    tileSizeSm: "SM — Pequeño",
+    tileSizeMd: "MD — Mediano",
+    tileSizeLg: "LG — Grande",
+    tileSizeXl: "XL — Extra grande",
+    tileHeightLabel: "Alto de ficha",
+    tileHeightNormal: "Normal (1 fila)",
+    tileHeightTall: "Alto (2 filas)",
+    tileHeightTaller: "Más alto (3 filas)",
+    tileBackgroundImage: "Imagen de fondo",
+    removeBackgroundImage: "Eliminar imagen de fondo",
+    tileSoundFile: "Archivo de sonido (reemplaza TTS)",
+    uploadSoundFile: "Subir sonido",
+    changeSoundFile: "Cambiar sonido",
+    previewSound: "Vista previa",
+    removeSoundFile: "Eliminar archivo de sonido",
+    mediaFileTooLarge: "El archivo seleccionado es demasiado grande. Elige uno menor de 1,5 MB.",
+    soundFileHint: "Esta ficha reproducirá el audio cargado en lugar de la síntesis de voz.",
+    moveTile: "Mover ficha",
+    moveTileUp: "Mover ficha a la izquierda",
+    moveTileDown: "Mover ficha a la derecha",
+    layoutOrder: "Orden del diseño",
+    layoutTabsTop: "Pestañas arriba, voz abajo",
+    layoutSpeechTop: "Voz arriba, pestañas abajo",
+    typeToSearch: "Escribe palabras… (espacio para chip)",
+    addWordToBoard: "Agregar \"{{word}}\" al tablero",
+    addToSentence: "Agregar a la frase",
+    removeWord: "Quitar {{word}}",
+    removeChip: "Quitar {{word}}",
+    settingsTabSpeech: "Voz",
+    settingsTabDisplay: "Pantalla",
+    settingsTabApp: "App",
+    settingsTabBoards: "Tableros",
+    accentColor: "Color de acento",
+    ttsEngine: "Motor TTS",
+    ttsEngineAll: "Sistema",
+    suggestions: "Sugerencias",
+    sentenceBuilderMode: "Modo de interacción",
+    sentenceBuilderOn: "Constructor de frases",
+    sentenceBuilderOff: "Tablero de sonidos",
+    sentenceBuilderOnHint: "Toca fichas para construir una frase y luego hablarla.",
+    sentenceBuilderOffHint: "Toca fichas para reproducir su sonido o voz inmediatamente.",
+    tileDlgTabIcon: "Ícono",
+    tileDlgTabStyle: "Estilo",
+    tileDlgTabMedia: "Medios",
+    toggleModeLabel: "Cambiar modo de interacción",
   },
   fr: {
     appName: "AlwaysFreeAAC",
@@ -454,6 +608,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     doneTiles: "Terminé",
     deleteTile: "Supprimer la fiche",
     addTileTitle: "Ajouter une fiche",
+    editTileTitle: "Modifier la fiche",
     tileLabel: "Mot / Étiquette",
     tileLabelPlaceholder: "Ex. Chat",
     tileSpeak: "Texte parlé (optionnel)",
@@ -468,7 +623,9 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     tileIconStyle: "Style d'icône",
     tileIconStyleOutline: "Contour",
     tileIconStyleFilled: "Plein",
-    tileColor: "Couleur",
+    tileColor: "Couleur de la fiche",
+    tileIconColor: "Couleur de l'icône",
+    tileIconColorDefault: "Par défaut",
     tileColorGreen: "Vert",
     tileColorBlue: "Bleu",
     tileColorOrange: "Orange",
@@ -503,12 +660,11 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     confirmDeleteBoard: "Supprimer ce tableau et toutes ses fiches ?",
     moveUp: "Monter",
     moveDown: "Descendre",
-    showBoard: "Afficher le tableau",
-    hideBoard: "Masquer le tableau",
     userBoards: "Mes tableaux",
-    builtInBoards: "Tableaux intégrés",
     renameBoard: "Renommer le tableau",
     importExport: "Importer / Exporter",
+    boardSettingsTab: "Réglages des tableaux",
+    importExportTab: "Importer / Exporter",
     exportSection: "Exporter des tableaux",
     importSection: "Importer des tableaux",
     exportBoardsLabel: "Sélectionner les tableaux à exporter",
@@ -521,6 +677,55 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     importedBoard: "Tableau importé",
     selectAll: "Tout sélectionner",
     deselectAll: "Tout désélectionner",
+    editTile: "Modifier la fiche",
+    tileSizeLabel: "Largeur de la fiche",
+    tileSizeDefault: "Par défaut",
+    tileSizeXs: "XS — Très petite",
+    tileSizeSm: "SM — Petite",
+    tileSizeMd: "MD — Moyenne",
+    tileSizeLg: "LG — Grande",
+    tileSizeXl: "XL — Très grande",
+    tileHeightLabel: "Hauteur de la fiche",
+    tileHeightNormal: "Normal (1 ligne)",
+    tileHeightTall: "Haut (2 lignes)",
+    tileHeightTaller: "Plus haut (3 lignes)",
+    tileBackgroundImage: "Image de fond",
+    removeBackgroundImage: "Supprimer l'image de fond",
+    tileSoundFile: "Fichier audio (remplace TTS)",
+    uploadSoundFile: "Charger un son",
+    changeSoundFile: "Changer le son",
+    previewSound: "Aperçu",
+    removeSoundFile: "Supprimer le fichier audio",
+    mediaFileTooLarge: "Le fichier sélectionné est trop volumineux. Choisissez un fichier de moins de 1,5 Mo.",
+    soundFileHint: "Cette fiche jouera l'audio chargé au lieu de la synthèse vocale.",
+    moveTile: "Déplacer la fiche",
+    moveTileUp: "Déplacer la fiche à gauche",
+    moveTileDown: "Déplacer la fiche à droite",
+    layoutOrder: "Ordre de mise en page",
+    layoutTabsTop: "Onglets en haut, parole en bas",
+    layoutSpeechTop: "Parole en haut, onglets en bas",
+    typeToSearch: "Tapez des mots… (espace pour chip)",
+    addWordToBoard: "Ajouter « {{word}} » au tableau",
+    addToSentence: "Ajouter à la phrase",
+    removeWord: "Supprimer {{word}}",
+    removeChip: "Supprimer {{word}}",
+    settingsTabSpeech: "Voix",
+    settingsTabDisplay: "Affichage",
+    settingsTabApp: "App",
+    settingsTabBoards: "Tableaux",
+    accentColor: "Couleur d'accent",
+    ttsEngine: "Moteur TTS",
+    ttsEngineAll: "Système",
+    suggestions: "Suggestions",
+    sentenceBuilderMode: "Mode d'interaction",
+    sentenceBuilderOn: "Constructeur de phrases",
+    sentenceBuilderOff: "Tableau de sons",
+    sentenceBuilderOnHint: "Tapez sur les fiches pour construire une phrase, puis parlez.",
+    sentenceBuilderOffHint: "Tapez sur les fiches pour jouer immédiatement leur son ou voix.",
+    tileDlgTabIcon: "Icône",
+    tileDlgTabStyle: "Style",
+    tileDlgTabMedia: "Médias",
+    toggleModeLabel: "Changer le mode d'interaction",
   },
 };
 

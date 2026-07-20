@@ -1,12 +1,14 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import type { ChangeEvent } from "react";
-import { ImageIcon, Search, Upload, X } from "lucide-react";
-import type { Symbol } from "../data/vocabulary";
+import { ImageIcon, Music, Palette, Search, Upload, X } from "lucide-react";
+import type { TileSize, TileHeight, Symbol } from "../data/vocabulary";
+import { TILE_SIZES, TILE_HEIGHTS } from "../tileSize";
 import { t, type Language } from "../i18n";
-import { useFocusTrap } from "../hooks/useFocusTrap";
 import { type AppIconName, type AppIconStyle } from "../icons";
-import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../iconUtils";
+import { CUSTOM_TILE_ICON_OPTIONS, getAppIconName, getAppIconStyle, isRasterImageDataUrl, isExternalImageUrl, toAppIconValue } from "../iconUtils";
+import { ICON_COLOR_HEX } from "../colors";
 import { IconVisual } from "./IconVisual";
+import { Dialog } from "./Dialog";
 import "./AddTileDialog.css";
 
 type ColorLabelKey =
@@ -32,51 +34,122 @@ const COLOR_OPTIONS = [
   { value: "gray", bg: "#e0e0e0", labelKey: "tileColorGray" },
 ] as const satisfies ReadonlyArray<{ value: string; bg: string; labelKey: ColorLabelKey }>;
 
+type IconColorLabelKey =
+  | "tileIconColorDefault"
+  | "tileColorRed"
+  | "tileColorOrange"
+  | "tileColorYellow"
+  | "tileColorGreen"
+  | "tileColorBlue"
+  | "tileColorPurple"
+  | "tileColorPink"
+  | "tileColorTeal"
+  | "tileColorGray";
+
+const ICON_COLOR_OPTIONS = [
+  { value: "", color: null, labelKey: "tileIconColorDefault" },
+  { value: "red", color: ICON_COLOR_HEX.red, labelKey: "tileColorRed" },
+  { value: "orange", color: ICON_COLOR_HEX.orange, labelKey: "tileColorOrange" },
+  { value: "yellow", color: ICON_COLOR_HEX.yellow, labelKey: "tileColorYellow" },
+  { value: "green", color: ICON_COLOR_HEX.green, labelKey: "tileColorGreen" },
+  { value: "blue", color: ICON_COLOR_HEX.blue, labelKey: "tileColorBlue" },
+  { value: "purple", color: ICON_COLOR_HEX.purple, labelKey: "tileColorPurple" },
+  { value: "pink", color: ICON_COLOR_HEX.pink, labelKey: "tileColorPink" },
+  { value: "teal", color: ICON_COLOR_HEX.teal, labelKey: "tileColorTeal" },
+  { value: "gray", color: ICON_COLOR_HEX.gray, labelKey: "tileColorGray" },
+] as const satisfies ReadonlyArray<{ value: string; color: string | null; labelKey: IconColorLabelKey }>;
+
 interface AddTileDialogProps {
   language: Language;
   onSave: (symbol: Omit<Symbol, "id">) => void;
   onClose: () => void;
+  /** When provided, pre-fills the dialog for editing an existing tile */
+  initialSymbol?: Symbol;
+  /** When provided, pre-fills just the label (used when adding from keyboard search) */
+  initialLabel?: string;
+  /** Global tile size (used to show "Default" label in the size picker) */
+  defaultTileSize?: TileSize;
 }
 
-export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps) {
-  const [label, setLabel] = useState("");
-  const [speakOverride, setSpeakOverride] = useState("");
-  const [iconMode, setIconMode] = useState<"icon" | "image">("icon");
+function deriveIconState(emoji: string | undefined): {
+  iconMode: "icon" | "image";
+  iconName: AppIconName;
+  iconStyle: AppIconStyle;
+  imageDataUrl: string | null;
+  rawIconValue: string | null;
+} {
+  if (emoji && (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji))) {
+    return { iconMode: "image", iconName: "star", iconStyle: "outline", imageDataUrl: emoji, rawIconValue: null };
+  }
+  if (emoji) {
+    const detectedName = getAppIconName(emoji);
+    const name = detectedName ?? "star";
+    const style = getAppIconStyle(emoji);
+    return { iconMode: "icon", iconName: name, iconStyle: style, imageDataUrl: null, rawIconValue: detectedName ? null : emoji };
+  }
+  return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null, rawIconValue: null };
+}
+
+export function AddTileDialog({ language, onSave, onClose, initialSymbol, initialLabel, defaultTileSize }: AddTileDialogProps) {
+  const isEditing = initialSymbol !== undefined;
+  const initial = deriveIconState(initialSymbol?.emoji);
+
+  const [activeTab, setActiveTab] = useState<"icon" | "style" | "media">("icon");
+  const [label, setLabel] = useState(initialSymbol?.label ?? initialLabel ?? "");
+  const [speakOverride, setSpeakOverride] = useState(initialSymbol?.speak ?? "");
+  const [iconMode, setIconMode] = useState<"icon" | "image">(initial.iconMode);
   const [iconFilter, setIconFilter] = useState("");
-  const [selectedIconName, setSelectedIconName] = useState<AppIconName>("star");
-  const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>("outline");
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const [color, setColor] = useState("blue");
+  const [selectedIconName, setSelectedIconName] = useState<AppIconName>(initial.iconName);
+  const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>(initial.iconStyle);
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
+  const [rawIconValue, setRawIconValue] = useState<string | null>(initial.rawIconValue);
+  const [color, setColor] = useState(initialSymbol?.color ?? "blue");
+  const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
+  const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
+  const [tileHeight, setTileHeight] = useState<TileHeight | "">(initialSymbol?.tileHeight ?? "");
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(initialSymbol?.backgroundImage ?? null);
+  const [soundFile, setSoundFile] = useState<string | null>(initialSymbol?.soundFile ?? null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bgImageInputRef = useRef<HTMLInputElement>(null);
+  const soundInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(panelRef);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
-  // Auto-focus label on mount
-  useEffect(() => {
-    labelInputRef.current?.focus();
-  }, []);
-
-  function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
+  function readUploadedFile(
+    e: ChangeEvent<HTMLInputElement>,
+    acceptPattern: RegExp,
+    onAccept: (dataUrl: string) => void,
+    maxBytes?: number
+  ) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (maxBytes && file.size > maxBytes) {
+      setMediaError(t(language, "mediaFileTooLarge"));
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const result = ev.target?.result as string;
-      // Only accept raster image data URLs (no SVG which can embed scripts)
-      if (result && /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/.test(result)) {
-        setImageDataUrl(result);
+      if (result && acceptPattern.test(result)) {
+        onAccept(result);
+        setMediaError(null);
       }
+      e.target.value = "";
     };
     reader.readAsDataURL(file);
+  }
+
+  const IMAGE_PATTERN = /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/;
+  const AUDIO_PATTERN = /^data:audio\/(mpeg|ogg|wav|mp4|webm|aac|flac);base64,/;
+
+  const MAX_IMAGE_BYTES = 1_500_000;
+  const MAX_AUDIO_BYTES = 1_500_000;
+
+  function handlePreviewSound() {
+    if (!soundFile) return;
+    const audio = new Audio(soundFile);
+    audio.play().catch(() => {});
   }
 
   function handleSave() {
@@ -85,12 +158,17 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
     const icon =
       iconMode === "image" && imageDataUrl
         ? imageDataUrl
-        : toAppIconValue(selectedIconName, selectedIconStyle);
+        : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
     onSave({
       label: trimmedLabel,
       emoji: icon,
       speak: speakOverride.trim() || undefined,
       color,
+      iconColor: iconColor || undefined,
+      tileSize: tileSize || undefined,
+      tileHeight: tileHeight || undefined,
+      backgroundImage: backgroundImage ?? undefined,
+      soundFile: soundFile ?? undefined,
       isCustom: true,
     });
   }
@@ -112,32 +190,96 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
   const previewIcon =
     iconMode === "image" && imageDataUrl
       ? imageDataUrl
-      : toAppIconValue(selectedIconName, selectedIconStyle);
+      : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
+
+  const _foundIconColorOpt = iconColor ? ICON_COLOR_OPTIONS.find((o) => o.value === iconColor) : undefined;
+  const previewIconColor: string | undefined = _foundIconColorOpt?.color ?? undefined;
 
   return (
-    <div className="add-tile-overlay" role="dialog" aria-modal="true" aria-label={t(language, "addTileTitle")}>
-      <div className="add-tile-panel" ref={panelRef}>
-        <div className="add-tile-panel__header">
-          <h2 className="add-tile-panel__title">{t(language, "addTileTitle")}</h2>
-          <button
-            className="add-tile-panel__close"
-            onClick={onClose}
-            aria-label={t(language, "close")}
-            type="button"
-          >
-            <X className="add-tile-panel__close-icon" aria-hidden="true" focusable="false" />
-          </button>
-        </div>
-
-        <div className="add-tile-panel__body">
+    <Dialog
+      title={t(language, isEditing ? "editTileTitle" : "addTileTitle")}
+      titleId="add-tile-title"
+      closeLabel={t(language, "close")}
+      onClose={onClose}
+      maxWidth="420px"
+      panelClassName="add-tile-panel dialog-panel--round-close"
+      bodyClassName="add-tile-panel__body"
+      initialFocusRef={labelInputRef}
+      headerExtension={
+        <>
           {/* Preview */}
-          <div className="add-tile-preview" style={{ background: `var(--color-${color}, var(--color-default))` }}>
-            <span className="add-tile-preview__icon" aria-hidden="true">
-              <IconVisual value={previewIcon} className="add-tile-preview__icon-value" />
-            </span>
-            <span className="add-tile-preview__label">{label || "…"}</span>
+          <div className="add-tile-preview-row">
+            <div className="add-tile-preview" style={{ background: `var(--color-${color}, var(--color-default))` }}>
+              <span className="add-tile-preview__icon" aria-hidden="true">
+                <IconVisual value={previewIcon} className="add-tile-preview__icon-value" iconColor={previewIconColor} />
+              </span>
+              <span className="add-tile-preview__label">{label || "…"}</span>
+            </div>
           </div>
 
+          {/* Dialog tabs */}
+          <div className="dialog-tabs" role="group" aria-label={t(language, isEditing ? "editTileTitle" : "addTileTitle")}>
+            <button
+              type="button"
+              aria-pressed={activeTab === "icon"}
+              className={`dialog-tab${activeTab === "icon" ? " dialog-tab--active" : ""}`}
+              onClick={() => setActiveTab("icon")}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight") setActiveTab("style");
+                else if (e.key === "ArrowLeft") setActiveTab("media");
+              }}
+            >
+              <ImageIcon className="dialog-tab__icon" aria-hidden="true" focusable="false" />
+              {t(language, "tileDlgTabIcon")}
+            </button>
+            <button
+              type="button"
+              aria-pressed={activeTab === "style"}
+              className={`dialog-tab${activeTab === "style" ? " dialog-tab--active" : ""}`}
+              onClick={() => setActiveTab("style")}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight") setActiveTab("media");
+                else if (e.key === "ArrowLeft") setActiveTab("icon");
+              }}
+            >
+              <Palette className="dialog-tab__icon" aria-hidden="true" focusable="false" />
+              {t(language, "tileDlgTabStyle")}
+            </button>
+            <button
+              type="button"
+              aria-pressed={activeTab === "media"}
+              className={`dialog-tab${activeTab === "media" ? " dialog-tab--active" : ""}${(backgroundImage || soundFile) ? " dialog-tab--has-content" : ""}`}
+              onClick={() => setActiveTab("media")}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight") setActiveTab("icon");
+                else if (e.key === "ArrowLeft") setActiveTab("style");
+              }}
+            >
+              <Music className="dialog-tab__icon" aria-hidden="true" focusable="false" />
+              {t(language, "tileDlgTabMedia")}
+            </button>
+          </div>
+        </>
+      }
+      footer={
+        <>
+          <button type="button" className="add-tile-panel__cancel" onClick={onClose}>
+            {t(language, "cancel")}
+          </button>
+          <button
+            type="button"
+            className="add-tile-panel__save"
+            onClick={handleSave}
+            disabled={!isValid}
+          >
+            {t(language, "save")}
+          </button>
+        </>
+      }
+    >
+      {/* ── Icon tab ── */}
+      {activeTab === "icon" && (
+        <>
           {/* Label */}
           <div className="add-tile-field">
             <label className="add-tile-field__label" htmlFor="tile-label">
@@ -170,7 +312,10 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
               <button
                 type="button"
                 className={`add-tile-tabs__btn${iconMode === "image" ? " add-tile-tabs__btn--active" : ""}`}
-                onClick={() => setIconMode("image")}
+                onClick={() => {
+                  setIconMode("image");
+                  setRawIconValue(null);
+                }}
                 aria-pressed={iconMode === "image"}
               >
                 <ImageIcon className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
@@ -197,7 +342,10 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   <button
                     type="button"
                     className={`add-tile-tabs__btn${selectedIconStyle === "outline" ? " add-tile-tabs__btn--active" : ""}`}
-                    onClick={() => setSelectedIconStyle("outline")}
+                    onClick={() => {
+                      setSelectedIconStyle("outline");
+                      setRawIconValue(null);
+                    }}
                     aria-pressed={selectedIconStyle === "outline"}
                   >
                     {t(language, "tileIconStyleOutline")}
@@ -205,22 +353,27 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   <button
                     type="button"
                     className={`add-tile-tabs__btn${selectedIconStyle === "filled" ? " add-tile-tabs__btn--active" : ""}`}
-                    onClick={() => setSelectedIconStyle("filled")}
+                    onClick={() => {
+                      setSelectedIconStyle("filled");
+                      setRawIconValue(null);
+                    }}
                     aria-pressed={selectedIconStyle === "filled"}
                   >
                     {t(language, "tileIconStyleFilled")}
                   </button>
                 </div>
-                <div className="add-tile-icon-grid" role="listbox" aria-label={t(language, "tileIcon")}>
+                <div className="add-tile-icon-grid" role="group" aria-label={t(language, "tileIcon")}>
                   {filteredIcons.map((icon) => (
                     <button
                       key={icon.value}
                       type="button"
                       className={`add-tile-icon-grid__btn${selectedIconName === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
-                      onClick={() => setSelectedIconName(icon.value)}
+                      onClick={() => {
+                        setSelectedIconName(icon.value);
+                        setRawIconValue(null);
+                      }}
                       aria-label={icon.label}
-                      aria-selected={selectedIconName === icon.value}
-                      role="option"
+                      aria-pressed={selectedIconName === icon.value}
                     >
                       <IconVisual value={toAppIconValue(icon.value, selectedIconStyle)} className="add-tile-icon-grid__icon" />
                     </button>
@@ -248,7 +401,8 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
                   type="file"
                   accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
                   className="add-tile-image-upload__input"
-                  onChange={handleImageUpload}
+                  onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setImageDataUrl, MAX_IMAGE_BYTES)}
+                  onClick={() => setMediaError(null)}
                   aria-hidden="true"
                   tabIndex={-1}
                 />
@@ -256,7 +410,30 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
             )}
           </div>
 
-          {/* Color */}
+          {/* Spoken text override (shown when label has text) */}
+          {label.trim().length > 0 && (
+            <div className="add-tile-field">
+              <label className="add-tile-field__label" htmlFor="tile-speak-override">
+                {t(language, "tileSpeak")}
+              </label>
+              <input
+                id="tile-speak-override"
+                type="text"
+                className="add-tile-field__input"
+                value={speakOverride}
+                onChange={(e) => setSpeakOverride(e.target.value)}
+                placeholder={t(language, "tileSpeakPlaceholder")}
+                maxLength={120}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Style tab ── */}
+      {activeTab === "style" && (
+        <>
+          {/* Tile Color */}
           <div className="add-tile-field">
             <span className="add-tile-field__label">{t(language, "tileColor")}</span>
             <div className="add-tile-colors">
@@ -274,38 +451,165 @@ export function AddTileDialog({ language, onSave, onClose }: AddTileDialogProps)
             </div>
           </div>
 
-          {/* Spoken text override */}
-          <details className="add-tile-advanced">
-            <summary className="add-tile-advanced__summary">{t(language, "tileSpeak")}</summary>
-            <label className="add-tile-field__label" htmlFor="tile-speak-override">
-              {t(language, "tileSpeak")}
-            </label>
-            <input
-              id="tile-speak-override"
-              type="text"
-              className="add-tile-field__input"
-              value={speakOverride}
-              onChange={(e) => setSpeakOverride(e.target.value)}
-              placeholder={t(language, "tileSpeakPlaceholder")}
-              maxLength={120}
-            />
-          </details>
-        </div>
+          {/* Icon Color (only relevant when using icon mode) */}
+          {iconMode === "icon" && (
+            <div className="add-tile-field">
+              <span className="add-tile-field__label">{t(language, "tileIconColor")}</span>
+              <div className="add-tile-colors">
+                {ICON_COLOR_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value === "" ? "__default__" : opt.value}
+                    type="button"
+                    className={`add-tile-colors__swatch add-tile-colors__swatch--icon-color${iconColor === opt.value ? " add-tile-colors__swatch--selected" : ""}`}
+                    style={opt.color ? { background: opt.color } : undefined}
+                    onClick={() => setIconColor(opt.value)}
+                    aria-label={t(language, opt.labelKey)}
+                    aria-pressed={iconColor === opt.value}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-        <div className="add-tile-panel__footer">
-          <button type="button" className="add-tile-panel__cancel" onClick={onClose}>
-            {t(language, "cancel")}
-          </button>
-          <button
-            type="button"
-            className="add-tile-panel__save"
-            onClick={handleSave}
-            disabled={!isValid}
-          >
-            {t(language, "save")}
-          </button>
-        </div>
-      </div>
-    </div>
+          {/* Tile Size (width) */}
+          <div className="add-tile-field">
+            <label className="add-tile-field__label" htmlFor="tile-size-select">
+              {t(language, "tileSizeLabel")}
+            </label>
+            <select
+              id="tile-size-select"
+              className="add-tile-field__input"
+              value={tileSize}
+              onChange={(e) => setTileSize(e.target.value as TileSize | "")}
+            >
+              <option value="">
+                {t(language, "tileSizeDefault")}
+                {defaultTileSize ? ` (${defaultTileSize.toUpperCase()})` : ""}
+              </option>
+              {TILE_SIZES.map((s) => (
+                <option key={s} value={s}>
+                  {t(language, `tileSize${s.charAt(0).toUpperCase() + s.slice(1)}` as Parameters<typeof t>[1])}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Tile Height (row span) */}
+          <div className="add-tile-field">
+            <label className="add-tile-field__label" htmlFor="tile-height-select">
+              {t(language, "tileHeightLabel")}
+            </label>
+            <select
+              id="tile-height-select"
+              className="add-tile-field__input"
+              value={tileHeight}
+              onChange={(e) => setTileHeight(e.target.value as TileHeight | "")}
+            >
+              <option value="">{t(language, "tileHeightNormal")}</option>
+              {TILE_HEIGHTS.map((h) => (
+                <option key={h} value={h}>
+                  {t(language, h === "tall" ? "tileHeightTall" : "tileHeightTaller")}
+                </option>
+              ))}
+            </select>
+          </div>
+        </>
+      )}
+
+      {/* ── Media tab ── */}
+      {activeTab === "media" && (
+        <>
+          {/* Background Image */}
+          <div className="add-tile-field">
+            <span className="add-tile-field__label">{t(language, "tileBackgroundImage")}</span>
+            <div className="add-tile-image-upload">
+              {backgroundImage && (
+                <img src={backgroundImage} alt="" className="add-tile-image-upload__preview" />
+              )}
+              <button
+                type="button"
+                className="add-tile-image-upload__btn"
+                onClick={() => bgImageInputRef.current?.click()}
+              >
+                <ImageIcon className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                {backgroundImage ? t(language, "changeImage") : t(language, "uploadImage")}
+              </button>
+              {backgroundImage && (
+                <button
+                  type="button"
+                  className="add-tile-image-upload__remove"
+                  onClick={() => setBackgroundImage(null)}
+                  aria-label={t(language, "removeBackgroundImage")}
+                >
+                  <X className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                </button>
+              )}
+              <input
+                ref={bgImageInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
+                className="add-tile-image-upload__input"
+                onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setBackgroundImage, MAX_IMAGE_BYTES)}
+                onClick={() => setMediaError(null)}
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+            </div>
+          </div>
+
+          {/* Sound File */}
+          <div className="add-tile-field">
+            <span className="add-tile-field__label">{t(language, "tileSoundFile")}</span>
+            <div className="add-tile-sound-upload">
+              <button
+                type="button"
+                className="add-tile-image-upload__btn"
+                onClick={() => soundInputRef.current?.click()}
+              >
+                <Music className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                {soundFile ? t(language, "changeSoundFile") : t(language, "uploadSoundFile")}
+              </button>
+              {soundFile && (
+                <>
+                  <button
+                    type="button"
+                    className="add-tile-sound-upload__preview-btn"
+                    onClick={handlePreviewSound}
+                    aria-label={t(language, "previewSound")}
+                  >
+                    <Music className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                    {t(language, "previewSound")}
+                  </button>
+                  <button
+                    type="button"
+                    className="add-tile-image-upload__remove"
+                    onClick={() => setSoundFile(null)}
+                    aria-label={t(language, "removeSoundFile")}
+                  >
+                    <X className="add-tile-image-upload__btn-icon" aria-hidden="true" focusable="false" />
+                  </button>
+                </>
+              )}
+              <input
+                ref={soundInputRef}
+                type="file"
+                accept="audio/mpeg,audio/ogg,audio/wav,audio/mp4,audio/webm,audio/aac,audio/flac"
+                className="add-tile-image-upload__input"
+                onChange={(e) => readUploadedFile(e, AUDIO_PATTERN, setSoundFile, MAX_AUDIO_BYTES)}
+                onClick={() => setMediaError(null)}
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+            </div>
+            {mediaError && (
+              <p className="add-tile-field__hint" role="alert">{mediaError}</p>
+            )}
+            {soundFile && (
+              <p className="add-tile-field__hint">{t(language, "soundFileHint")}</p>
+            )}
+          </div>
+        </>
+      )}
+    </Dialog>
   );
 }

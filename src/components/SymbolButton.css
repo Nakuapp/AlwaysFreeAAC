@@ -123,10 +123,136 @@
   height: 0.72rem;
 }
 
+.symbol-btn__move-actions {
+  position: absolute;
+  bottom: -6px;
+  left: -6px;
+  display: flex;
+  gap: 0.2rem;
+  z-index: 1;
+}
+
+.symbol-btn__move {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-medium);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.symbol-btn__move:hover {
+  background: var(--bg-subtle);
+}
+
+.symbol-btn__move:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.symbol-btn__move-icon {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
 .symbol-btn__icon--img {
   object-fit: cover;
   border-radius: 6px;
   display: block;
+}
+
+.symbol-btn--editable {
+  cursor: pointer;
+  position: relative;
+}
+
+.symbol-btn__edit-overlay {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.symbol-btn__edit-overlay-icon {
+  width: 0.6rem;
+  height: 0.6rem;
+  color: #fff;
+}
+
+.symbol-btn--editable:hover .symbol-btn__edit-overlay {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+/* Drag-and-drop */
+.symbol-btn-wrapper--draggable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.symbol-btn-wrapper--draggable:active {
+  cursor: grabbing;
+}
+
+.symbol-btn-wrapper--drag-over > .symbol-btn {
+  outline: 3px dashed var(--header-bg);
+  outline-offset: 2px;
+}
+
+.symbol-btn__drag-handle {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.symbol-btn__drag-handle-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+  color: #fff;
+}
+.symbol-btn--has-bg-image {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Semi-transparent overlay so icon + label remain readable over bg image */
+.symbol-btn__bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="dark"] .symbol-btn__bg-overlay {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.symbol-btn--has-bg-image .symbol-btn__icon,
+.symbol-btn--has-bg-image .symbol-btn__label,
+.symbol-btn--has-bg-image .symbol-btn__edit-overlay {
+  position: relative;
+  z-index: 1;
 }
 
 .symbol-btn--large .symbol-btn__icon {
