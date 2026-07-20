@@ -158,6 +158,7 @@ type UiStringKey =
   | "changeSoundFile"
   | "previewSound"
   | "removeSoundFile"
+  | "mediaFileTooLarge"
   | "soundFileHint"
   | "moveTile"
   | "moveTileUp"
@@ -168,6 +169,8 @@ type UiStringKey =
   | "typeToSearch"
   | "addWordToBoard"
   | "addToSentence"
+  | "removeWord"
+  | "removeChip"
   | "settingsTabSpeech"
   | "settingsTabDisplay"
   | "settingsTabApp"
@@ -335,6 +338,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeSoundFile: "Change Sound",
     previewSound: "Preview",
     removeSoundFile: "Remove sound file",
+    mediaFileTooLarge: "Selected file is too large. Please choose a file under 1.5 MB.",
     soundFileHint: "This tile will play the uploaded audio instead of text-to-speech.",
     moveTile: "Move tile",
     moveTileUp: "Move tile left",
@@ -345,6 +349,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     typeToSearch: "Type words… (space to chip)",
     addWordToBoard: "Add \"{{word}}\" to board",
     addToSentence: "Add to sentence",
+    removeWord: "Remove {{word}}",
+    removeChip: "Remove {{word}}",
     settingsTabSpeech: "Speech",
     settingsTabDisplay: "Display",
     settingsTabApp: "App",
@@ -511,6 +517,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeSoundFile: "Cambiar sonido",
     previewSound: "Vista previa",
     removeSoundFile: "Eliminar archivo de sonido",
+    mediaFileTooLarge: "El archivo seleccionado es demasiado grande. Elige uno menor de 1,5 MB.",
     soundFileHint: "Esta ficha reproducirá el audio cargado en lugar de la síntesis de voz.",
     moveTile: "Mover ficha",
     moveTileUp: "Mover ficha a la izquierda",
@@ -521,6 +528,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     typeToSearch: "Escribe palabras… (espacio para chip)",
     addWordToBoard: "Agregar \"{{word}}\" al tablero",
     addToSentence: "Agregar a la frase",
+    removeWord: "Quitar {{word}}",
+    removeChip: "Quitar {{word}}",
     settingsTabSpeech: "Voz",
     settingsTabDisplay: "Pantalla",
     settingsTabApp: "App",
@@ -687,6 +696,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     changeSoundFile: "Changer le son",
     previewSound: "Aperçu",
     removeSoundFile: "Supprimer le fichier audio",
+    mediaFileTooLarge: "Le fichier sélectionné est trop volumineux. Choisissez un fichier de moins de 1,5 Mo.",
     soundFileHint: "Cette fiche jouera l'audio chargé au lieu de la synthèse vocale.",
     moveTile: "Déplacer la fiche",
     moveTileUp: "Déplacer la fiche à gauche",
@@ -697,6 +707,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     typeToSearch: "Tapez des mots… (espace pour chip)",
     addWordToBoard: "Ajouter « {{word}} » au tableau",
     addToSentence: "Ajouter à la phrase",
+    removeWord: "Supprimer {{word}}",
+    removeChip: "Supprimer {{word}}",
     settingsTabSpeech: "Voix",
     settingsTabDisplay: "Affichage",
     settingsTabApp: "App",

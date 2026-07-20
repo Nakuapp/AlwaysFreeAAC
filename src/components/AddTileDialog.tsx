@@ -76,16 +76,18 @@ function deriveIconState(emoji: string | undefined): {
   iconName: AppIconName;
   iconStyle: AppIconStyle;
   imageDataUrl: string | null;
+  rawIconValue: string | null;
 } {
   if (emoji && (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji))) {
-    return { iconMode: "image", iconName: "star", iconStyle: "outline", imageDataUrl: emoji };
+    return { iconMode: "image", iconName: "star", iconStyle: "outline", imageDataUrl: emoji, rawIconValue: null };
   }
   if (emoji) {
-    const name = getAppIconName(emoji) ?? "star";
+    const detectedName = getAppIconName(emoji);
+    const name = detectedName ?? "star";
     const style = getAppIconStyle(emoji);
-    return { iconMode: "icon", iconName: name, iconStyle: style, imageDataUrl: null };
+    return { iconMode: "icon", iconName: name, iconStyle: style, imageDataUrl: null, rawIconValue: detectedName ? null : emoji };
   }
-  return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null };
+  return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null, rawIconValue: null };
 }
 
 export function AddTileDialog({ language, onSave, onClose, initialSymbol, initialLabel, defaultTileSize }: AddTileDialogProps) {
@@ -100,30 +102,49 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
   const [selectedIconName, setSelectedIconName] = useState<AppIconName>(initial.iconName);
   const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>(initial.iconStyle);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
+  const [rawIconValue, setRawIconValue] = useState<string | null>(initial.rawIconValue);
   const [color, setColor] = useState(initialSymbol?.color ?? "blue");
   const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
   const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
   const [tileHeight, setTileHeight] = useState<TileHeight | "">(initialSymbol?.tileHeight ?? "");
   const [backgroundImage, setBackgroundImage] = useState<string | null>(initialSymbol?.backgroundImage ?? null);
   const [soundFile, setSoundFile] = useState<string | null>(initialSymbol?.soundFile ?? null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgImageInputRef = useRef<HTMLInputElement>(null);
   const soundInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
-  function readUploadedFile(e: ChangeEvent<HTMLInputElement>, acceptPattern: RegExp, onAccept: (dataUrl: string) => void) {
+  function readUploadedFile(
+    e: ChangeEvent<HTMLInputElement>,
+    acceptPattern: RegExp,
+    onAccept: (dataUrl: string) => void,
+    maxBytes?: number
+  ) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (maxBytes && file.size > maxBytes) {
+      setMediaError(t(language, "mediaFileTooLarge"));
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const result = ev.target?.result as string;
-      if (result && acceptPattern.test(result)) onAccept(result);
+      if (result && acceptPattern.test(result)) {
+        onAccept(result);
+        setMediaError(null);
+      }
+      e.target.value = "";
     };
     reader.readAsDataURL(file);
   }
 
   const IMAGE_PATTERN = /^data:image\/(png|jpeg|gif|webp|bmp|avif);base64,/;
   const AUDIO_PATTERN = /^data:audio\/(mpeg|ogg|wav|mp4|webm|aac|flac);base64,/;
+
+  const MAX_IMAGE_BYTES = 1_500_000;
+  const MAX_AUDIO_BYTES = 1_500_000;
 
   function handlePreviewSound() {
     if (!soundFile) return;
@@ -137,7 +158,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
     const icon =
       iconMode === "image" && imageDataUrl
         ? imageDataUrl
-        : toAppIconValue(selectedIconName, selectedIconStyle);
+        : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
     onSave({
       label: trimmedLabel,
       emoji: icon,
@@ -169,7 +190,7 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
   const previewIcon =
     iconMode === "image" && imageDataUrl
       ? imageDataUrl
-      : toAppIconValue(selectedIconName, selectedIconStyle);
+      : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
 
   const _foundIconColorOpt = iconColor ? ICON_COLOR_OPTIONS.find((o) => o.value === iconColor) : undefined;
   const previewIconColor: string | undefined = _foundIconColorOpt?.color ?? undefined;
@@ -197,14 +218,12 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
           </div>
 
           {/* Dialog tabs */}
-          <div className="dialog-tabs" role="tablist" aria-label={t(language, isEditing ? "editTileTitle" : "addTileTitle")}>
+          <div className="dialog-tabs" role="group" aria-label={t(language, isEditing ? "editTileTitle" : "addTileTitle")}>
             <button
               type="button"
-              role="tab"
-              aria-selected={activeTab === "icon"}
+              aria-pressed={activeTab === "icon"}
               className={`dialog-tab${activeTab === "icon" ? " dialog-tab--active" : ""}`}
               onClick={() => setActiveTab("icon")}
-              tabIndex={activeTab === "icon" ? 0 : -1}
               onKeyDown={(e) => {
                 if (e.key === "ArrowRight") setActiveTab("style");
                 else if (e.key === "ArrowLeft") setActiveTab("media");
@@ -215,11 +234,9 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
             </button>
             <button
               type="button"
-              role="tab"
-              aria-selected={activeTab === "style"}
+              aria-pressed={activeTab === "style"}
               className={`dialog-tab${activeTab === "style" ? " dialog-tab--active" : ""}`}
               onClick={() => setActiveTab("style")}
-              tabIndex={activeTab === "style" ? 0 : -1}
               onKeyDown={(e) => {
                 if (e.key === "ArrowRight") setActiveTab("media");
                 else if (e.key === "ArrowLeft") setActiveTab("icon");
@@ -230,11 +247,9 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
             </button>
             <button
               type="button"
-              role="tab"
-              aria-selected={activeTab === "media"}
+              aria-pressed={activeTab === "media"}
               className={`dialog-tab${activeTab === "media" ? " dialog-tab--active" : ""}${(backgroundImage || soundFile) ? " dialog-tab--has-content" : ""}`}
               onClick={() => setActiveTab("media")}
-              tabIndex={activeTab === "media" ? 0 : -1}
               onKeyDown={(e) => {
                 if (e.key === "ArrowRight") setActiveTab("icon");
                 else if (e.key === "ArrowLeft") setActiveTab("style");
@@ -297,7 +312,10 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
               <button
                 type="button"
                 className={`add-tile-tabs__btn${iconMode === "image" ? " add-tile-tabs__btn--active" : ""}`}
-                onClick={() => setIconMode("image")}
+                onClick={() => {
+                  setIconMode("image");
+                  setRawIconValue(null);
+                }}
                 aria-pressed={iconMode === "image"}
               >
                 <ImageIcon className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
@@ -324,7 +342,10 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                   <button
                     type="button"
                     className={`add-tile-tabs__btn${selectedIconStyle === "outline" ? " add-tile-tabs__btn--active" : ""}`}
-                    onClick={() => setSelectedIconStyle("outline")}
+                    onClick={() => {
+                      setSelectedIconStyle("outline");
+                      setRawIconValue(null);
+                    }}
                     aria-pressed={selectedIconStyle === "outline"}
                   >
                     {t(language, "tileIconStyleOutline")}
@@ -332,7 +353,10 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                   <button
                     type="button"
                     className={`add-tile-tabs__btn${selectedIconStyle === "filled" ? " add-tile-tabs__btn--active" : ""}`}
-                    onClick={() => setSelectedIconStyle("filled")}
+                    onClick={() => {
+                      setSelectedIconStyle("filled");
+                      setRawIconValue(null);
+                    }}
                     aria-pressed={selectedIconStyle === "filled"}
                   >
                     {t(language, "tileIconStyleFilled")}
@@ -344,7 +368,10 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                       key={icon.value}
                       type="button"
                       className={`add-tile-icon-grid__btn${selectedIconName === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
-                      onClick={() => setSelectedIconName(icon.value)}
+                      onClick={() => {
+                        setSelectedIconName(icon.value);
+                        setRawIconValue(null);
+                      }}
                       aria-label={icon.label}
                       aria-pressed={selectedIconName === icon.value}
                     >
@@ -374,7 +401,8 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                   type="file"
                   accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
                   className="add-tile-image-upload__input"
-                  onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setImageDataUrl)}
+                  onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setImageDataUrl, MAX_IMAGE_BYTES)}
+                  onClick={() => setMediaError(null)}
                   aria-hidden="true"
                   tabIndex={-1}
                 />
@@ -521,7 +549,8 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 type="file"
                 accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif"
                 className="add-tile-image-upload__input"
-                onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setBackgroundImage)}
+                onChange={(e) => readUploadedFile(e, IMAGE_PATTERN, setBackgroundImage, MAX_IMAGE_BYTES)}
+                onClick={() => setMediaError(null)}
                 aria-hidden="true"
                 tabIndex={-1}
               />
@@ -566,11 +595,15 @@ export function AddTileDialog({ language, onSave, onClose, initialSymbol, initia
                 type="file"
                 accept="audio/mpeg,audio/ogg,audio/wav,audio/mp4,audio/webm,audio/aac,audio/flac"
                 className="add-tile-image-upload__input"
-                onChange={(e) => readUploadedFile(e, AUDIO_PATTERN, setSoundFile)}
+                onChange={(e) => readUploadedFile(e, AUDIO_PATTERN, setSoundFile, MAX_AUDIO_BYTES)}
+                onClick={() => setMediaError(null)}
                 aria-hidden="true"
                 tabIndex={-1}
               />
             </div>
+            {mediaError && (
+              <p className="add-tile-field__hint" role="alert">{mediaError}</p>
+            )}
             {soundFile && (
               <p className="add-tile-field__hint">{t(language, "soundFileHint")}</p>
             )}

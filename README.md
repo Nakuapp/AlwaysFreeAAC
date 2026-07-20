@@ -28,7 +28,7 @@ The web app works on any device and can be added to your home screen for quick a
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
 - **Accessible** — targets WCAG 2.1 AA; works with screen readers, keyboard navigation, and respects reduced-motion preferences
-- **Customisable** — settings panel with three tabs (Speech, Display, App); adjust TTS engine (auto-detected, shown when multiple engines are installed), voice, vocal style, speed, pitch, volume, tile size (XS–XL), font size, language, theme, and layout order
+- **Customisable** — settings panel with three tabs (Speech, Display, App); adjust voice, vocal style, speed, pitch, volume, tile size (XS–XL), font size, language, theme, and layout order
 - **Layout order** — choose "Tabs on top, speech at bottom" (default) or "Speech on top, tabs below" to suit your workflow
 - **Icon styles & colours** — choose outlined or filled icon styles and a custom accent colour for each tile
 - **In-place tile editing** — tap any custom tile in edit mode to update its label, icon, colour, and spoken text
@@ -134,7 +134,7 @@ To generate a branch-specific test build without publishing a release, run the `
 ## App Logo & Native App Icons
 
 - Brand source icon: `resources/icon.png` (1024×1024)
-- Web icons: `public/app-logo.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
+- Web icons: `public/logo-300.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
 - Android/iOS launch icons are generated in CI with `@capacitor/assets` during Android and iOS workflows.
 
 To regenerate native icons locally (after `npx cap add android` / `npx cap add ios`):
@@ -170,10 +170,10 @@ src/
 │   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size, pre-fill from search)
 │   ├── CategoryNav.tsx   # Navigation bar: logo/settings button (fixed left) + scrollable category tabs + manage/import actions
 │   ├── IconVisual.tsx    # Renders icon or image for a tile
-│   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
+│   ├── Dialog.tsx        # Shared accessible modal shell used by app dialogs
 │   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete)
 │   ├── SentenceBar.tsx   # Sentence builder: word chips + keyboard search input with live suggestions + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog with 3 tabs: Speech (TTS engine, voice, style, rate/pitch/volume), Display (theme, layout, grid, text size), App (language)
+│   ├── Settings.tsx      # Settings dialog with 3 tabs: Speech (voice, style, rate/pitch/volume), Display (theme, layout, grid, text size), App (language)
 │   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
 │   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
 ├── data/
@@ -196,7 +196,7 @@ src/
 public/
 ├── app-icon-192.png      # PWA icon + browser favicon
 ├── app-icon-512.png      # PWA icon + maskable icon
-└── app-logo.png          # Logo shown in CategoryNav (tapping opens Settings)
+└── logo-300.png          # Logo shown in CategoryNav (tapping opens Settings)
 resources/
 └── icon.png              # Source image for native Android/iOS icon generation
 ```

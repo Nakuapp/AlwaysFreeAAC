@@ -84,12 +84,13 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       setSupported(true);
 
       /**
-       * Attempt to load voices from the native TTS engine.  The engine is
+       * Attempt to load voices from the native TTS engine. The engine is
        * initialised asynchronously so the first call may return an empty list;
-       * retry with exponential back-off (500 ms, 1.5 s, 3 s) before giving up.
+       * retry with linear back-off (750 ms, 1.5 s, 2.25 s) before giving up.
        */
       let cancelled = false;
       const loadVoicesWithRetry = (attempt: number) => {
+        if (cancelled) return;
         SpeechSynthesis.getVoices()
           .then(({ voices: nativeVoices }) => {
             if (cancelled) return;
@@ -123,19 +124,39 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
       // Use plugin events for accurate speaking state on native (the promise resolves
       // before speech actually starts, so the indicator would otherwise flicker off immediately).
-      let startHandle: { remove: () => Promise<void> } | undefined;
-      let endHandle: { remove: () => Promise<void> } | undefined;
-      let errorHandle: { remove: () => Promise<void> } | undefined;
+      const listenerRemovers: Array<() => Promise<void>> = [];
 
-      SpeechSynthesis.addListener("start", () => setSpeaking(true)).then((h) => { startHandle = h; }).catch(() => {});
-      SpeechSynthesis.addListener("end", () => setSpeaking(false)).then((h) => { endHandle = h; }).catch(() => {});
-      SpeechSynthesis.addListener("error", () => setSpeaking(false)).then((h) => { errorHandle = h; }).catch(() => {});
+      SpeechSynthesis.addListener("start", () => setSpeaking(true))
+        .then((h) => {
+          if (cancelled) {
+            h.remove().catch(() => {});
+            return;
+          }
+          listenerRemovers.push(() => h.remove());
+        })
+        .catch(() => {});
+      SpeechSynthesis.addListener("end", () => setSpeaking(false))
+        .then((h) => {
+          if (cancelled) {
+            h.remove().catch(() => {});
+            return;
+          }
+          listenerRemovers.push(() => h.remove());
+        })
+        .catch(() => {});
+      SpeechSynthesis.addListener("error", () => setSpeaking(false))
+        .then((h) => {
+          if (cancelled) {
+            h.remove().catch(() => {});
+            return;
+          }
+          listenerRemovers.push(() => h.remove());
+        })
+        .catch(() => {});
 
       return () => {
         cancelled = true;
-        startHandle?.remove().catch(() => {});
-        endHandle?.remove().catch(() => {});
-        errorHandle?.remove().catch(() => {});
+        listenerRemovers.forEach((remove) => remove().catch(() => {}));
       };
     }
 
