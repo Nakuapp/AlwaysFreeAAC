@@ -212,7 +212,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           rate,
           pitch,
           volume,
-          queueStrategy: queueStrategy === "queue" ? "Queue" : "Flush",
+          queueStrategy: queueStrategy === "queue" ? "Add" : "Flush",
           language,
           ...(voiceInfo && { voiceId: voiceInfo.id }),
         })
