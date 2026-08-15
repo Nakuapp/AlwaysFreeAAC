@@ -92,3 +92,7 @@
 .app[data-layout="speech-top"] .symbol-grid {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+.app--sentence-builder-disabled .symbol-grid-container {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
