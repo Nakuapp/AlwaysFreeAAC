@@ -64,6 +64,7 @@ jobs:
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
 
   ios:
+    if: false
     name: Build iOS Artifact
     needs: prepare
     uses: ./.github/workflows/ios.yml
