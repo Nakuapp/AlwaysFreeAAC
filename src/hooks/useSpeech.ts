@@ -105,7 +105,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
                 lang: v.language,
                 engine: detectTTSEngine(v),
                 isNetworkConnectionRequired: v.isNetworkConnectionRequired,
-              }))
+              })),
             );
             setVoicesLoaded(true);
           })
@@ -126,9 +126,21 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       let endHandle: { remove: () => Promise<void> } | undefined;
       let errorHandle: { remove: () => Promise<void> } | undefined;
 
-      SpeechSynthesis.addListener("start", () => setSpeaking(true)).then((h) => { startHandle = h; }).catch(() => {});
-      SpeechSynthesis.addListener("end", () => setSpeaking(false)).then((h) => { endHandle = h; }).catch(() => {});
-      SpeechSynthesis.addListener("error", () => setSpeaking(false)).then((h) => { errorHandle = h; }).catch(() => {});
+      SpeechSynthesis.addListener("start", () => setSpeaking(true))
+        .then((h) => {
+          startHandle = h;
+        })
+        .catch(() => {});
+      SpeechSynthesis.addListener("end", () => setSpeaking(false))
+        .then((h) => {
+          endHandle = h;
+        })
+        .catch(() => {});
+      SpeechSynthesis.addListener("error", () => setSpeaking(false))
+        .then((h) => {
+          errorHandle = h;
+        })
+        .catch(() => {});
 
       return () => {
         cancelled = true;
@@ -150,7 +162,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           name: v.name,
           lang: v.lang,
           engine: detectTTSEngine({ id: v.voiceURI ?? "", name: v.name }),
-        }))
+        })),
       );
       setVoicesLoaded(true);
     };
@@ -169,7 +181,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
             name: v.name,
             lang: v.lang,
             engine: detectTTSEngine({ id: v.voiceURI ?? "", name: v.name }),
-          }))
+          })),
         );
       }
       setVoicesLoaded(true);
@@ -183,7 +195,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
   /** Sorted, deduplicated list of TTS engine names derived from the loaded voices. */
   const availableEngines = useMemo(
     () => Array.from(new Set(voices.map((v) => v.engine))).sort(),
-    [voices]
+    [voices],
   );
 
   const speakText = useCallback(
@@ -214,8 +226,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           queueStrategy: "Flush",
           language,
           ...(voiceInfo && { voiceId: voiceInfo.id }),
-        })
-          .catch(() => setSpeaking(false));
+        }).catch(() => setSpeaking(false));
         return;
       }
 
@@ -242,9 +253,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       utterance.volume = volume;
 
       if (voiceName) {
-        const match = window.speechSynthesis
-          .getVoices()
-          .find((v) => v.name === voiceName);
+        const match = window.speechSynthesis.getVoices().find((v) => v.name === voiceName);
         if (match) utterance.voice = match;
       }
 
@@ -254,21 +263,18 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
       window.speechSynthesis.speak(utterance);
     },
-    [isNative]
+    [isNative],
   );
 
   // Convenience wrapper that keeps the public API name "speak"
-  const speak = useCallback(
-    (text: string) => speakText(text),
-    [speakText]
-  );
+  const speak = useCallback((text: string) => speakText(text), [speakText]);
 
   /** Preview a specific voice without changing the current settings */
   const previewVoice = useCallback(
     (voiceId: string, sampleText: string) => {
       speakText(sampleText, { voiceName: voiceId });
     },
-    [speakText]
+    [speakText],
   );
 
   const cancel = useCallback(() => {
@@ -286,10 +292,9 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
   const pause = useCallback(() => {
     if (isNative) {
-      SpeechSynthesis.pause()
-        .catch(() => {
-          // ignore
-        });
+      SpeechSynthesis.pause().catch(() => {
+        // ignore
+      });
       return;
     }
     if ("speechSynthesis" in window) {
@@ -299,10 +304,9 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
   const resume = useCallback(() => {
     if (isNative) {
-      SpeechSynthesis.resume()
-        .catch(() => {
-          // ignore
-        });
+      SpeechSynthesis.resume().catch(() => {
+        // ignore
+      });
       return;
     }
     if ("speechSynthesis" in window) {
@@ -311,5 +315,16 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     }
   }, [isNative]);
 
-  return { speak, previewVoice, cancel, pause, resume, speaking, voices, availableEngines, supported, voicesLoaded };
+  return {
+    speak,
+    previewVoice,
+    cancel,
+    pause,
+    resume,
+    speaking,
+    voices,
+    availableEngines,
+    supported,
+    voicesLoaded,
+  };
 }

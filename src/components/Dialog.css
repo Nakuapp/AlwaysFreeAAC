@@ -153,7 +153,10 @@
   color: var(--text-secondary);
   font-size: 0.78rem;
   font-weight: 600;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
   margin-bottom: -2px;
 }
 

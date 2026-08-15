@@ -98,19 +98,13 @@ export function Dialog({
             aria-label={closeLabel}
             ref={closeButtonRef}
           >
-            <X
-              className="dialog-panel__close-icon"
-              aria-hidden="true"
-              focusable="false"
-            />
+            <X className="dialog-panel__close-icon" aria-hidden="true" focusable="false" />
           </button>
         </div>
 
         {headerExtension}
 
-        <div
-          className={`dialog-panel__body${bodyClassName ? ` ${bodyClassName}` : ""}`}
-        >
+        <div className={`dialog-panel__body${bodyClassName ? ` ${bodyClassName}` : ""}`}>
           {children}
         </div>
 

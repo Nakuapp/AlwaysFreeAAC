@@ -39,10 +39,7 @@ export const TILE_HEIGHTS: readonly TileHeight[] = ["tall", "taller"] as const;
  * Tiles without an explicit override always span exactly 1 column so they
  * fill the current grid cell width uniformly.
  */
-export function getTileColSpan(
-  tileSize: TileSize | undefined,
-  gridColumns: number
-): number {
+export function getTileColSpan(tileSize: TileSize | undefined, gridColumns: number): number {
   if (!tileSize) return 1;
   return Math.min(TILE_SIZE_SPAN[tileSize], gridColumns);
 }

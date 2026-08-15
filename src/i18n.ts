@@ -278,13 +278,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     save: "Save",
     close: "Close",
     skipToMain: "Skip to main content",
-    noCustomTiles: "No custom tiles yet. Tap \"+ Add Word\" to create one.",
+    noCustomTiles: 'No custom tiles yet. Tap "+ Add Word" to create one.',
     voiceFilterLabel: "Filter voices",
     voiceFilterPlaceholder: "Search by name or language…",
     voiceFilterNoMatch: "No voices match your search.",
     onlineVoiceSuffix: "(Online)",
-    moreVoicesTipAndroid: "Tip: For more diverse voices, open your device Settings and look for Accessibility → Text-to-Speech to install additional voice packs.",
-    moreVoicesTipWeb: "Tip: Voice quality and variety depend on your browser and OS. Chrome and Edge on desktop typically offer the most options.",
+    moreVoicesTipAndroid:
+      "Tip: For more diverse voices, open your device Settings and look for Accessibility → Text-to-Speech to install additional voice packs.",
+    moreVoicesTipWeb:
+      "Tip: Voice quality and variety depend on your browser and OS. Chrome and Edge on desktop typically offer the most options.",
     exportBoard: "Export (.obf)",
     importBoard: "Import (.obf / .obz)",
     importBoardError: "Could not import board. Please select a valid .obf or .obz file.",
@@ -307,7 +309,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportFormatNone: "Select at least one board to export.",
     exportFormatOBF: "1 board selected → will download as .obf",
     exportFormatOBZ: "2+ boards selected → will download as .obz",
-    importBoardHint: "Import a .obf (single board) or .obz (multiple boards) file. Each board is added as a new board.",
+    importBoardHint:
+      "Import a .obf (single board) or .obz (multiple boards) file. Each board is added as a new board.",
     importSuccess: "Imported {{count}} board(s) successfully.",
     importedBoard: "Imported Board",
     selectAll: "Select all",
@@ -339,7 +342,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     layoutTabsTop: "Tabs on top, speech at bottom",
     layoutSpeechTop: "Speech on top, tabs below",
     typeToSearch: "Type words… (space to chip)",
-    addWordToBoard: "Add \"{{word}}\" to board",
+    addWordToBoard: 'Add "{{word}}" to board',
     addToSentence: "Add to sentence",
     settingsTabSpeech: "Speech",
     settingsTabDisplay: "Display",
@@ -452,13 +455,15 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     save: "Guardar",
     close: "Cerrar",
     skipToMain: "Saltar al contenido principal",
-    noCustomTiles: "Aún no hay fichas. Toca \"+ Agregar palabra\" para crear una.",
+    noCustomTiles: 'Aún no hay fichas. Toca "+ Agregar palabra" para crear una.',
     voiceFilterLabel: "Filtrar voces",
     voiceFilterPlaceholder: "Buscar por nombre o idioma…",
     voiceFilterNoMatch: "Ninguna voz coincide con tu búsqueda.",
     onlineVoiceSuffix: "(En línea)",
-    moreVoicesTipAndroid: "Consejo: Para más voces, abre Ajustes en tu dispositivo y busca Accesibilidad → Texto a voz para instalar paquetes de voces adicionales.",
-    moreVoicesTipWeb: "Consejo: La calidad y variedad de voces dependen de tu navegador y sistema operativo. Chrome y Edge en escritorio suelen ofrecer más opciones.",
+    moreVoicesTipAndroid:
+      "Consejo: Para más voces, abre Ajustes en tu dispositivo y busca Accesibilidad → Texto a voz para instalar paquetes de voces adicionales.",
+    moreVoicesTipWeb:
+      "Consejo: La calidad y variedad de voces dependen de tu navegador y sistema operativo. Chrome y Edge en escritorio suelen ofrecer más opciones.",
     exportBoard: "Exportar (.obf)",
     importBoard: "Importar (.obf / .obz)",
     importBoardError: "No se pudo importar el tablero. Selecciona un archivo .obf o .obz válido.",
@@ -481,7 +486,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportFormatNone: "Selecciona al menos un tablero para exportar.",
     exportFormatOBF: "1 tablero seleccionado → se descargará como .obf",
     exportFormatOBZ: "2+ tableros seleccionados → se descargará como .obz",
-    importBoardHint: "Importa un archivo .obf (un tablero) o .obz (varios tableros). Cada tablero se añade como un nuevo tablero.",
+    importBoardHint:
+      "Importa un archivo .obf (un tablero) o .obz (varios tableros). Cada tablero se añade como un nuevo tablero.",
     importSuccess: "Se importaron {{count}} tablero(s) correctamente.",
     importedBoard: "Tablero importado",
     selectAll: "Seleccionar todo",
@@ -513,7 +519,7 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     layoutTabsTop: "Pestañas arriba, voz abajo",
     layoutSpeechTop: "Voz arriba, pestañas abajo",
     typeToSearch: "Escribe palabras… (espacio para chip)",
-    addWordToBoard: "Agregar \"{{word}}\" al tablero",
+    addWordToBoard: 'Agregar "{{word}}" al tablero',
     addToSentence: "Agregar a la frase",
     settingsTabSpeech: "Voz",
     settingsTabDisplay: "Pantalla",
@@ -553,7 +559,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     symbolGrid: "Grille de symboles",
     closeSettings: "Fermer les paramètres",
     voice: "Voix",
-    noVoices: "Aucune voix disponible : votre navigateur ne prend peut-être pas en charge la synthèse vocale.",
+    noVoices:
+      "Aucune voix disponible : votre navigateur ne prend peut-être pas en charge la synthèse vocale.",
     defaultVoice: "Voix par défaut",
     vocalStyle: "Style vocal (traditionnel)",
     customNatural: "Personnalisé / Naturel",
@@ -626,16 +633,20 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     save: "Enregistrer",
     close: "Fermer",
     skipToMain: "Passer au contenu principal",
-    noCustomTiles: "Aucune fiche pour l'instant. Appuyez sur \"+ Ajouter un mot\" pour en créer une.",
+    noCustomTiles:
+      'Aucune fiche pour l\'instant. Appuyez sur "+ Ajouter un mot" pour en créer une.',
     voiceFilterLabel: "Filtrer les voix",
     voiceFilterPlaceholder: "Rechercher par nom ou langue…",
     voiceFilterNoMatch: "Aucune voix ne correspond à votre recherche.",
     onlineVoiceSuffix: "(En ligne)",
-    moreVoicesTipAndroid: "Conseil : Pour plus de voix, ouvrez les Paramètres de votre appareil et cherchez Accessibilité → Synthèse vocale pour installer des packs de voix supplémentaires.",
-    moreVoicesTipWeb: "Conseil : La qualité et la variété des voix dépendent de votre navigateur et de votre système d'exploitation. Chrome et Edge sur ordinateur offrent généralement le plus d'options.",
+    moreVoicesTipAndroid:
+      "Conseil : Pour plus de voix, ouvrez les Paramètres de votre appareil et cherchez Accessibilité → Synthèse vocale pour installer des packs de voix supplémentaires.",
+    moreVoicesTipWeb:
+      "Conseil : La qualité et la variété des voix dépendent de votre navigateur et de votre système d'exploitation. Chrome et Edge sur ordinateur offrent généralement le plus d'options.",
     exportBoard: "Exporter (.obf)",
     importBoard: "Importer (.obf / .obz)",
-    importBoardError: "Impossible d'importer le tableau. Sélectionnez un fichier .obf ou .obz valide.",
+    importBoardError:
+      "Impossible d'importer le tableau. Sélectionnez un fichier .obf ou .obz valide.",
     manageBoards: "Gérer les tableaux",
     newBoard: "Nouveau tableau",
     boardName: "Nom du tableau",
@@ -655,7 +666,8 @@ const UI_STRINGS: Record<Language, Record<UiStringKey, string>> = {
     exportFormatNone: "Sélectionnez au moins un tableau à exporter.",
     exportFormatOBF: "1 tableau sélectionné → téléchargement en .obf",
     exportFormatOBZ: "2+ tableaux sélectionnés → téléchargement en .obz",
-    importBoardHint: "Importez un fichier .obf (un tableau) ou .obz (plusieurs tableaux). Chaque tableau est ajouté comme un nouveau tableau.",
+    importBoardHint:
+      "Importez un fichier .obf (un tableau) ou .obz (plusieurs tableaux). Chaque tableau est ajouté comme un nouveau tableau.",
     importSuccess: "{{count}} tableau(x) importé(s) avec succès.",
     importedBoard: "Tableau importé",
     selectAll: "Tout sélectionner",
@@ -804,13 +816,13 @@ const SYMBOL_LABELS: Record<Language, Record<string, string>> = {
 export function t(
   language: Language,
   key: UiStringKey,
-  variables?: Record<string, string | number>
+  variables?: Record<string, string | number>,
 ): string {
   const template = UI_STRINGS[language][key] ?? UI_STRINGS.en[key];
   if (!variables) return template;
   return Object.entries(variables).reduce(
     (result, [name, value]) => result.replaceAll(`{{${name}}}`, String(value)),
-    template
+    template,
   );
 }
 

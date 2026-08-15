@@ -64,5 +64,13 @@ export function IconVisual({ value, className, iconColor }: IconVisualProps) {
     );
   }
 
-  return <span className={className} aria-hidden="true" style={iconColor ? { color: iconColor } : undefined}>{value}</span>;
+  return (
+    <span
+      className={className}
+      aria-hidden="true"
+      style={iconColor ? { color: iconColor } : undefined}
+    >
+      {value}
+    </span>
+  );
 }

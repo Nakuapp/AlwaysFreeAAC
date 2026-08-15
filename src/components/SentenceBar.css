@@ -52,7 +52,9 @@
   cursor: pointer;
   color: #fff;
   flex-shrink: 0;
-  transition: background 0.1s ease, opacity 0.1s ease;
+  transition:
+    background 0.1s ease,
+    opacity 0.1s ease;
   opacity: 0.7;
 }
 
@@ -241,15 +243,17 @@
   padding: 0.2rem 0.35rem;
   background: none;
   border: none;
-  border-left: 1px solid rgba(0,0,0,0.12);
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
   cursor: pointer;
   color: var(--text-muted);
   border-radius: 0 20px 20px 0;
-  transition: background 0.1s ease, color 0.1s ease;
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
 }
 
 .sentence-bar__chip-remove:hover {
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--text-primary);
 }
 
@@ -300,7 +304,9 @@
   font-weight: 700;
   cursor: pointer;
   min-width: 60px;
-  transition: filter 0.1s ease, transform 0.1s ease;
+  transition:
+    filter 0.1s ease,
+    transform 0.1s ease;
   color: #fff;
   flex: 1;
 }

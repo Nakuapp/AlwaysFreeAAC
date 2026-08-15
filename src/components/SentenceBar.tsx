@@ -53,13 +53,16 @@ export function SentenceBar({
   const symbols = useMemo(() => allSymbols ?? [], [allSymbols]);
 
   /** Commit the current inputValue as a chip (called on Space / Enter) */
-  const commitWord = useCallback((word: string) => {
-    const trimmed = word.trim();
-    if (!trimmed) return;
-    const matchedSymbol = findMatchingSymbol(trimmed, symbols);
-    setChips((prev) => [...prev, { word: trimmed, matchedSymbol }]);
-    setInputValue("");
-  }, [symbols]);
+  const commitWord = useCallback(
+    (word: string) => {
+      const trimmed = word.trim();
+      if (!trimmed) return;
+      const matchedSymbol = findMatchingSymbol(trimmed, symbols);
+      setChips((prev) => [...prev, { word: trimmed, matchedSymbol }]);
+      setInputValue("");
+    },
+    [symbols],
+  );
 
   function handleInputKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === " " || e.key === "Enter") {
@@ -134,7 +137,9 @@ export function SentenceBar({
         >
           {sentence.length === 0 && !hasChips && !hasInput ? (
             <li className="sentence-bar__placeholder-item">
-              <span className="sentence-bar__placeholder">{t(language, "sentencePlaceholder")}</span>
+              <span className="sentence-bar__placeholder">
+                {t(language, "sentencePlaceholder")}
+              </span>
             </li>
           ) : (
             sentence.map((sym, idx) => (
@@ -155,7 +160,11 @@ export function SentenceBar({
                     onClick={() => onRemoveWord(idx)}
                     aria-label={`Remove ${sym.label}`}
                   >
-                    <X className="sentence-bar__word-remove-icon" aria-hidden="true" focusable="false" />
+                    <X
+                      className="sentence-bar__word-remove-icon"
+                      aria-hidden="true"
+                      focusable="false"
+                    />
                   </button>
                 )}
               </li>
@@ -179,11 +188,17 @@ export function SentenceBar({
                 <button
                   type="button"
                   className="sentence-bar__chip-add-btn"
-                  onClick={(e) => { e.stopPropagation(); handleChipClick(chip); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleChipClick(chip);
+                  }}
                   title={t(language, "addToSentence")}
                   aria-label={`${t(language, "addToSentence")}: ${chip.matchedSymbol.label}`}
                 >
-                  <IconVisual value={chip.matchedSymbol.emoji} className="sentence-bar__chip-icon" />
+                  <IconVisual
+                    value={chip.matchedSymbol.emoji}
+                    className="sentence-bar__chip-icon"
+                  />
                   <span className="sentence-bar__chip-label">{chip.word}</span>
                 </button>
               ) : (
@@ -193,11 +208,18 @@ export function SentenceBar({
                     <button
                       type="button"
                       className="sentence-bar__chip-new-btn"
-                      onClick={(e) => { e.stopPropagation(); handleChipAddToBoard(chip); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChipAddToBoard(chip);
+                      }}
                       title={t(language, "addWordToBoard", { word: chip.word })}
                       aria-label={t(language, "addWordToBoard", { word: chip.word })}
                     >
-                      <Plus className="sentence-bar__chip-new-icon" aria-hidden="true" focusable="false" />
+                      <Plus
+                        className="sentence-bar__chip-new-icon"
+                        aria-hidden="true"
+                        focusable="false"
+                      />
                     </button>
                   )}
                 </>
@@ -205,10 +227,17 @@ export function SentenceBar({
               <button
                 type="button"
                 className="sentence-bar__chip-remove"
-                onClick={(e) => { e.stopPropagation(); handleRemoveChip(chip); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveChip(chip);
+                }}
                 aria-label={`Remove ${chip.word}`}
               >
-                <X className="sentence-bar__chip-remove-icon" aria-hidden="true" focusable="false" />
+                <X
+                  className="sentence-bar__chip-remove-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
               </button>
             </span>
           ))}

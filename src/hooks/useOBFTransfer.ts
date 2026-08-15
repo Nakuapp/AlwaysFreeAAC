@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { Category } from "../data/vocabulary";
-import type { UserBoard } from "../App";
+import type { UserBoard } from "../domain/models";
 import { t, type Language } from "../i18n";
 import {
   exportCategoryToOBF,
@@ -99,8 +99,7 @@ export function useOBFTransfer({ items, language, onImport }: UseOBFTransferOpti
     if (!file) return;
     setImportStatus("idle");
     try {
-      const isOBZ =
-        file.name.toLowerCase().endsWith(".obz") || file.type === "application/zip";
+      const isOBZ = file.name.toLowerCase().endsWith(".obz") || file.type === "application/zip";
       const imported = isOBZ ? await readOBZFile(file) : [await readOBFFile(file)];
       const importedBoards = imported
         .map((board) => obfBoardToUserBoard(board, language))

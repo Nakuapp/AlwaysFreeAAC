@@ -69,7 +69,9 @@ export function SymbolButton({
   moveBackwardAriaLabel,
   moveForwardAriaLabel,
 }: SymbolButtonProps) {
-  const bg = symbol.color ? (COLOR_MAP[symbol.color] ?? "var(--color-default)") : "var(--color-default)";
+  const bg = symbol.color
+    ? (COLOR_MAP[symbol.color] ?? "var(--color-default)")
+    : "var(--color-default)";
   const iconColor = symbol.iconColor ? (ICON_COLOR_HEX[symbol.iconColor] ?? undefined) : undefined;
 
   const wrapperStyle: CSSProperties = {};
@@ -100,14 +102,22 @@ export function SymbolButton({
     >
       {isDraggable && (
         <span className="symbol-btn__drag-handle" aria-hidden="true">
-          <GripVertical className="symbol-btn__drag-handle-icon" aria-hidden="true" focusable="false" />
+          <GripVertical
+            className="symbol-btn__drag-handle-icon"
+            aria-hidden="true"
+            focusable="false"
+          />
         </span>
       )}
       <button
         className={`symbol-btn symbol-btn--${size}${onEdit ? " symbol-btn--editable" : ""}${symbol.backgroundImage ? " symbol-btn--has-bg-image" : ""}`}
         style={btnStyle}
-        onClick={() => onEdit ? onEdit(symbol) : onClick(symbol)}
-        aria-label={onEdit ? (editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`) : (symbol.speak ?? symbol.label)}
+        onClick={() => (onEdit ? onEdit(symbol) : onClick(symbol))}
+        aria-label={
+          onEdit
+            ? (editAriaLabel?.(symbol) ?? `Edit ${symbol.label}`)
+            : (symbol.speak ?? symbol.label)
+        }
         disabled={disabled && !onEdit}
         type="button"
       >
@@ -116,7 +126,11 @@ export function SymbolButton({
         <span className="symbol-btn__label">{symbol.label}</span>
         {onEdit && (
           <span className="symbol-btn__edit-overlay" aria-hidden="true">
-            <Pencil className="symbol-btn__edit-overlay-icon" aria-hidden="true" focusable="false" />
+            <Pencil
+              className="symbol-btn__edit-overlay-icon"
+              aria-hidden="true"
+              focusable="false"
+            />
           </span>
         )}
       </button>
@@ -150,7 +164,11 @@ export function SymbolButton({
               onClick={onMoveForward}
               aria-label={moveForwardAriaLabel?.(symbol) ?? `Move ${symbol.label} right`}
             >
-              <ChevronRight className="symbol-btn__move-icon" aria-hidden="true" focusable="false" />
+              <ChevronRight
+                className="symbol-btn__move-icon"
+                aria-hidden="true"
+                focusable="false"
+              />
             </button>
           )}
         </div>

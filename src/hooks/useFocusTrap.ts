@@ -14,19 +14,14 @@ const FOCUSABLE_SELECTORS = [
   "details > summary",
 ].join(", ");
 
-export function useFocusTrap(
-  containerRef: RefObject<HTMLElement | null>,
-  active = true
-) {
+export function useFocusTrap(containerRef: RefObject<HTMLElement | null>, active = true) {
   useEffect(() => {
     if (!active) return;
     const container = containerRef.current;
     if (!container) return;
 
     function getFocusable(): HTMLElement[] {
-      return Array.from(
-        container!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)
-      );
+      return Array.from(container!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS));
     }
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -36,18 +31,12 @@ export function useFocusTrap(
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (e.shiftKey) {
-        if (
-          document.activeElement === first ||
-          !container!.contains(document.activeElement)
-        ) {
+        if (document.activeElement === first || !container!.contains(document.activeElement)) {
           e.preventDefault();
           last.focus();
         }
       } else {
-        if (
-          document.activeElement === last ||
-          !container!.contains(document.activeElement)
-        ) {
+        if (document.activeElement === last || !container!.contains(document.activeElement)) {
           e.preventDefault();
           first.focus();
         }

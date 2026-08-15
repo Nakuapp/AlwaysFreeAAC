@@ -38,13 +38,13 @@
   --bg-subtle: #eef1f6;
   --border-light: #e2e6ed;
   --border-soft: #d0d7e3;
-  --border-medium: #9ba8ba;   /* ≥3:1 on #fff — meets WCAG non-text contrast */
-  --text-primary: #0f172a;    /* 16.75:1 on white */
-  --text-secondary: #334155;  /* 9.7:1 on white */
-  --text-muted: #64748b;      /* 4.6:1 on white — meets AA for large text */
+  --border-medium: #9ba8ba; /* ≥3:1 on #fff — meets WCAG non-text contrast */
+  --text-primary: #0f172a; /* 16.75:1 on white */
+  --text-secondary: #334155; /* 9.7:1 on white */
+  --text-muted: #64748b; /* 4.6:1 on white — meets AA for large text */
 
   /* Primary accent — blue by default, overridden by data-accent */
-  --primary: #1d4ed8;         /* 5.9:1 on white — AA */
+  --primary: #1d4ed8; /* 5.9:1 on white — AA */
   --primary-hover: #1e40af;
   --primary-text: #ffffff;
   --header-bg: #1d4ed8;
@@ -108,9 +108,9 @@
   --border-soft: #2a3a50;
   --border-medium: #3d5068;
 
-  --text-primary: #f1f5f9;    /* ~14:1 on #0b0f14 */
-  --text-secondary: #cbd5e1;  /* ~10:1 */
-  --text-muted: #94a3b8;      /* ~5.2:1 — AA */
+  --text-primary: #f1f5f9; /* ~14:1 on #0b0f14 */
+  --text-secondary: #cbd5e1; /* ~10:1 */
+  --text-muted: #94a3b8; /* ~5.2:1 — AA */
 }
 
 /* ── Dark accent overrides ──────────────────────────────────── */

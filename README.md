@@ -49,8 +49,8 @@ Download the latest web zip, Android Play Store bundle (`.aab`), and iOS App Sto
 
 1. **Run** the `Test Mobile Builds` workflow with `platform=android` (or `both`) and download the `alwaysfreeaac-*-android-debug.apk` artifact.
 2. **Enable unknown sources.** The exact path varies by manufacturer and Android version:
-   - Android 8+: *Settings → Apps → Special app access → Install unknown apps*, then select the app you'll use to open the APK (e.g. Chrome or Files).
-   - Older Android: *Settings → Security → Unknown sources*.
+   - Android 8+: _Settings → Apps → Special app access → Install unknown apps_, then select the app you'll use to open the APK (e.g. Chrome or Files).
+   - Older Android: _Settings → Security → Unknown sources_.
 3. **Open the APK** file from your downloads and tap **Install**.
 4. If prompted about Play Protect, tap **Install anyway** (the APK is a debug build signed with a local key, not the Play Store).
 
@@ -75,7 +75,7 @@ iOS requires every app to be code-signed before it can be installed on a device.
 1. Download [Sideloadly](https://sideloadly.io) for your computer.
 2. Connect your iPhone/iPad via USB.
 3. Drop the test-build IPA onto the Sideloadly window, enter your Apple ID, and click **Start**.
-4. Trust the developer certificate on your device: *Settings → General → VPN & Device Management → [your Apple ID] → Trust*.
+4. Trust the developer certificate on your device: _Settings → General → VPN & Device Management → [your Apple ID] → Trust_.
 5. Same 7-day certificate limit applies — re-run Sideloadly to refresh.
 
 ### Option C — Xcode (Mac + Apple Developer account)
@@ -96,7 +96,7 @@ Want to host your own copy? The app is a fully static PWA — no server or datab
 
 1. Fork this repository on GitHub.
 2. Go to **Settings → Pages** in your forked repository.
-3. Under *Source*, select **GitHub Actions**.
+3. Under _Source_, select **GitHub Actions**.
 4. The workflow runs automatically on every push to `main` and publishes the app to `https://<your-username>.github.io/AlwaysFreeAAC/`.
 
 The workflow automatically sets the correct base URL for the deployment.
@@ -148,16 +148,16 @@ npx cap sync
 
 ## Tech Stack
 
-| Layer       | Technology                  |
-|-------------|-----------------------------|
-| Framework   | React 19 + TypeScript       |
-| Runtime     | Capacitor 8 (Android + iOS) |
-| Bundler     | Vite 8                      |
-| Speech      | @capgo/capacitor-speech-synthesis + Web Speech fallback |
-| Icons       | lucide-react + custom picker |
-| Styling     | Plain CSS                   |
-| Linter      | oxlint                      |
-| PWA         | vite-plugin-pwa             |
+| Layer     | Technology                                              |
+| --------- | ------------------------------------------------------- |
+| Framework | React 19 + TypeScript                                   |
+| Runtime   | Capacitor 8 (Android + iOS)                             |
+| Bundler   | Vite 8                                                  |
+| Speech    | @capgo/capacitor-speech-synthesis + Web Speech fallback |
+| Icons     | lucide-react + custom picker                            |
+| Styling   | Plain CSS                                               |
+| Linter    | oxlint                                                  |
+| PWA       | vite-plugin-pwa                                         |
 
 ---
 

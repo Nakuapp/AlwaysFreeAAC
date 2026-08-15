@@ -70,7 +70,7 @@ export function SymbolGrid({
 
       const fittedColumns = Math.max(
         1,
-        Math.floor((availableWidth + GRID_GAP_PX) / (minColumnWidth + GRID_GAP_PX))
+        Math.floor((availableWidth + GRID_GAP_PX) / (minColumnWidth + GRID_GAP_PX)),
       );
 
       setGridColumns(Math.min(preferredColumns, fittedColumns));

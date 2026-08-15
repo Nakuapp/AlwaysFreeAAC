@@ -179,9 +179,7 @@ export async function readOBFFile(file: File): Promise<OBFBoard> {
           typeof parsed !== "object" ||
           parsed === null ||
           typeof (parsed as Record<string, unknown>).format !== "string" ||
-          !(
-            (parsed as Record<string, unknown>).format as string
-          ).startsWith("open-board")
+          !((parsed as Record<string, unknown>).format as string).startsWith("open-board")
         ) {
           reject(new Error("Not a valid OBF file"));
           return;
@@ -203,7 +201,7 @@ export function importOBFToSymbols(board: OBFBoard): Symbol[] {
   const imageMap = new Map<string, OBFImage>(
     images
       .filter((img): img is OBFImage & { id: string } => typeof img?.id === "string")
-      .map((img) => [img.id, img])
+      .map((img) => [img.id, img]),
   );
 
   return buttons
@@ -274,9 +272,7 @@ function asString(value: unknown): string | undefined {
 
 function asImageMimeType(value: unknown): string | undefined {
   const mimeType = asString(value)?.trim().toLowerCase();
-  return mimeType && /^image\/[a-z0-9.+-]+$/.test(mimeType)
-    ? mimeType
-    : undefined;
+  return mimeType && /^image\/[a-z0-9.+-]+$/.test(mimeType) ? mimeType : undefined;
 }
 
 /**
@@ -285,7 +281,7 @@ function asImageMimeType(value: unknown): string | undefined {
  */
 export async function exportCategoriesToOBZ(
   categories: Category[],
-  locale = "en"
+  locale = "en",
 ): Promise<{ blob: Blob; filename: string }> {
   const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
@@ -339,9 +335,7 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
   const manifestFile = zip.file("manifest.json");
   if (!manifestFile) throw new Error("OBZ has no manifest.json");
 
-  const manifest = JSON.parse(
-    await manifestFile.async("string")
-  ) as OBZManifest;
+  const manifest = JSON.parse(await manifestFile.async("string")) as OBZManifest;
 
   if (!manifest.paths?.boards) {
     throw new Error("OBZ manifest has no boards paths");
@@ -401,9 +395,7 @@ export async function readOBZFile(file: File): Promise<OBFBoard[]> {
       if (!imgFile) continue;
 
       const contentType =
-        asImageMimeType(img.content_type) ??
-        inferImageMimeType(imgPath) ??
-        "image/png";
+        asImageMimeType(img.content_type) ?? inferImageMimeType(imgPath) ?? "image/png";
       const b64 = await imgFile.async("base64");
       img.data = `data:${contentType};base64,${b64}`;
       // Clear the relative URL now that we've inlined the data

@@ -9,21 +9,21 @@
  * Screenshots are written to screenshots/ in the project root.
  */
 
-import { chromium } from 'playwright';
-import { mkdir } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { chromium } from "playwright";
+import { mkdir } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-const BASE_URL = process.argv[2] ?? 'http://127.0.0.1:4173';
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'screenshots');
+const BASE_URL = process.argv[2] ?? "http://127.0.0.1:4173";
+const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "screenshots");
 
 const VIEWPORTS = [
   // 7-inch tablet — portrait and landscape
-  { label: '7in-portrait',  width:  800, height: 1280 },
-  { label: '7in-landscape', width: 1280, height:  800 },
+  { label: "7in-portrait", width: 800, height: 1280 },
+  { label: "7in-landscape", width: 1280, height: 800 },
   // 10-inch tablet — portrait and landscape
-  { label: '10in-portrait',  width: 1200, height: 1920 },
-  { label: '10in-landscape', width: 1920, height: 1200 },
+  { label: "10in-portrait", width: 1200, height: 1920 },
+  { label: "10in-landscape", width: 1920, height: 1200 },
 ];
 
 async function run() {
@@ -35,8 +35,8 @@ async function run() {
       const page = await browser.newPage({ viewport: { width, height } });
       try {
         // Wait for the app shell to render before capturing.
-        await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-        await page.waitForSelector('.app-header', { state: 'visible' });
+        await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
+        await page.waitForSelector(".app-header", { state: "visible" });
 
         const file = join(OUT_DIR, `screenshot-${label}.png`);
         await page.screenshot({ path: file, fullPage: false });
