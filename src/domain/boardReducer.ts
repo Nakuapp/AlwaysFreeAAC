@@ -65,6 +65,8 @@ export function boardReducer(boards: UserBoard[], action: BoardAction): UserBoar
         symbols.splice(action.toIndex, 0, moved);
         return { ...board, symbols };
       });
+    default:
+      return boards;
   }
 }
 

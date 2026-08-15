@@ -231,8 +231,12 @@ export async function cleanupUnreferencedMedia(boards: UserBoard[]): Promise<voi
     for (const tile of board.symbols) {
       for (const value of [tile.emoji, tile.backgroundImage, tile.soundFile]) {
         if (!value) continue;
-        const key = referenceKey(value);
-        if (key) referencedKeys.add(key);
+        try {
+          const key = referenceKey(value);
+          if (key) referencedKeys.add(key);
+        } catch {
+          // Ignore invalid media references during cleanup.
+        }
       }
     }
   }
