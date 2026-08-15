@@ -63,20 +63,19 @@ jobs:
       ANDROID_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
 
-  ios:
-    if: false
-    name: Build iOS Artifact
-    needs: prepare
-    uses: ./.github/workflows/ios.yml
-    with:
-      version: ${{ needs.prepare.outputs.release_tag }}
-      artifact_type: ${{ inputs.build_store_bundles && 'app_store_ipa' || 'sideload_ipa' }}
-    secrets:
-      IOS_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE_P12_BASE64 }}
-      IOS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
-      IOS_SIGNING_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_SIGNING_PROVISIONING_PROFILE_BASE64 }}
-      IOS_SIGNING_TEAM_ID: ${{ secrets.IOS_SIGNING_TEAM_ID }}
-      IOS_SIGNING_BUNDLE_ID: ${{ secrets.IOS_SIGNING_BUNDLE_ID }}
+  # ios:
+  #   name: Build iOS Artifact
+  #   needs: prepare
+  #   uses: ./.github/workflows/ios.yml
+  #   with:
+  #     version: ${{ needs.prepare.outputs.release_tag }}
+  #     artifact_type: ${{ inputs.build_store_bundles && 'app_store_ipa' || 'sideload_ipa' }}
+  #   secrets:
+  #     IOS_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE_P12_BASE64 }}
+  #     IOS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
+  #     IOS_SIGNING_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_SIGNING_PROVISIONING_PROFILE_BASE64 }}
+  #     IOS_SIGNING_TEAM_ID: ${{ secrets.IOS_SIGNING_TEAM_ID }}
+  #     IOS_SIGNING_BUNDLE_ID: ${{ secrets.IOS_SIGNING_BUNDLE_ID }}
 
   publish:
     name: Publish GitHub Release
@@ -84,7 +83,7 @@ jobs:
       - prepare
       - web
       - android
-      - ios
+      # - ios
     runs-on: ubuntu-latest
     permissions:
       contents: write
