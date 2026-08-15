@@ -9,8 +9,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check:line-endings": "node scripts/check-line-endings.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "lint:staged": "lint-staged --concurrent false",
+    "prepare": "husky",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false",
+    "validate:commit": "node scripts/check-line-endings.mjs --staged && npm run lint:staged",
+    "validate:push": "npm run check:line-endings && npm run format:check && npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
     "@capgo/capacitor-speech-synthesis": "^8.0.19",
@@ -29,8 +37,11 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "oxlint": "^1.69.0",
     "playwright": "^1.61.1",
+    "prettier": "^3.9.6",
     "typescript": "~6.0.2",
     "vite": "^8.1.0",
     "vite-plugin-pwa": "^1.3.0"

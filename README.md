@@ -49,8 +49,8 @@ Download the latest web zip, Android Play Store bundle (`.aab`), and iOS App Sto
 
 1. **Run** the `Test Mobile Builds` workflow with `platform=android` (or `both`) and download the `alwaysfreeaac-*-android-debug.apk` artifact.
 2. **Enable unknown sources.** The exact path varies by manufacturer and Android version:
-   - Android 8+: *Settings → Apps → Special app access → Install unknown apps*, then select the app you'll use to open the APK (e.g. Chrome or Files).
-   - Older Android: *Settings → Security → Unknown sources*.
+   - Android 8+: _Settings → Apps → Special app access → Install unknown apps_, then select the app you'll use to open the APK (e.g. Chrome or Files).
+   - Older Android: _Settings → Security → Unknown sources_.
 3. **Open the APK** file from your downloads and tap **Install**.
 4. If prompted about Play Protect, tap **Install anyway** (the APK is a debug build signed with a local key, not the Play Store).
 
@@ -75,7 +75,7 @@ iOS requires every app to be code-signed before it can be installed on a device.
 1. Download [Sideloadly](https://sideloadly.io) for your computer.
 2. Connect your iPhone/iPad via USB.
 3. Drop the test-build IPA onto the Sideloadly window, enter your Apple ID, and click **Start**.
-4. Trust the developer certificate on your device: *Settings → General → VPN & Device Management → [your Apple ID] → Trust*.
+4. Trust the developer certificate on your device: _Settings → General → VPN & Device Management → [your Apple ID] → Trust_.
 5. Same 7-day certificate limit applies — re-run Sideloadly to refresh.
 
 ### Option C — Xcode (Mac + Apple Developer account)
@@ -96,7 +96,7 @@ Want to host your own copy? The app is a fully static PWA — no server or datab
 
 1. Fork this repository on GitHub.
 2. Go to **Settings → Pages** in your forked repository.
-3. Under *Source*, select **GitHub Actions**.
+3. Under _Source_, select **GitHub Actions**.
 4. The workflow runs automatically on every push to `main` and publishes the app to `https://<your-username>.github.io/AlwaysFreeAAC/`.
 
 The workflow automatically sets the correct base URL for the deployment.
@@ -134,7 +134,8 @@ To generate a branch-specific test build without publishing a release, run the `
 ## App Logo & Native App Icons
 
 - Brand source icon: `resources/icon.png` (1024×1024)
-- Web icons: `public/logo-300.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
+- Web brand images: `public/brand/logo-150.png`, `public/brand/logo-300.png`
+- PWA icons: `public/icons/app-icon-192.png`, `public/icons/app-icon-512.png`
 - Android/iOS launch icons are generated in CI with `@capacitor/assets` during Android and iOS workflows.
 
 To regenerate native icons locally (after `npx cap add android` / `npx cap add ios`):
@@ -148,16 +149,16 @@ npx cap sync
 
 ## Tech Stack
 
-| Layer       | Technology                  |
-|-------------|-----------------------------|
-| Framework   | React 19 + TypeScript       |
-| Runtime     | Capacitor 8 (Android + iOS) |
-| Bundler     | Vite 8                      |
-| Speech      | @capgo/capacitor-speech-synthesis + Web Speech fallback |
-| Icons       | lucide-react + custom picker |
-| Styling     | Plain CSS                   |
-| Linter      | oxlint                      |
-| PWA         | vite-plugin-pwa             |
+| Layer     | Technology                                              |
+| --------- | ------------------------------------------------------- |
+| Framework | React 19 + TypeScript                                   |
+| Runtime   | Capacitor 8 (Android + iOS)                             |
+| Bundler   | Vite 8                                                  |
+| Speech    | @capgo/capacitor-speech-synthesis + Web Speech fallback |
+| Icons     | lucide-react + custom picker                            |
+| Styling   | Plain CSS                                               |
+| Linter    | oxlint                                                  |
+| PWA       | vite-plugin-pwa                                         |
 
 ---
 
@@ -165,38 +166,31 @@ npx cap sync
 
 ```
 src/
-├── assets/               # Static assets bundled by Vite
+├── app/                  # App composition root, shell styles, dialogs, notifications, focus restore
 ├── components/
-│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size, pre-fill from search)
-│   ├── CategoryNav.tsx   # Navigation bar: logo/settings button (fixed left) + scrollable category tabs + manage/import actions
-│   ├── IconVisual.tsx    # Renders icon or image for a tile
-│   ├── Dialog.tsx        # Shared accessible modal shell used by app dialogs
-│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete)
-│   ├── SentenceBar.tsx   # Sentence builder: word chips + keyboard search input with live suggestions + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog with 3 tabs: Speech (voice, style, rate/pitch/volume), Display (theme, layout, grid, text size), App (language)
-│   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
-│   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
-├── data/
-│   └── vocabulary.ts     # Symbol and Category type definitions; app uses user-created boards (default: single welcome board on first launch)
-├── hooks/
-│   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
-│   ├── useRestoreFocus.ts # Capture/restore keyboard focus when dialogs open and close
-│   └── useSpeech.ts      # Native speech + web fallback React hook; derives TTS engine name from voice metadata
-├── utils/
-│   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
-├── colors.ts             # Shared icon-colour hex values (used by SymbolButton & AddTileDialog)
-├── i18n.ts               # Internationalisation strings (en / es / fr); exports Language, Theme, LayoutOrder types
-├── iconUtils.ts          # Lucide icon search and utility helpers
-├── icons.tsx             # Shared Lucide icon registry
-├── tileSize.ts           # Named tile-size constants (xs–xl), column counts, and span helpers
-├── App.tsx               # Root application component
-├── App.css               # App shell styles (layout order CSS using `order` + safe-area insets)
+│   ├── dialog/           # Shared dialog, loading state, and focus trap
+│   ├── feedback/         # Error boundary and notification region
+│   └── icon/             # Shared icon/image renderer
+├── features/
+│   ├── board/            # Board navigation, symbol grid/tiles, and board state
+│   ├── board-manager/    # Board CRUD and OBF/OBZ transfer dialog
+│   ├── sentence/         # Sentence builder UI and state
+│   ├── settings/         # Settings dialog, tabs, and persisted settings state
+│   └── tile-editor/      # Add/edit tile dialog, tabs, options, and form state
+├── domain/               # Models, vocabulary, board reducer, operation results
+├── i18n/                 # Translation facade and en/es/fr locale dictionaries
+├── openboard/            # OBF/OBZ conversion, archive, validation, and file APIs
+├── persistence/          # Settings, boards, media, migrations, and storage adapters
+├── services/             # Browser media APIs
+├── speech/               # Speech hook, drivers, and speech types
+├── ui/                   # Shared colors, icons, icon helpers, and tile sizing
+├── utils/                # General runtime, ID, tab, and voice-label helpers
 ├── main.tsx              # App entry point
 └── index.css             # Global reset + CSS variables
 public/
-├── app-icon-192.png      # PWA icon + browser favicon
-├── app-icon-512.png      # PWA icon + maskable icon
-└── logo-300.png          # Logo shown in CategoryNav (tapping opens Settings)
+├── brand/                # Navigation and error-state brand images
+├── icons/                # PWA icons and browser favicon
+└── privacy-policy.html   # Static privacy policy
 resources/
 └── icon.png              # Source image for native Android/iOS icon generation
 ```

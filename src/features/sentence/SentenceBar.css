@@ -1,0 +1,388 @@
+.sentence-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  background: var(--bg-surface);
+  border-bottom: 3px solid var(--border-soft);
+  padding: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Left column: words + input + suggestions ───────────────── */
+.sentence-bar__left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.sentence-bar__words {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-y: auto;
+  max-height: 80px;
+  padding: 0.25rem;
+  border: 2px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  min-height: 40px;
+  list-style: none;
+}
+
+.sentence-bar__word-item {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.sentence-bar__word-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--header-bg) 75%, transparent);
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  flex-shrink: 0;
+  transition:
+    background 0.1s ease,
+    opacity 0.1s ease;
+  opacity: 0.7;
+}
+
+.sentence-bar__word-item:hover .sentence-bar__word-remove,
+.sentence-bar__word-remove:focus-visible {
+  opacity: 1;
+}
+
+.sentence-bar__word-remove:hover {
+  background: var(--color-red);
+}
+
+.sentence-bar__word-remove:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__word-remove-icon {
+  width: 0.55rem;
+  height: 0.55rem;
+}
+
+.sentence-bar__placeholder {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  padding: 0 0.5rem;
+}
+
+.sentence-bar__word {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: color-mix(in srgb, var(--header-bg) 14%, var(--bg-surface));
+  border: 2px solid color-mix(in srgb, var(--header-bg) 65%, transparent);
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s ease;
+  color: var(--text-primary);
+}
+
+.sentence-bar__word-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.sentence-bar__word-icon--img {
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.sentence-bar__word:hover {
+  background: color-mix(in srgb, var(--header-bg) 22%, var(--bg-surface));
+}
+
+.sentence-bar__word:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+/* ── Chip input area ─────────────────────────────────────────── */
+.sentence-bar__chip-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 36px;
+  padding: 0.25rem 0.4rem;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  cursor: text;
+  transition: border-color 0.15s ease;
+}
+
+.sentence-bar__chip-input:focus-within {
+  border-color: var(--header-bg);
+  background: var(--bg-surface);
+}
+
+/* Individual chips */
+.sentence-bar__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  max-width: 140px;
+  flex-shrink: 0;
+}
+
+.sentence-bar__chip--matched {
+  background: color-mix(in srgb, var(--header-bg) 16%, var(--bg-surface));
+  border: 1.5px solid color-mix(in srgb, var(--header-bg) 55%, transparent);
+  color: var(--text-primary);
+}
+
+.sentence-bar__chip--unmatched {
+  background: var(--bg-subtle);
+  border: 1.5px dashed var(--border-medium);
+  color: var(--text-secondary);
+}
+
+/* Matched chip: clickable part that adds to sentence */
+.sentence-bar__chip-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.4rem 0.2rem 0.35rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 20px 0 0 20px;
+  transition: background 0.1s ease;
+}
+
+.sentence-bar__chip-add-btn:hover {
+  background: color-mix(in srgb, var(--header-bg) 20%, transparent);
+}
+
+.sentence-bar__chip-add-btn:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__chip-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sentence-bar__chip-label {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Unmatched chip label + add-to-board button */
+.sentence-bar__chip--unmatched .sentence-bar__chip-label {
+  padding: 0.2rem 0.35rem 0.2rem 0.5rem;
+}
+
+.sentence-bar__chip-new-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.3rem;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-medium);
+  cursor: pointer;
+  color: var(--header-bg);
+  transition: background 0.1s ease;
+}
+
+.sentence-bar__chip-new-btn:hover {
+  background: color-mix(in srgb, var(--header-bg) 12%, transparent);
+}
+
+.sentence-bar__chip-new-btn:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__chip-new-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Chip remove button */
+.sentence-bar__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.35rem;
+  background: none;
+  border: none;
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 0 20px 20px 0;
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
+}
+
+.sentence-bar__chip-remove:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+}
+
+.sentence-bar__chip-remove:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 1px;
+}
+
+.sentence-bar__chip-remove-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+/* Inline text input inside chip container */
+.sentence-bar__type-input {
+  flex: 1;
+  min-width: 80px;
+  border: none;
+  outline: none;
+  padding: 0.15rem 0.2rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.sentence-bar__type-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Controls ────────────────────────────────────────────────── */
+.sentence-bar__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.sentence-bar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 60px;
+  transition:
+    filter 0.1s ease,
+    transform 0.1s ease;
+  color: #fff;
+  flex: 1;
+}
+
+.sentence-bar__btn-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.sentence-bar__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sentence-bar__btn:not(:disabled):hover {
+  filter: brightness(0.9);
+}
+
+.sentence-bar__btn:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+.sentence-bar__btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.sentence-bar__btn--speak {
+  background: #1a8a3c;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+}
+
+.sentence-bar__btn--backspace {
+  background: #c0392b;
+  font-size: 1.1rem;
+}
+
+.sentence-bar__btn--clear {
+  background: #6c7878;
+  font-size: 1rem;
+}
+
+@media (min-width: 600px) {
+  .sentence-bar {
+    padding: 0.6rem;
+  }
+
+  .sentence-bar__controls {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sentence-bar__btn {
+    flex: unset;
+    height: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .sentence-bar__btn--speak {
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

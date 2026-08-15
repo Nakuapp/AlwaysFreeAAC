@@ -6,6 +6,54 @@
   margin: 0;
   padding: 0;
 }
+.app-error {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+.app-error__logo {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+}
+
+.app-error__title,
+.app-error__message {
+  margin: 0;
+}
+
+.app-error__title {
+  font-size: 1.5rem;
+}
+
+.app-error__message {
+  max-width: 32rem;
+  color: var(--text-secondary);
+}
+
+.app-error__reload {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--header-bg);
+  color: var(--header-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-error__reload:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
 
 /* ── Shared border-radius tokens ────────────────────────────── */
 :root {
@@ -38,13 +86,13 @@
   --bg-subtle: #eef1f6;
   --border-light: #e2e6ed;
   --border-soft: #d0d7e3;
-  --border-medium: #9ba8ba;   /* ≥3:1 on #fff — meets WCAG non-text contrast */
-  --text-primary: #0f172a;    /* 16.75:1 on white */
-  --text-secondary: #334155;  /* 9.7:1 on white */
-  --text-muted: #64748b;      /* 4.6:1 on white — meets AA for large text */
+  --border-medium: #9ba8ba; /* ≥3:1 on #fff — meets WCAG non-text contrast */
+  --text-primary: #0f172a; /* 16.75:1 on white */
+  --text-secondary: #334155; /* 9.7:1 on white */
+  --text-muted: #64748b; /* 4.6:1 on white — meets AA for large text */
 
   /* Primary accent — blue by default, overridden by data-accent */
-  --primary: #1d4ed8;         /* 5.9:1 on white — AA */
+  --primary: #1d4ed8; /* 5.9:1 on white — AA */
   --primary-hover: #1e40af;
   --primary-text: #ffffff;
   --header-bg: #1d4ed8;
@@ -108,9 +156,9 @@
   --border-soft: #2a3a50;
   --border-medium: #3d5068;
 
-  --text-primary: #f1f5f9;    /* ~14:1 on #0b0f14 */
-  --text-secondary: #cbd5e1;  /* ~10:1 */
-  --text-muted: #94a3b8;      /* ~5.2:1 — AA */
+  --text-primary: #f1f5f9; /* ~14:1 on #0b0f14 */
+  --text-secondary: #cbd5e1; /* ~10:1 */
+  --text-muted: #94a3b8; /* ~5.2:1 — AA */
 }
 
 /* ── Dark accent overrides ──────────────────────────────────── */

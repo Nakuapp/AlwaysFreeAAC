@@ -1,0 +1,466 @@
+/* ── Dialog shell overrides for Settings ── */
+
+/* Title with icon alignment (overrides Dialog default) */
+.settings-panel .dialog-panel__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.2rem;
+}
+
+.settings-panel__title-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Body: no padding — tabpanels handle their own */
+.settings-panel__body {
+  padding: 0;
+}
+
+/* Larger icons in Settings tabs vs the shared 1rem default */
+.settings-panel .dialog-tab__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ── Panel body ── */
+
+.settings-tabpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem 1.25rem;
+}
+
+.settings-tabpanel[hidden] {
+  display: none;
+}
+
+/* ── Fields ── */
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.settings-field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.settings-field__label--subtle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.settings-field__label-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+.settings-field__select {
+  padding: 0.5rem;
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.settings-field__select:focus {
+  outline: 3px solid var(--button-focus);
+  border-color: var(--button-focus);
+}
+
+.settings-field__range {
+  width: 100%;
+  accent-color: var(--header-bg);
+  cursor: pointer;
+  height: 6px;
+}
+
+.settings-field__range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.settings-field__hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Voice row: voice select + preview button side-by-side */
+.settings-field__voice-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.settings-field__select--inline {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-field__search {
+  padding: 0.5rem;
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-field__search--inline {
+  flex: 1;
+  width: auto;
+}
+
+.settings-field__search:focus {
+  outline: 3px solid var(--button-focus);
+  border-color: var(--button-focus);
+}
+
+.settings-field__tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.settings-field__tip-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+.settings-field__preview-btn {
+  flex-shrink: 0;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 0 0.7rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  color: var(--text-primary);
+}
+
+.settings-field__preview-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.settings-field__preview-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+}
+
+.settings-field__preview-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+/* ── Tile size picker ── */
+.settings-tile-size-picker {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.settings-tile-size-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.2rem;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+  color: var(--text-secondary);
+}
+
+.settings-tile-size-btn:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+}
+
+.settings-tile-size-btn--active {
+  background: var(--header-bg);
+  border-color: var(--header-bg);
+  color: var(--header-text);
+}
+
+.settings-tile-size-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.settings-tile-size-btn__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.settings-tile-size-btn__hint {
+  font-size: 0.68rem;
+  opacity: 0.75;
+}
+
+/* Toggle button group (e.g. sentence builder on/off) */
+.settings-toggle-group {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.settings-toggle-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid var(--border-medium);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.settings-toggle-btn--active {
+  background: var(--header-bg);
+  border-color: var(--header-bg);
+  color: var(--header-text);
+}
+
+.settings-toggle-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.settings-field__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0.15rem 0 0;
+}
+
+/* ── Accent color picker ─────────────────────────────────────── */
+.settings-accent-picker {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+}
+
+.settings-accent-swatch {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background: var(--swatch-color);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.settings-accent-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.settings-accent-swatch--active {
+  border-color: var(--text-primary);
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 2px var(--bg-surface),
+    0 0 0 4px var(--swatch-color);
+}
+
+.settings-accent-swatch:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 3px;
+}
+
+/* ── Boards tab ─────────────────────────────────────────────── */
+.settings-boards-section {
+  padding: 0 0 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.settings-boards-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-boards-section__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem;
+}
+
+.settings-boards-section__icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.settings-boards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-board-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.settings-board-row:hover {
+  background: var(--bg-subtle);
+}
+
+.settings-board-row__checkbox {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+
+.settings-board-row__icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+}
+
+.settings-board-row__label {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.settings-boards-shortcuts {
+  margin-bottom: 0.5rem;
+}
+
+.settings-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.settings-link-btn:hover {
+  color: var(--primary-hover);
+}
+
+.settings-link-btn:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.settings-boards-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+  margin-top: 0.5rem;
+}
+
+.settings-boards-action-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.settings-boards-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-boards-action-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.settings-boards-action-btn__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.settings-boards-file-input {
+  display: none;
+}
+
+.settings-boards-status {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.settings-boards-status--success {
+  background: color-mix(in srgb, var(--color-green) 12%, transparent);
+  color: var(--color-green-dark, #15803d);
+  border: 1px solid color-mix(in srgb, var(--color-green) 30%, transparent);
+}
+
+.settings-boards-status--error {
+  background: color-mix(in srgb, var(--color-red) 12%, transparent);
+  color: var(--color-red-dark, #b91c1c);
+  border: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent);
+}

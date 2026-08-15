@@ -1,0 +1,230 @@
+/* ── Overlay backdrop ── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.dialog-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 60%);
+}
+
+.dialog-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 30%);
+  font-weight: 600;
+}
+
+.dialog-loading__spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid var(--border-medium);
+  border-top-color: var(--header-bg);
+  border-radius: 50%;
+  animation: dialog-loading-spin 0.8s linear infinite;
+}
+
+@keyframes dialog-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog-loading__spinner {
+    animation: none;
+  }
+}
+
+/* ── Panel ── */
+.dialog-panel {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-radius: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Header ── */
+.dialog-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid var(--border-soft);
+  flex-shrink: 0;
+}
+
+.dialog-panel__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ── Close button ── */
+.dialog-panel__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-panel__close:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+.dialog-panel__close:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+.dialog-panel__close-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* ── Round close button variant (used by Settings and AddTileDialog) ── */
+.dialog-panel--round-close .dialog-panel__close {
+  background: var(--bg-subtle);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.dialog-panel--round-close .dialog-panel__close-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.dialog-panel--round-close .dialog-panel__close:hover {
+  background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-primary));
+}
+
+/* ── Body ── */
+.dialog-panel__body {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Padded variant — used by most content-focused dialogs */
+.dialog-panel__body--padded {
+  padding: 1rem 1.25rem;
+  gap: 1.5rem;
+}
+
+/* ── Footer ── */
+.dialog-panel__footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 2px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* ── Primary "Done" action button ── */
+.dialog-done-btn {
+  background: var(--header-bg);
+  color: var(--header-text);
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dialog-done-btn:hover {
+  filter: brightness(1.1);
+}
+
+.dialog-done-btn:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: 2px;
+}
+
+/* ── Shared tab bar (Settings and AddTileDialog) ── */
+.dialog-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-soft);
+  background: var(--bg-subtle);
+  flex-shrink: 0;
+}
+
+.dialog-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.4rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+  margin-bottom: -2px;
+}
+
+.dialog-tab:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-subtle) 60%, var(--bg-surface));
+}
+
+.dialog-tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: var(--bg-surface);
+}
+
+.dialog-tab:focus-visible {
+  outline: 3px solid var(--button-focus);
+  outline-offset: -3px;
+}
+
+.dialog-tab__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.dialog-tab__label {
+  line-height: 1;
+}
