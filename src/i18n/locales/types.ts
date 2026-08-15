@@ -177,7 +177,6 @@ export type UiStringKey =
   | "speechOperationError"
   | "audioPlaybackError"
   | "boardExportError"
-  | "removeWord"
   | "loading"
   | "unexpectedError"
   | "unexpectedErrorHint"
