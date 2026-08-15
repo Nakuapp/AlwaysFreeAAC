@@ -1,5 +1,5 @@
 import { useState, useId, type ReactNode } from "react";
-import { AppWindow, Languages, LayoutGrid, Settings as SettingsIcon, Volume2 } from "lucide-react";
+import { AppWindow, Languages, LayoutGrid, Volume2 } from "lucide-react";
 import type { VoiceOption } from "../../speech";
 import { t, type Language, type Theme, type LayoutOrder } from "../../i18n";
 import type { ThemeAccent, TileSize, UserBoard } from "../../domain";
@@ -118,11 +118,6 @@ export function Settings({
     <Dialog
       title={
         <>
-          {/* <SettingsIcon
-            className="settings-panel__title-icon"
-            aria-hidden="true"
-            focusable="false"
-          /> */}
           <img
             src={import.meta.env.BASE_URL + "brand/logo-150.png"}
             className="category-nav__logo"

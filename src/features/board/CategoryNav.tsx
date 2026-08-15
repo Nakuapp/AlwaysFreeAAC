@@ -23,7 +23,6 @@ export function CategoryNav({
   activeId,
   onSelect,
   onManageBoards,
-  onOpenSettings,
   language,
   sentenceBuilderEnabled,
   onToggleSentenceBuilder,
