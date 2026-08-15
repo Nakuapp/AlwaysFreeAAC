@@ -6,7 +6,7 @@
   margin: 0;
   padding: 0;
 }
-*::after .app-error {
+.app-error {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -19,27 +19,27 @@
   color: var(--text-primary);
 }
 
-*::after .app-error__logo {
+.app-error__logo {
   width: 5rem;
   height: 5rem;
   object-fit: contain;
 }
 
-*::after .app-error__title,
-*::after .app-error__message {
+.app-error__title,
+.app-error__message {
   margin: 0;
 }
 
-*::after .app-error__title {
+.app-error__title {
   font-size: 1.5rem;
 }
 
-*::after .app-error__message {
+.app-error__message {
   max-width: 32rem;
   color: var(--text-secondary);
 }
 
-*::after .app-error__reload {
+.app-error__reload {
   padding: 0.65rem 1rem;
   border: 0;
   border-radius: 8px;
@@ -50,7 +50,7 @@
   cursor: pointer;
 }
 
-*::after .app-error__reload:focus-visible {
+.app-error__reload:focus-visible {
   outline: 3px solid var(--button-focus);
   outline-offset: 2px;
 }
