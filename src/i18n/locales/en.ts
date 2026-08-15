@@ -186,6 +186,10 @@ export const en = {
   unexpectedError: "AlwaysFreeAAC could not continue",
   unexpectedErrorHint: "Reload the app to return to your communication boards.",
   reloadApp: "Reload app",
+  boardSettingsTab: "Board Settings",
+  importExportTab: "Import / Export",
+  mediaFileTooLarge: "Selected file is too large. Please choose a file under 1.5 MB.",
+  removeChip: "Remove {{word}}",
 } satisfies UiStrings;
 
 export const enCategoryLabels: Record<string, string> = {};

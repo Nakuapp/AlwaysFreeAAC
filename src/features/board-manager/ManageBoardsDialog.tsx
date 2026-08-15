@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { t, type Language } from "../../i18n";
 import { Dialog } from "../../components/dialog";
 import type { UserBoard } from "../../domain";
+import { handleTabKeyDown } from "../../utils/tabNavigation";
 import { ExportBoardsSection } from "./ExportBoardsSection";
 import { ImportBoardsSection } from "./ImportBoardsSection";
 import { UserBoardsSection } from "./UserBoardsSection";
@@ -30,6 +32,8 @@ export function ManageBoardsDialog({
   onExportError,
   onClose,
 }: ManageBoardsDialogProps) {
+  const [activeTab, setActiveTab] = useState<"boards" | "transfer">("boards");
+  const tabIds = ["boards", "transfer"] as const;
   const {
     selectedIds,
     toggleSelection,
@@ -67,37 +71,84 @@ export function ManageBoardsDialog({
         </button>
       }
     >
-      <UserBoardsSection
-        language={language}
-        userBoards={userBoards}
-        onCreateBoard={onCreateBoard}
-        onDeleteBoard={onDeleteBoard}
-        onRenameBoard={onRenameBoard}
-        onMoveBoard={onMoveBoard}
-      />
+      <div className="manage-boards-tabs" role="tablist" aria-label={t(language, "manageBoards")}>
+        <button
+          type="button"
+          role="tab"
+          id="manage-boards-tab-boards"
+          aria-controls="manage-boards-panel-boards"
+          aria-selected={activeTab === "boards"}
+          className={`manage-boards-tabs__tab${activeTab === "boards" ? " manage-boards-tabs__tab--active" : ""}`}
+          onClick={() => setActiveTab("boards")}
+          onKeyDown={(event) => handleTabKeyDown(event, tabIds, "boards", setActiveTab)}
+          tabIndex={activeTab === "boards" ? 0 : -1}
+        >
+          {t(language, "boardSettingsTab")}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="manage-boards-tab-transfer"
+          aria-controls="manage-boards-panel-transfer"
+          aria-selected={activeTab === "transfer"}
+          className={`manage-boards-tabs__tab${activeTab === "transfer" ? " manage-boards-tabs__tab--active" : ""}`}
+          onClick={() => setActiveTab("transfer")}
+          onKeyDown={(event) => handleTabKeyDown(event, tabIds, "transfer", setActiveTab)}
+          tabIndex={activeTab === "transfer" ? 0 : -1}
+        >
+          {t(language, "importExportTab")}
+        </button>
+      </div>
 
-      <ExportBoardsSection
-        language={language}
-        userBoards={userBoards}
-        selectedIds={selectedIds}
-        allSelected={allSelected}
-        selectedCount={selectedCount}
-        exportFormatLabel={exportFormatLabel}
-        isExporting={isExporting}
-        onToggleSelection={toggleSelection}
-        onSelectAll={selectAll}
-        onDeselectAll={deselectAll}
-        onExport={handleExport}
-      />
-      <ImportBoardsSection
-        language={language}
-        fileInputRef={fileInputRef}
-        importStatus={importStatus}
-        importCount={importCount}
-        importError={importError}
-        onImportFile={handleImportFile}
-        onTriggerImport={triggerImport}
-      />
+      {activeTab === "boards" && (
+        <div
+          id="manage-boards-panel-boards"
+          role="tabpanel"
+          aria-labelledby="manage-boards-tab-boards"
+          className="manage-boards-tabpanel"
+        >
+          <UserBoardsSection
+            language={language}
+            userBoards={userBoards}
+            onCreateBoard={onCreateBoard}
+            onDeleteBoard={onDeleteBoard}
+            onRenameBoard={onRenameBoard}
+            onMoveBoard={onMoveBoard}
+          />
+        </div>
+      )}
+
+      {activeTab === "transfer" && (
+        <div
+          id="manage-boards-panel-transfer"
+          role="tabpanel"
+          aria-labelledby="manage-boards-tab-transfer"
+          className="manage-boards-tabpanel"
+        >
+          <ExportBoardsSection
+            language={language}
+            userBoards={userBoards}
+            selectedIds={selectedIds}
+            allSelected={allSelected}
+            selectedCount={selectedCount}
+            exportFormatLabel={exportFormatLabel}
+            isExporting={isExporting}
+            onToggleSelection={toggleSelection}
+            onSelectAll={selectAll}
+            onDeselectAll={deselectAll}
+            onExport={handleExport}
+          />
+          <ImportBoardsSection
+            language={language}
+            fileInputRef={fileInputRef}
+            importStatus={importStatus}
+            importCount={importCount}
+            importError={importError}
+            onImportFile={handleImportFile}
+            onTriggerImport={triggerImport}
+          />
+        </div>
+      )}
     </Dialog>
   );
 }

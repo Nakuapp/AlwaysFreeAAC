@@ -20,7 +20,10 @@ export function MediaTileTab({ language, form }: MediaTileTabProps) {
           <button
             type="button"
             className="add-tile-image-upload__btn"
-            onClick={() => form.bgImageInputRef.current?.click()}
+            onClick={() => {
+              form.setMediaError(null);
+              form.bgImageInputRef.current?.click();
+            }}
           >
             <ImageIcon
               className="add-tile-image-upload__btn-icon"
@@ -59,7 +62,10 @@ export function MediaTileTab({ language, form }: MediaTileTabProps) {
           <button
             type="button"
             className="add-tile-image-upload__btn"
-            onClick={() => form.soundInputRef.current?.click()}
+            onClick={() => {
+              form.setMediaError(null);
+              form.soundInputRef.current?.click();
+            }}
           >
             <Music
               className="add-tile-image-upload__btn-icon"

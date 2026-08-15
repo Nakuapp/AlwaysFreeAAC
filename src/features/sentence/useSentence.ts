@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import type { Symbol } from "../../domain";
 import { playAudio } from "../../services/browserMedia";
+import type { SpeechOptions } from "../../speech/types";
 
 interface UseSentenceOptions {
   sentenceBuilderEnabled: boolean;
   volume: number;
-  speak: (text: string) => void;
+  speak: (text: string, options?: SpeechOptions) => void;
   onError?: (error: Error) => void;
 }
 
@@ -25,7 +26,7 @@ export function useSentence({
         );
         return;
       }
-      speak(symbol.speak ?? symbol.label);
+      speak(symbol.speak ?? symbol.label, { queueStrategy: "queue" });
     },
     [onError, speak, volume],
   );
@@ -43,7 +44,9 @@ export function useSentence({
 
   const speakSentence = useCallback(() => {
     if (sentence.length === 0) return;
-    speak(sentence.map((symbol) => symbol.speak ?? symbol.label).join(" "));
+    speak(sentence.map((symbol) => symbol.speak ?? symbol.label).join(" "), {
+      queueStrategy: "flush",
+    });
   }, [sentence, speak]);
 
   const removeLast = useCallback(() => {

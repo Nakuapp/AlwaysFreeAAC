@@ -181,6 +181,10 @@ export type UiStringKey =
   | "loading"
   | "unexpectedError"
   | "unexpectedErrorHint"
-  | "reloadApp";
+  | "reloadApp"
+  | "boardSettingsTab"
+  | "importExportTab"
+  | "mediaFileTooLarge"
+  | "removeChip";
 
 export type UiStrings = Record<UiStringKey, string>;

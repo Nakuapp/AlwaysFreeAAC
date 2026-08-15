@@ -188,6 +188,11 @@ export const fr = {
   unexpectedError: "AlwaysFreeAAC ne peut pas continuer",
   unexpectedErrorHint: "Rechargez l'application pour retrouver vos tableaux de communication.",
   reloadApp: "Recharger l'application",
+  boardSettingsTab: "Réglages des tableaux",
+  importExportTab: "Importer / Exporter",
+  mediaFileTooLarge:
+    "Le fichier sélectionné est trop volumineux. Choisissez un fichier de moins de 1,5 Mo.",
+  removeChip: "Supprimer {{word}}",
 } satisfies UiStrings;
 
 export const frCategoryLabels: Record<string, string> = {

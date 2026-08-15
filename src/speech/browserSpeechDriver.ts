@@ -9,7 +9,7 @@ import {
 
 export class BrowserSpeechDriver implements SpeechDriver {
   private fallbackTimer: ReturnType<typeof setTimeout> | undefined;
-  private activeUtterance: SpeechSynthesisUtterance | undefined;
+  private readonly activeUtterances = new Set<SpeechSynthesisUtterance>();
   private readonly callbacks: SpeechDriverCallbacks;
 
   constructor(callbacks: SpeechDriverCallbacks) {
@@ -33,17 +33,19 @@ export class BrowserSpeechDriver implements SpeechDriver {
     if (!("speechSynthesis" in window)) return;
 
     try {
-      const { rate = 1, pitch = 1, volume = 1, voiceName } = options;
-      this.callbacks.onSpeakingChange(false);
+      const { rate = 1, pitch = 1, volume = 1, voiceName, queueStrategy = "flush" } = options;
 
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
       }
-      this.activeUtterance = undefined;
-      window.speechSynthesis.cancel();
+      if (queueStrategy === "flush") {
+        this.activeUtterances.clear();
+        this.callbacks.onSpeakingChange(false);
+        window.speechSynthesis.cancel();
+      }
 
       const utterance = new SpeechSynthesisUtterance(text);
-      this.activeUtterance = utterance;
+      this.activeUtterances.add(utterance);
       utterance.rate = rate;
       utterance.pitch = pitch;
       utterance.volume = volume;
@@ -54,17 +56,15 @@ export class BrowserSpeechDriver implements SpeechDriver {
       }
 
       utterance.onstart = () => {
-        if (this.activeUtterance === utterance) this.callbacks.onSpeakingChange(true);
+        if (this.activeUtterances.has(utterance)) this.callbacks.onSpeakingChange(true);
       };
       utterance.onend = () => {
-        if (this.activeUtterance !== utterance) return;
-        this.activeUtterance = undefined;
-        this.callbacks.onSpeakingChange(false);
+        if (!this.activeUtterances.delete(utterance)) return;
+        if (this.activeUtterances.size === 0) this.callbacks.onSpeakingChange(false);
       };
       utterance.onerror = (event) => {
-        if (this.activeUtterance !== utterance) return;
-        this.activeUtterance = undefined;
-        this.callbacks.onSpeakingChange(false);
+        if (!this.activeUtterances.delete(utterance)) return;
+        if (this.activeUtterances.size === 0) this.callbacks.onSpeakingChange(false);
         if (event.error === "canceled" || event.error === "interrupted") return;
         this.callbacks.onError(new Error(`Speech synthesis failed: ${event.error}`));
       };
@@ -78,7 +78,7 @@ export class BrowserSpeechDriver implements SpeechDriver {
   cancel(): void {
     if (!("speechSynthesis" in window)) return;
     try {
-      this.activeUtterance = undefined;
+      this.activeUtterances.clear();
       window.speechSynthesis.cancel();
       this.callbacks.onSpeakingChange(false);
     } catch (error) {
@@ -108,7 +108,7 @@ export class BrowserSpeechDriver implements SpeechDriver {
 
   cleanup(): void {
     if (!("speechSynthesis" in window)) return;
-    this.activeUtterance = undefined;
+    this.activeUtterances.clear();
     window.speechSynthesis.removeEventListener("voiceschanged", this.loadVoices);
     if (this.fallbackTimer !== undefined) clearTimeout(this.fallbackTimer);
   }

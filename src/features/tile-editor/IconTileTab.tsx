@@ -43,7 +43,10 @@ export function IconTileTab({ language, form }: IconTileTabProps) {
           <button
             type="button"
             className={`add-tile-tabs__btn${form.iconMode === "image" ? " add-tile-tabs__btn--active" : ""}`}
-            onClick={() => form.setIconMode("image")}
+            onClick={() => {
+              form.setIconMode("image");
+              form.setRawIconValue(null);
+            }}
             aria-pressed={form.iconMode === "image"}
           >
             <ImageIcon className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
@@ -70,7 +73,10 @@ export function IconTileTab({ language, form }: IconTileTabProps) {
               <button
                 type="button"
                 className={`add-tile-tabs__btn${form.selectedIconStyle === "outline" ? " add-tile-tabs__btn--active" : ""}`}
-                onClick={() => form.setSelectedIconStyle("outline")}
+                onClick={() => {
+                  form.setSelectedIconStyle("outline");
+                  form.setRawIconValue(null);
+                }}
                 aria-pressed={form.selectedIconStyle === "outline"}
               >
                 {t(language, "tileIconStyleOutline")}
@@ -78,7 +84,10 @@ export function IconTileTab({ language, form }: IconTileTabProps) {
               <button
                 type="button"
                 className={`add-tile-tabs__btn${form.selectedIconStyle === "filled" ? " add-tile-tabs__btn--active" : ""}`}
-                onClick={() => form.setSelectedIconStyle("filled")}
+                onClick={() => {
+                  form.setSelectedIconStyle("filled");
+                  form.setRawIconValue(null);
+                }}
                 aria-pressed={form.selectedIconStyle === "filled"}
               >
                 {t(language, "tileIconStyleFilled")}
@@ -90,7 +99,10 @@ export function IconTileTab({ language, form }: IconTileTabProps) {
                   key={icon.value}
                   type="button"
                   className={`add-tile-icon-grid__btn${form.selectedIconName === icon.value ? " add-tile-icon-grid__btn--selected" : ""}`}
-                  onClick={() => form.setSelectedIconName(icon.value)}
+                  onClick={() => {
+                    form.setSelectedIconName(icon.value);
+                    form.setRawIconValue(null);
+                  }}
                   aria-label={icon.label}
                   aria-pressed={form.selectedIconName === icon.value}
                 >
@@ -113,7 +125,10 @@ export function IconTileTab({ language, form }: IconTileTabProps) {
             <button
               type="button"
               className="add-tile-image-upload__btn"
-              onClick={() => form.fileInputRef.current?.click()}
+              onClick={() => {
+                form.setMediaError(null);
+                form.fileInputRef.current?.click();
+              }}
             >
               <Upload
                 className="add-tile-image-upload__btn-icon"

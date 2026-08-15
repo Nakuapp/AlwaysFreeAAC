@@ -30,7 +30,7 @@ export class NativeSpeechDriver implements SpeechDriver {
   }
 
   speak(text: string, options: SpeechOptions): void {
-    const { rate = 1, pitch = 1, volume = 1, voiceName } = options;
+    const { rate = 1, pitch = 1, volume = 1, voiceName, queueStrategy = "flush" } = options;
     const voiceInfo = voiceName
       ? this.nativeVoices.find((voice) => voice.id === voiceName)
       : undefined;
@@ -45,7 +45,7 @@ export class NativeSpeechDriver implements SpeechDriver {
       rate,
       pitch,
       volume,
-      queueStrategy: "Flush",
+      queueStrategy: queueStrategy === "queue" ? "Add" : "Flush",
       language,
       ...(voiceInfo && { voiceId: voiceInfo.id }),
     }).catch((error: unknown) => {

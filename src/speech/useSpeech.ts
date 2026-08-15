@@ -55,13 +55,19 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
   const speakText = useCallback((text: string, overrideOptions?: SpeechOptions) => {
     if (!text.trim()) return;
-    const { rate, pitch, volume, voiceName } = { ...optionsRef.current, ...overrideOptions };
+    const { rate, pitch, volume, voiceName, queueStrategy } = {
+      ...optionsRef.current,
+      ...overrideOptions,
+    };
     setError(null);
-    driverRef.current?.speak(text, { rate, pitch, volume, voiceName });
+    driverRef.current?.speak(text, { rate, pitch, volume, voiceName, queueStrategy });
   }, []);
 
   // Convenience wrapper that keeps the public API name "speak"
-  const speak = useCallback((text: string) => speakText(text), [speakText]);
+  const speak = useCallback(
+    (text: string, overrideOptions?: SpeechOptions) => speakText(text, overrideOptions),
+    [speakText],
+  );
 
   /** Preview a specific voice without changing the current settings */
   const previewVoice = useCallback(

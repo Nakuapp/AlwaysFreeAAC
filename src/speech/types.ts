@@ -15,6 +15,7 @@ export interface SpeechOptions {
   volume?: number;
   /** Matches VoiceOption.id */
   voiceName?: string;
+  queueStrategy?: "flush" | "queue";
 }
 
 export interface SpeechDriverCallbacks {

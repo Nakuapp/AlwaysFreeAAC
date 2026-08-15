@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import type { Symbol, TileHeight, TileSize } from "../../domain";
+import { t, type Language } from "../../i18n";
 import type { AppIconName, AppIconStyle } from "../../ui";
 import {
   CUSTOM_TILE_ICON_OPTIONS,
@@ -15,6 +16,7 @@ import { ICON_COLOR_OPTIONS } from "./tileOptions";
 type TileDialogTab = "icon" | "style" | "media";
 
 interface UseAddTileFormOptions {
+  language: Language;
   initialSymbol?: Symbol;
   initialLabel?: string;
   onSave: (symbol: Omit<Symbol, "id">) => void;
@@ -26,22 +28,38 @@ function deriveIconState(emoji: string | undefined): {
   iconName: AppIconName;
   iconStyle: AppIconStyle;
   imageDataUrl: string | null;
+  rawIconValue: string | null;
 } {
   if (emoji && (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji))) {
-    return { iconMode: "image", iconName: "star", iconStyle: "outline", imageDataUrl: emoji };
-  }
-  if (emoji) {
     return {
-      iconMode: "icon",
-      iconName: getAppIconName(emoji) ?? "star",
-      iconStyle: getAppIconStyle(emoji),
-      imageDataUrl: null,
+      iconMode: "image",
+      iconName: "star",
+      iconStyle: "outline",
+      imageDataUrl: emoji,
+      rawIconValue: null,
     };
   }
-  return { iconMode: "icon", iconName: "star", iconStyle: "outline", imageDataUrl: null };
+  if (emoji) {
+    const iconName = getAppIconName(emoji);
+    return {
+      iconMode: "icon",
+      iconName: iconName ?? "star",
+      iconStyle: getAppIconStyle(emoji),
+      imageDataUrl: null,
+      rawIconValue: iconName ? null : emoji,
+    };
+  }
+  return {
+    iconMode: "icon",
+    iconName: "star",
+    iconStyle: "outline",
+    imageDataUrl: null,
+    rawIconValue: null,
+  };
 }
 
 export function useAddTileForm({
+  language,
   initialSymbol,
   initialLabel,
   onSave,
@@ -56,6 +74,7 @@ export function useAddTileForm({
   const [selectedIconName, setSelectedIconName] = useState<AppIconName>(initial.iconName);
   const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>(initial.iconStyle);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
+  const [rawIconValue, setRawIconValue] = useState<string | null>(initial.rawIconValue);
   const [color, setColor] = useState(initialSymbol?.color ?? "blue");
   const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
   const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
@@ -64,6 +83,7 @@ export function useAddTileForm({
     initialSymbol?.backgroundImage ?? null,
   );
   const [soundFile, setSoundFile] = useState<string | null>(initialSymbol?.soundFile ?? null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgImageInputRef = useRef<HTMLInputElement>(null);
   const soundInputRef = useRef<HTMLInputElement>(null);
@@ -73,12 +93,18 @@ export function useAddTileForm({
     event: ChangeEvent<HTMLInputElement>,
     acceptPattern: RegExp,
     onAccept: (dataUrl: string) => void,
+    maxBytes = 1_500_000,
   ) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    if (file.size > maxBytes) {
+      setMediaError(t(language, "mediaFileTooLarge"));
+      return;
+    }
     try {
       onAccept(await readFileAsDataUrl(file, acceptPattern));
+      setMediaError(null);
     } catch (error) {
       onError?.(error instanceof Error ? error : new Error("File upload failed."));
     }
@@ -97,7 +123,7 @@ export function useAddTileForm({
     const icon =
       iconMode === "image" && imageDataUrl
         ? imageDataUrl
-        : toAppIconValue(selectedIconName, selectedIconStyle);
+        : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
     onSave({
       label: trimmedLabel,
       emoji: icon,
@@ -127,7 +153,7 @@ export function useAddTileForm({
   const previewIcon =
     iconMode === "image" && imageDataUrl
       ? imageDataUrl
-      : toAppIconValue(selectedIconName, selectedIconStyle);
+      : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
   const previewIconColor = iconColor
     ? (ICON_COLOR_OPTIONS.find((option) => option.value === iconColor)?.color ?? undefined)
     : undefined;
@@ -149,6 +175,8 @@ export function useAddTileForm({
     setSelectedIconStyle,
     imageDataUrl,
     setImageDataUrl,
+    rawIconValue,
+    setRawIconValue,
     color,
     setColor,
     iconColor,
@@ -161,6 +189,8 @@ export function useAddTileForm({
     setBackgroundImage,
     soundFile,
     setSoundFile,
+    mediaError,
+    setMediaError,
     fileInputRef,
     bgImageInputRef,
     soundInputRef,

@@ -186,6 +186,10 @@ export const es = {
   unexpectedError: "AlwaysFreeAAC no pudo continuar",
   unexpectedErrorHint: "Recarga la aplicación para volver a tus tableros de comunicación.",
   reloadApp: "Recargar aplicación",
+  boardSettingsTab: "Ajustes de tableros",
+  importExportTab: "Importar / Exportar",
+  mediaFileTooLarge: "El archivo seleccionado es demasiado grande. Elige uno menor de 1,5 MB.",
+  removeChip: "Quitar {{word}}",
 } satisfies UiStrings;
 
 export const esCategoryLabels: Record<string, string> = {

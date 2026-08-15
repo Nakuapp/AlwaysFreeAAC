@@ -31,7 +31,7 @@ export function AddTileDialog({
   onError,
 }: AddTileDialogProps) {
   const isEditing = initialSymbol !== undefined;
-  const form = useAddTileForm({ initialSymbol, initialLabel, onSave, onError });
+  const form = useAddTileForm({ language, initialSymbol, initialLabel, onSave, onError });
 
   return (
     <Dialog
@@ -67,6 +67,12 @@ export function AddTileDialog({
       )}
 
       {form.activeTab === "media" && <MediaTileTab language={language} form={form} />}
+
+      {form.mediaError && (
+        <p className="add-tile-field__hint" role="alert">
+          {form.mediaError}
+        </p>
+      )}
     </Dialog>
   );
 }

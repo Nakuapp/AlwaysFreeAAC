@@ -28,7 +28,7 @@ The web app works on any device and can be added to your home screen for quick a
 - **Works everywhere** — mobile, tablet, and desktop
 - **Install on your device** — add to home screen for offline use (no app store needed)
 - **Accessible** — targets WCAG 2.1 AA; works with screen readers, keyboard navigation, and respects reduced-motion preferences
-- **Customisable** — settings panel with three tabs (Speech, Display, App); adjust TTS engine (auto-detected, shown when multiple engines are installed), voice, vocal style, speed, pitch, volume, tile size (XS–XL), font size, language, theme, and layout order
+- **Customisable** — settings panel with three tabs (Speech, Display, App); adjust voice, vocal style, speed, pitch, volume, tile size (XS–XL), font size, language, theme, and layout order
 - **Layout order** — choose "Tabs on top, speech at bottom" (default) or "Speech on top, tabs below" to suit your workflow
 - **Icon styles & colours** — choose outlined or filled icon styles and a custom accent colour for each tile
 - **In-place tile editing** — tap any custom tile in edit mode to update its label, icon, colour, and spoken text
