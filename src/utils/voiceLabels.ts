@@ -1,4 +1,4 @@
-import type { VoiceOption } from "../hooks/useSpeech";
+import type { VoiceOption } from "../speech";
 
 export interface VoiceListOption extends VoiceOption {
   displayLabel: string;

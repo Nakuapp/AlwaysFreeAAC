@@ -134,7 +134,8 @@ To generate a branch-specific test build without publishing a release, run the `
 ## App Logo & Native App Icons
 
 - Brand source icon: `resources/icon.png` (1024×1024)
-- Web icons: `public/app-logo.png`, `public/app-icon-192.png`, `public/app-icon-512.png`
+- Web brand images: `public/brand/logo-150.png`, `public/brand/logo-300.png`
+- PWA icons: `public/icons/app-icon-192.png`, `public/icons/app-icon-512.png`
 - Android/iOS launch icons are generated in CI with `@capacitor/assets` during Android and iOS workflows.
 
 To regenerate native icons locally (after `npx cap add android` / `npx cap add ios`):
@@ -165,38 +166,31 @@ npx cap sync
 
 ```
 src/
-├── assets/               # Static assets bundled by Vite
+├── app/                  # App composition root, shell styles, dialogs, notifications, focus restore
 ├── components/
-│   ├── AddTileDialog.tsx # Add/edit custom tile dialog (icon picker, image upload, icon colour, per-tile size, pre-fill from search)
-│   ├── CategoryNav.tsx   # Navigation bar: logo/settings button (fixed left) + scrollable category tabs + manage/import actions
-│   ├── IconVisual.tsx    # Renders icon or image for a tile
-│   ├── ImportExportDialog.tsx # Centralized OBF/OBZ import & multi-board export panel
-│   ├── ManageBoardsDialog.tsx # Manage custom boards (create, rename, reorder, delete)
-│   ├── SentenceBar.tsx   # Sentence builder: word chips + keyboard search input with live suggestions + speak/clear controls
-│   ├── Settings.tsx      # Settings dialog with 3 tabs: Speech (TTS engine, voice, style, rate/pitch/volume), Display (theme, layout, grid, text size), App (language)
-│   ├── SymbolButton.tsx  # Individual symbol tile (icon colour, per-tile size, drag-and-drop, edit overlay)
-│   └── SymbolGrid.tsx    # Responsive grid with drag-and-drop reorder support
-├── data/
-│   └── vocabulary.ts     # Symbol and Category type definitions; app uses user-created boards (default: single welcome board on first launch)
-├── hooks/
-│   ├── useFocusTrap.ts   # Focus trap for accessible modal dialogs
-│   ├── useRestoreFocus.ts # Capture/restore keyboard focus when dialogs open and close
-│   └── useSpeech.ts      # Native speech + web fallback React hook; derives TTS engine name from voice metadata
-├── utils/
-│   └── openboard.ts      # OBF/OBZ import & export helpers (single-board and multi-board zip)
-├── colors.ts             # Shared icon-colour hex values (used by SymbolButton & AddTileDialog)
-├── i18n.ts               # Internationalisation strings (en / es / fr); exports Language, Theme, LayoutOrder types
-├── iconUtils.ts          # Lucide icon search and utility helpers
-├── icons.tsx             # Shared Lucide icon registry
-├── tileSize.ts           # Named tile-size constants (xs–xl), column counts, and span helpers
-├── App.tsx               # Root application component
-├── App.css               # App shell styles (layout order CSS using `order` + safe-area insets)
+│   ├── dialog/           # Shared dialog, loading state, and focus trap
+│   ├── feedback/         # Error boundary and notification region
+│   └── icon/             # Shared icon/image renderer
+├── features/
+│   ├── board/            # Board navigation, symbol grid/tiles, and board state
+│   ├── board-manager/    # Board CRUD and OBF/OBZ transfer dialog
+│   ├── sentence/         # Sentence builder UI and state
+│   ├── settings/         # Settings dialog, tabs, and persisted settings state
+│   └── tile-editor/      # Add/edit tile dialog, tabs, options, and form state
+├── domain/               # Models, vocabulary, board reducer, operation results
+├── i18n/                 # Translation facade and en/es/fr locale dictionaries
+├── openboard/            # OBF/OBZ conversion, archive, validation, and file APIs
+├── persistence/          # Settings, boards, media, migrations, and storage adapters
+├── services/             # Browser media APIs
+├── speech/               # Speech hook, drivers, and speech types
+├── ui/                   # Shared colors, icons, icon helpers, and tile sizing
+├── utils/                # General runtime, ID, tab, and voice-label helpers
 ├── main.tsx              # App entry point
 └── index.css             # Global reset + CSS variables
 public/
-├── app-icon-192.png      # PWA icon + browser favicon
-├── app-icon-512.png      # PWA icon + maskable icon
-└── app-logo.png          # Logo shown in CategoryNav (tapping opens Settings)
+├── brand/                # Navigation and error-state brand images
+├── icons/                # PWA icons and browser favicon
+└── privacy-policy.html   # Static privacy policy
 resources/
 └── icon.png              # Source image for native Android/iOS icon generation
 ```

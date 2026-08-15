@@ -1,4 +1,4 @@
-import type { Symbol, TileSize } from "../data/vocabulary";
+import type { Symbol, TileSize } from "./vocabulary";
 import type { Language, LayoutOrder, Theme } from "../i18n";
 
 export type ThemeAccent = "blue" | "green" | "purple" | "teal" | "orange";
