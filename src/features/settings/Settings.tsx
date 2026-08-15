@@ -1,16 +1,17 @@
 import { useState, useId, type ReactNode } from "react";
-import { AppWindow, Languages, Settings as SettingsIcon, Volume2 } from "lucide-react";
+import { AppWindow, Languages, LayoutGrid, Volume2 } from "lucide-react";
 import type { VoiceOption } from "../../speech";
 import { t, type Language, type Theme, type LayoutOrder } from "../../i18n";
-import type { ThemeAccent, TileSize } from "../../domain";
+import type { ThemeAccent, TileSize, UserBoard } from "../../domain";
 import { handleTabKeyDown } from "../../utils/tabNavigation";
 import { Dialog } from "../../components/dialog";
+import { BoardsSettingsTab } from "../board-manager";
 import { AppSettingsTab } from "./AppSettingsTab";
 import { DisplaySettingsTab } from "./DisplaySettingsTab";
 import { SpeechSettingsTab } from "./SpeechSettingsTab";
 import "./Settings.css";
 
-type SettingsTab = "speech" | "display" | "app";
+export type SettingsTab = "speech" | "display" | "boards" | "app";
 
 interface SettingsProps {
   voices: VoiceOption[];
@@ -26,6 +27,8 @@ interface SettingsProps {
   themeAccent: ThemeAccent;
   layoutOrder: LayoutOrder;
   sentenceBuilderEnabled: boolean;
+  initialTab?: SettingsTab;
+  userBoards: UserBoard[];
   onVoiceChange: (name: string) => void;
   onVoicePresetChange: (preset: string) => void;
   onRateChange: (rate: number) => void;
@@ -39,6 +42,12 @@ interface SettingsProps {
   onLayoutOrderChange: (order: LayoutOrder) => void;
   onSentenceBuilderToggle: (enabled: boolean) => void;
   onPreviewVoice: (voiceId: string) => void;
+  onCreateBoard: (label: string, emoji: string) => void;
+  onDeleteBoard: (boardId: string) => void;
+  onRenameBoard: (boardId: string, label: string) => void;
+  onMoveBoard: (boardId: string, direction: -1 | 1) => void;
+  onImportBoards: (boards: UserBoard[]) => void;
+  onExportError?: (error: Error) => void;
   onClose: () => void;
 }
 
@@ -56,6 +65,8 @@ export function Settings({
   themeAccent,
   layoutOrder,
   sentenceBuilderEnabled,
+  initialTab = "boards",
+  userBoards,
   onVoiceChange,
   onVoicePresetChange,
   onRateChange,
@@ -69,12 +80,23 @@ export function Settings({
   onLayoutOrderChange,
   onSentenceBuilderToggle,
   onPreviewVoice,
+  onCreateBoard,
+  onDeleteBoard,
+  onRenameBoard,
+  onMoveBoard,
+  onImportBoards,
+  onExportError,
   onClose,
 }: SettingsProps) {
-  const [activeTab, setActiveTab] = useState<SettingsTab>("speech");
+  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
   const tabPanelId = useId();
 
   const tabs: Array<{ id: SettingsTab; label: string; icon: ReactNode }> = [
+    {
+      id: "boards",
+      label: t(language, "manageBoards"),
+      icon: <LayoutGrid className="dialog-tab__icon" aria-hidden="true" focusable="false" />,
+    },
     {
       id: "speech",
       label: t(language, "settingsTabSpeech"),
@@ -96,10 +118,11 @@ export function Settings({
     <Dialog
       title={
         <>
-          <SettingsIcon
-            className="settings-panel__title-icon"
+          <img
+            src={import.meta.env.BASE_URL + "brand/logo-150.png"}
+            className="category-nav__logo"
+            alt=""
             aria-hidden="true"
-            focusable="false"
           />
           {t(language, "settings")}
         </>
@@ -178,6 +201,18 @@ export function Settings({
         onLayoutOrderChange={onLayoutOrderChange}
         onTileSizeChange={onTileSizeChange}
         onFontSizeChange={onFontSizeChange}
+      />
+      <BoardsSettingsTab
+        id={`${tabPanelId}-boards`}
+        hidden={activeTab !== "boards"}
+        language={language}
+        userBoards={userBoards}
+        onCreateBoard={onCreateBoard}
+        onDeleteBoard={onDeleteBoard}
+        onRenameBoard={onRenameBoard}
+        onMoveBoard={onMoveBoard}
+        onImportBoards={onImportBoards}
+        onExportError={onExportError}
       />
       <AppSettingsTab
         id={`${tabPanelId}-app`}

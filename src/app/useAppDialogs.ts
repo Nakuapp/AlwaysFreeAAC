@@ -1,12 +1,12 @@
 import { useCallback, useState } from "react";
 import type { Symbol } from "../domain";
+import type { SettingsTab } from "../features/settings";
 import { useRestoreFocus } from "./useRestoreFocus";
 
 type AppDialog =
-  | { type: "settings" }
+  | { type: "settings"; tab?: SettingsTab }
   | { type: "addTile"; initialLabel?: string }
   | { type: "editTile"; symbol: Symbol }
-  | { type: "manageBoards" }
   | null;
 
 export function useAppDialogs() {
@@ -36,7 +36,7 @@ export function useAppDialogs() {
 
   const openManageBoards = useCallback(() => {
     capture();
-    setDialog({ type: "manageBoards" });
+    setDialog({ type: "settings", tab: "boards" });
   }, [capture]);
 
   const closeDialog = useCallback(() => {
