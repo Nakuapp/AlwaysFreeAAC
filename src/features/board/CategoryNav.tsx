@@ -9,7 +9,6 @@ interface CategoryNavProps {
   activeId: string;
   onSelect: (id: string) => void;
   onManageBoards: () => void;
-  onOpenSettings: () => void;
   language: Language;
   sentenceBuilderEnabled: boolean;
   onToggleSentenceBuilder: () => void;

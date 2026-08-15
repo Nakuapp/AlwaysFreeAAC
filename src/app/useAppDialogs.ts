@@ -13,11 +13,6 @@ export function useAppDialogs() {
   const [dialog, setDialog] = useState<AppDialog>(null);
   const { capture, restore } = useRestoreFocus();
 
-  const openSettings = useCallback(() => {
-    capture();
-    setDialog({ type: "settings" });
-  }, [capture]);
-
   const openAddTile = useCallback(
     (initialLabel?: string) => {
       capture();
@@ -46,7 +41,6 @@ export function useAppDialogs() {
 
   return {
     dialog,
-    openSettings,
     openAddTile,
     openEditTile,
     openManageBoards,

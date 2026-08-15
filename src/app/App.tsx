@@ -49,8 +49,7 @@ export default function App() {
     importBoards,
   } = useBoards(handleBoardError);
   const [isEditingTiles, setIsEditingTiles] = useState(false);
-  const { dialog, openSettings, openAddTile, openEditTile, openManageBoards, closeDialog } =
-    useAppDialogs();
+  const { dialog, openAddTile, openEditTile, openManageBoards, closeDialog } = useAppDialogs();
 
   const { speak, previewVoice, speaking, voices } = useSpeech({
     rate: settings.rate,
@@ -93,7 +92,10 @@ export default function App() {
   );
 
   return (
-    <div className="app" data-layout={settings.layoutOrder}>
+    <div
+      className={`app${settings.sentenceBuilderEnabled ? " app--sentence-builder-enabled" : " app--sentence-builder-disabled"}`}
+      data-layout={settings.layoutOrder}
+    >
       <NotificationRegion
         notifications={notifications}
         closeLabel={t(settings.language, "close")}
@@ -127,7 +129,6 @@ export default function App() {
           setIsEditingTiles(false);
         }}
         onManageBoards={openManageBoards}
-        onOpenSettings={openSettings}
         language={settings.language}
         sentenceBuilderEnabled={settings.sentenceBuilderEnabled}
         onToggleSentenceBuilder={() =>
