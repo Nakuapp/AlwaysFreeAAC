@@ -26,7 +26,7 @@ export function useSentence({
         );
         return;
       }
-      speak(symbol.speak ?? symbol.label, { queueStrategy: "queue" });
+      speak(symbol.speak ?? symbol.label, { queueStrategy: "flush" });
     },
     [onError, speak, volume],
   );
