@@ -1,1 +1,1 @@
-export { ManageBoardsDialog } from "./ManageBoardsDialog";
+export { BoardsSettingsTab } from "./BoardsSettingsTab";

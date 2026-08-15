@@ -33,21 +33,6 @@ export function CategoryNav({
 }: CategoryNavProps) {
   return (
     <nav className="category-nav" aria-label={t(language, "symbolCategories")}>
-      <button
-        type="button"
-        className="category-nav__logo-btn"
-        onClick={onOpenSettings}
-        aria-label={t(language, "openSettings")}
-        aria-haspopup="dialog"
-      >
-        <img
-          src={import.meta.env.BASE_URL + "brand/logo-300.png"}
-          className="category-nav__logo"
-          alt=""
-          aria-hidden="true"
-        />
-      </button>
-
       <div className="category-nav__tabs-scroll">
         <ul className="category-nav__list" role="list">
           {categories.map((cat) => (

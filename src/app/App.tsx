@@ -17,11 +17,6 @@ const Settings = lazy(() =>
 const AddTileDialog = lazy(() =>
   import("../features/tile-editor").then((module) => ({ default: module.AddTileDialog })),
 );
-const ManageBoardsDialog = lazy(() =>
-  import("../features/board-manager").then((module) => ({
-    default: module.ManageBoardsDialog,
-  })),
-);
 
 export default function App() {
   const { notifications, notify, dismiss } = useNotifications();
@@ -170,6 +165,8 @@ export default function App() {
             theme={settings.theme}
             layoutOrder={settings.layoutOrder}
             sentenceBuilderEnabled={settings.sentenceBuilderEnabled}
+            initialTab={dialog.tab}
+            userBoards={boards}
             onVoiceChange={(v) => updateSetting("voiceName", v)}
             onVoicePresetChange={applyVoicePreset}
             onRateChange={updateRate}
@@ -184,6 +181,12 @@ export default function App() {
             onThemeAccentChange={(accent) => updateSetting("themeAccent", accent)}
             themeAccent={settings.themeAccent}
             onPreviewVoice={handlePreviewVoice}
+            onCreateBoard={createBoard}
+            onDeleteBoard={deleteBoard}
+            onRenameBoard={renameBoard}
+            onMoveBoard={moveBoard}
+            onImportBoards={importBoards}
+            onExportError={() => notify(t(settings.language, "boardExportError"), "error")}
             onClose={closeDialog}
           />
         )}
@@ -207,20 +210,6 @@ export default function App() {
             onSave={(data) => handleUpdateCustomTile(dialog.symbol, data)}
             onClose={closeDialog}
             onError={() => notify(t(settings.language, "audioPlaybackError"), "error")}
-          />
-        )}
-
-        {dialog?.type === "manageBoards" && (
-          <ManageBoardsDialog
-            language={settings.language}
-            userBoards={boards}
-            onCreateBoard={createBoard}
-            onDeleteBoard={deleteBoard}
-            onRenameBoard={renameBoard}
-            onMoveBoard={moveBoard}
-            onImportBoards={importBoards}
-            onExportError={() => notify(t(settings.language, "boardExportError"), "error")}
-            onClose={closeDialog}
           />
         )}
       </Suspense>

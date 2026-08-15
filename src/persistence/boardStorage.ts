@@ -85,7 +85,8 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
       label: "Welcome!",
       emoji: "🎉",
       color: "yellow",
-      tileSize: "xl",
+      tileSize: "md",
+      tileHeight: "taller",
       isCustom: true,
     },
     {
@@ -120,7 +121,7 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
       label: "Thank You",
       emoji: "🙌",
       color: "green",
-      tileSize: "sm",
+      tileSize: "lg",
       isCustom: true,
     },
     {
@@ -128,7 +129,8 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
       label: "Help",
       emoji: "🆘",
       color: "red",
-      tileSize: "lg",
+      tileSize: "md",
+      tileHeight: "tall",
       isCustom: true,
     },
     {
@@ -137,6 +139,7 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
       emoji: "➕",
       color: "orange",
       tileSize: "sm",
+      tileHeight: "tall",
       isCustom: true,
     },
     {
@@ -145,6 +148,7 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
       emoji: "🏁",
       color: "purple",
       tileSize: "sm",
+      tileHeight: "taller",
       isCustom: true,
     },
     {
@@ -153,6 +157,7 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
       emoji: "😊",
       color: "yellow",
       tileSize: "sm",
+      tileHeight: "tall",
       isCustom: true,
     },
     {
