@@ -1,7 +1,7 @@
 import { Download } from "lucide-react";
 import type { UserBoard } from "../../domain/models";
 import { t, type Language } from "../../i18n";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
 
 interface ExportBoardsSectionProps {
   language: Language;
@@ -46,7 +46,7 @@ export function ExportBoardsSection({
               checked={selectedIds.has(board.id)}
               onChange={() => onToggleSelection(board.id)}
             />
-            <IconVisual value={board.emoji} className="manage-boards-export-row__icon" />
+            <SymbolVisual value={board.emoji} className="manage-boards-export-row__icon" />
             <span className="manage-boards-export-row__label">{board.label}</span>
           </label>
         ))}

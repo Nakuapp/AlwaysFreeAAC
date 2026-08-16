@@ -1,20 +1,13 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import type { Symbol, TileHeight, TileSize } from "../../domain";
 import { t, type Language } from "../../i18n";
-import type { AppIconName, AppIconStyle } from "../../ui";
-import {
-  CUSTOM_TILE_ICON_OPTIONS,
-  getAppIconName,
-  getAppIconStyle,
-  isExternalImageUrl,
-  isRasterImageDataUrl,
-  toAppIconValue,
-} from "../../ui";
+import { isExternalImageUrl, isRasterImageDataUrl } from "../../ui";
 import { playAudio, readFileAsDataUrl } from "../../services/browserMedia";
-import { ICON_COLOR_OPTIONS } from "./tileOptions";
 
 type TileDialogTab = "icon" | "style" | "media";
+type IconMode = "emoji" | "image";
+
+const DEFAULT_EMOJI = "⭐";
 
 interface UseAddTileFormOptions {
   language: Language;
@@ -24,53 +17,15 @@ interface UseAddTileFormOptions {
   onError?: (error: Error) => void;
 }
 
-function deriveIconState(emoji: EmojiClickData | string | undefined): {
-  iconMode: "emojiPicker" | "icon" | "image";
-  iconName: AppIconName | string;
-  iconStyle?: AppIconStyle | string;
+function deriveIconState(emoji: string | undefined): {
+  iconMode: IconMode;
+  emojiValue: string;
   imageDataUrl: string | null;
-  rawIconValue: string | null;
 } {
-  if (emoji) {
-    // Test if emoji is EmojiClickData type
-    if (typeof emoji === "object" && "emoji" in emoji) {
-      const iconName = getAppIconName(emoji.emoji);
-      return {
-        iconMode: "emojiPicker",
-        iconName: iconName ?? "1f44d",
-        iconStyle: emoji.activeSkinTone,
-        imageDataUrl: emoji.imageUrl ?? null,
-        rawIconValue: emoji.emoji ?? null,
-      };
-    }
-    if (typeof emoji === "string") {
-      if (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji)) {
-        return {
-          iconMode: "image",
-          iconName: "star",
-          iconStyle: "outline",
-          imageDataUrl: emoji,
-          rawIconValue: null,
-        };
-      }
-
-      const iconName = getAppIconName(emoji);
-      return {
-        iconMode: "icon",
-        iconName: iconName ?? "star",
-        iconStyle: getAppIconStyle(emoji),
-        imageDataUrl: null,
-        rawIconValue: iconName ? null : emoji,
-      };
-    }
+  if (emoji && (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji))) {
+    return { iconMode: "image", emojiValue: DEFAULT_EMOJI, imageDataUrl: emoji };
   }
-  return {
-    iconMode: "emojiPicker",
-    iconName: "star",
-    iconStyle: "outline",
-    imageDataUrl: null,
-    rawIconValue: null,
-  };
+  return { iconMode: "emoji", emojiValue: emoji || DEFAULT_EMOJI, imageDataUrl: null };
 }
 
 export function useAddTileForm({
@@ -84,15 +39,10 @@ export function useAddTileForm({
   const [activeTab, setActiveTab] = useState<TileDialogTab>("icon");
   const [label, setLabel] = useState(initialSymbol?.label ?? initialLabel ?? "");
   const [speakOverride, setSpeakOverride] = useState(initialSymbol?.speak ?? "");
-  const [iconMode, setIconMode] = useState<"emojiPicker" | "icon" | "image">(initial.iconMode);
-  const [iconFilter, setIconFilter] = useState("");
-  const [selectedEmojiName, setSelectedEmojiName] = useState<EmojiClickData | null>(null);
-  const [selectedIconName, setSelectedIconName] = useState<AppIconName>(initial.iconName);
-  const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>(initial.iconStyle);
+  const [iconMode, setIconMode] = useState<IconMode>(initial.iconMode);
+  const [emojiValue, setEmojiValue] = useState(initial.emojiValue);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
-  const [rawIconValue, setRawIconValue] = useState<string | null>(initial.rawIconValue);
   const [color, setColor] = useState(initialSymbol?.color ?? "blue");
-  const [iconColor, setIconColor] = useState(initialSymbol?.iconColor ?? "");
   const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
   const [tileHeight, setTileHeight] = useState<TileHeight | "">(initialSymbol?.tileHeight ?? "");
   const [backgroundImage, setBackgroundImage] = useState<string | null>(
@@ -133,23 +83,17 @@ export function useAddTileForm({
     );
   }
 
+  const previewIcon = iconMode === "image" && imageDataUrl ? imageDataUrl : emojiValue;
+
   function handleSave() {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
 
-    const icon =
-      iconMode === "emojiPicker"
-        ? selectedEmojiName
-        : iconMode === "image" && imageDataUrl
-          ? imageDataUrl
-          : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
-
     onSave({
       label: trimmedLabel,
-      emoji: icon,
+      emoji: previewIcon,
       speak: speakOverride.trim() || undefined,
       color,
-      iconColor: iconColor || undefined,
       tileSize: tileSize || undefined,
       tileHeight: tileHeight || undefined,
       backgroundImage: backgroundImage ?? undefined,
@@ -158,25 +102,9 @@ export function useAddTileForm({
     });
   }
 
-  const normalizedIconFilter = iconFilter.trim().toLowerCase();
-  const filteredIcons = normalizedIconFilter
-    ? CUSTOM_TILE_ICON_OPTIONS.filter(
-        (icon) =>
-          icon.label.toLowerCase().includes(normalizedIconFilter) ||
-          icon.value.toLowerCase().includes(normalizedIconFilter) ||
-          icon.keywords.some((keyword) => keyword.includes(normalizedIconFilter)),
-      )
-    : CUSTOM_TILE_ICON_OPTIONS;
   const isValid =
     label.trim().length > 0 &&
-    (iconMode === "icon" ? Boolean(selectedIconName) : imageDataUrl !== null);
-  const previewIcon =
-    iconMode === "image" && imageDataUrl
-      ? imageDataUrl
-      : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
-  const previewIconColor = iconColor
-    ? (ICON_COLOR_OPTIONS.find((option) => option.value === iconColor)?.color ?? undefined)
-    : undefined;
+    (iconMode === "image" ? imageDataUrl !== null : emojiValue.length > 0);
 
   return {
     activeTab,
@@ -187,22 +115,12 @@ export function useAddTileForm({
     setSpeakOverride,
     iconMode,
     setIconMode,
-    iconFilter,
-    setIconFilter,
-    selectedEmojiName,
-    setSelectedEmojiName,
-    selectedIconName,
-    setSelectedIconName,
-    selectedIconStyle,
-    setSelectedIconStyle,
+    emojiValue,
+    setEmojiValue,
     imageDataUrl,
     setImageDataUrl,
-    rawIconValue,
-    setRawIconValue,
     color,
     setColor,
-    iconColor,
-    setIconColor,
     tileSize,
     setTileSize,
     tileHeight,
@@ -217,10 +135,8 @@ export function useAddTileForm({
     bgImageInputRef,
     soundInputRef,
     labelInputRef,
-    filteredIcons,
     isValid,
     previewIcon,
-    previewIconColor,
     readUploadedFile,
     handlePreviewSound,
     handleSave,

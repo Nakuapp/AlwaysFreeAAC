@@ -1,5 +1,3 @@
-import { type EmojiClickData } from "emoji-picker-react";
-
 export type TileSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 /** Per-tile row span; when absent the tile occupies 1 grid row */
@@ -8,11 +6,10 @@ export type TileHeight = "tall" | "taller";
 export interface Symbol {
   id: string;
   label: string;
-  /** Icon key, emoji character, or a data: URL for a custom uploaded image */
-  emoji: EmojiClickData | string | undefined;
+  /** Emoji character, data: URL, or https: URL for a custom image */
+  emoji: string;
   speak?: string; // override spoken text if different from label
   color?: string; // background color category
-  iconColor?: string; // icon fill/stroke color category
   /** Per-tile size override; when absent the global tile size is used */
   tileSize?: TileSize;
   /** Per-tile row span override; when absent the tile spans 1 row */

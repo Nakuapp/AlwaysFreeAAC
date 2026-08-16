@@ -7,6 +7,7 @@ import {
 } from "../domain/operationResult";
 import { isRecord } from "../utils/runtimeValidation";
 import { cleanupUnreferencedMedia, serializeBoardMedia } from "./mediaStorage";
+import { legacyIconToEmoji } from "./legacyIcons";
 import { runMigrations } from "./migrations";
 import { browserStorage, type KeyValueStorage } from "./storage";
 
@@ -38,10 +39,9 @@ function parseSymbol(tile: Record<string, unknown>): Symbol {
   return {
     id: tile.id as string,
     label: tile.label as string,
-    emoji: (tile.emoji as string) || (tile.icon as string),
+    emoji: legacyIconToEmoji((tile.emoji as string) || (tile.icon as string)),
     speak: typeof tile.speak === "string" ? tile.speak : undefined,
     color: typeof tile.color === "string" ? tile.color : undefined,
-    iconColor: typeof tile.iconColor === "string" ? tile.iconColor : undefined,
     tileSize:
       typeof tile.tileSize === "string" && VALID_TILE_SIZES.has(tile.tileSize as TileSize)
         ? (tile.tileSize as TileSize)
@@ -70,7 +70,7 @@ function normalizeBoards(boards: unknown[]): UserBoard[] {
     .map((board) => ({
       id: board.id as string,
       label: board.label as string,
-      emoji: board.emoji as string,
+      emoji: legacyIconToEmoji(board.emoji as string),
       symbols: (board.symbols as unknown[]).filter(isValidSymbol).map(parseSymbol),
     }));
 }
@@ -78,7 +78,7 @@ function normalizeBoards(boards: unknown[]): UserBoard[] {
 export const DEFAULT_WELCOME_BOARD: UserBoard = {
   id: "welcome",
   label: "Welcome",
-  emoji: "star",
+  emoji: "⭐",
   symbols: [
     {
       id: "welcome-title",
@@ -250,7 +250,7 @@ export function loadUserBoards(
   }
   const symbols = tiles.filter(isValidSymbol).map(parseSymbol);
   return operationSuccess(
-    symbols.length > 0 ? [{ id: "my-words", label: "My Words", emoji: "pen-square", symbols }] : [],
+    symbols.length > 0 ? [{ id: "my-words", label: "My Words", emoji: "✏️", symbols }] : [],
   );
 }
 

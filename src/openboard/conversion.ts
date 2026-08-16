@@ -58,7 +58,7 @@ export function exportCategoryToOBF(category: Category, locale = "en"): OBFBoard
       images.push({ id: imgId, url: symbol.emoji });
       imageId = imgId;
     }
-    // Emoji characters and icon keys are not image resources in OBF;
+    // Emoji characters are not image resources in OBF;
     // OBF readers will display the label text.
 
     const button: OBFButton = {

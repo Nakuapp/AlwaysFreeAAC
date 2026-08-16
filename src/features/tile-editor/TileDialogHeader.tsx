@@ -1,7 +1,7 @@
 import { ImageIcon, Music, Palette } from "lucide-react";
 import { t, type Language } from "../../i18n";
 import { handleTabKeyDown } from "../../utils/tabNavigation";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
 import type { AddTileForm } from "./useAddTileForm";
 
 interface TileDialogHeaderProps {
@@ -21,11 +21,7 @@ export function TileDialogHeader({ language, isEditing, form }: TileDialogHeader
           style={{ background: form.color || "var(--color-default)" }}
         >
           <span className="add-tile-preview__icon" aria-hidden="true">
-            <IconVisual
-              value={form.previewIcon}
-              className="add-tile-preview__icon-value"
-              iconColor={form.previewIconColor}
-            />
+            <SymbolVisual value={form.previewIcon} className="add-tile-preview__icon-value" />
           </span>
           <span className="add-tile-preview__label">{form.label || "…"}</span>
         </div>

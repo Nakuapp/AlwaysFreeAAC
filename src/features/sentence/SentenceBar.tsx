@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, useCallback, type KeyboardEvent } from "reac
 import type { Symbol } from "../../domain";
 import { Play, Plus, Trash2, Volume2, X } from "lucide-react";
 import { t, type Language } from "../../i18n";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
 import "./SentenceBar.css";
 
 interface SentenceBarProps {
@@ -152,7 +152,7 @@ export function SentenceBar({
                   aria-label={t(language, "speakWord", { word: sym.speak ?? sym.label })}
                   type="button"
                 >
-                  <IconVisual value={sym.emoji} className="sentence-bar__word-icon" />
+                  <SymbolVisual value={sym.emoji} className="sentence-bar__word-icon" />
                   <span>{sym.label}</span>
                 </button>
                 {onRemoveWord && (
@@ -197,7 +197,7 @@ export function SentenceBar({
                   title={t(language, "addToSentence")}
                   aria-label={`${t(language, "addToSentence")}: ${chip.matchedSymbol.label}`}
                 >
-                  <IconVisual
+                  <SymbolVisual
                     value={chip.matchedSymbol.emoji}
                     className="sentence-bar__chip-icon"
                   />

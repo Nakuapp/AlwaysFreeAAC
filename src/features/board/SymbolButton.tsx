@@ -1,8 +1,7 @@
 import type { CSSProperties, DragEvent } from "react";
 import { ChevronLeft, ChevronRight, GripVertical, Pencil, X } from "lucide-react";
 import type { Symbol } from "../../domain";
-import { ICON_COLOR_HEX } from "../../ui";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
 import "./SymbolButton.css";
 
 interface SymbolButtonProps {
@@ -75,7 +74,6 @@ export function SymbolButton({
       ? symbol.color
       : (COLOR_MAP[symbol.color] ?? "var(--color-default)")
     : "var(--color-default)";
-  const iconColor = symbol.iconColor ? (ICON_COLOR_HEX[symbol.iconColor] ?? undefined) : undefined;
 
   const wrapperStyle: CSSProperties = {};
   if (colSpan && colSpan > 1) {
@@ -128,7 +126,7 @@ export function SymbolButton({
         type="button"
       >
         {symbol.backgroundImage && <span className="symbol-btn__bg-overlay" aria-hidden="true" />}
-        <IconVisual value={symbol.emoji} className="symbol-btn__icon" iconColor={iconColor} />
+        <SymbolVisual value={symbol.emoji} className="symbol-btn__icon" />
         <span className="symbol-btn__label">{symbol.label}</span>
         {onEdit && (
           <span className="symbol-btn__edit-overlay" aria-hidden="true">
