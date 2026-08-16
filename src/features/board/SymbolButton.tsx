@@ -69,8 +69,11 @@ export function SymbolButton({
   moveBackwardAriaLabel,
   moveForwardAriaLabel,
 }: SymbolButtonProps) {
+  const bgType = symbol.color?.startsWith("#") || symbol.color?.startsWith("rgb") ? "col" : "obj";
   const bg = symbol.color
-    ? (COLOR_MAP[symbol.color] ?? "var(--color-default)")
+    ? bgType === "col"
+      ? symbol.color
+      : (COLOR_MAP[symbol.color] ?? "var(--color-default)")
     : "var(--color-default)";
   const iconColor = symbol.iconColor ? (ICON_COLOR_HEX[symbol.iconColor] ?? undefined) : undefined;
 

@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
+import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import type { Symbol, TileHeight, TileSize } from "../../domain";
 import { t, type Language } from "../../i18n";
 import type { AppIconName, AppIconStyle } from "../../ui";
@@ -23,34 +24,48 @@ interface UseAddTileFormOptions {
   onError?: (error: Error) => void;
 }
 
-function deriveIconState(emoji: string | undefined): {
-  iconMode: "icon" | "image";
-  iconName: AppIconName;
-  iconStyle: AppIconStyle;
+function deriveIconState(emoji: EmojiClickData | string | undefined): {
+  iconMode: "emojiPicker" | "icon" | "image";
+  iconName: AppIconName | string;
+  iconStyle?: AppIconStyle | string;
   imageDataUrl: string | null;
   rawIconValue: string | null;
 } {
-  if (emoji && (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji))) {
-    return {
-      iconMode: "image",
-      iconName: "star",
-      iconStyle: "outline",
-      imageDataUrl: emoji,
-      rawIconValue: null,
-    };
-  }
   if (emoji) {
-    const iconName = getAppIconName(emoji);
-    return {
-      iconMode: "icon",
-      iconName: iconName ?? "star",
-      iconStyle: getAppIconStyle(emoji),
-      imageDataUrl: null,
-      rawIconValue: iconName ? null : emoji,
-    };
+    // Test if emoji is EmojiClickData type
+    if (typeof emoji === "object" && "emoji" in emoji) {
+      const iconName = getAppIconName(emoji.emoji);
+      return {
+        iconMode: "emojiPicker",
+        iconName: iconName ?? "1f44d",
+        iconStyle: emoji.activeSkinTone,
+        imageDataUrl: emoji.imageUrl ?? null,
+        rawIconValue: emoji.emoji ?? null,
+      };
+    }
+    if (typeof emoji === "string") {
+      if (isRasterImageDataUrl(emoji) || isExternalImageUrl(emoji)) {
+        return {
+          iconMode: "image",
+          iconName: "star",
+          iconStyle: "outline",
+          imageDataUrl: emoji,
+          rawIconValue: null,
+        };
+      }
+
+      const iconName = getAppIconName(emoji);
+      return {
+        iconMode: "icon",
+        iconName: iconName ?? "star",
+        iconStyle: getAppIconStyle(emoji),
+        imageDataUrl: null,
+        rawIconValue: iconName ? null : emoji,
+      };
+    }
   }
   return {
-    iconMode: "icon",
+    iconMode: "emojiPicker",
     iconName: "star",
     iconStyle: "outline",
     imageDataUrl: null,
@@ -69,8 +84,9 @@ export function useAddTileForm({
   const [activeTab, setActiveTab] = useState<TileDialogTab>("icon");
   const [label, setLabel] = useState(initialSymbol?.label ?? initialLabel ?? "");
   const [speakOverride, setSpeakOverride] = useState(initialSymbol?.speak ?? "");
-  const [iconMode, setIconMode] = useState<"icon" | "image">(initial.iconMode);
+  const [iconMode, setIconMode] = useState<"emojiPicker" | "icon" | "image">(initial.iconMode);
   const [iconFilter, setIconFilter] = useState("");
+  const [selectedEmojiName, setSelectedEmojiName] = useState<EmojiClickData | null>(null);
   const [selectedIconName, setSelectedIconName] = useState<AppIconName>(initial.iconName);
   const [selectedIconStyle, setSelectedIconStyle] = useState<AppIconStyle>(initial.iconStyle);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
@@ -120,10 +136,14 @@ export function useAddTileForm({
   function handleSave() {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
+
     const icon =
-      iconMode === "image" && imageDataUrl
-        ? imageDataUrl
-        : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
+      iconMode === "emojiPicker"
+        ? selectedEmojiName
+        : iconMode === "image" && imageDataUrl
+          ? imageDataUrl
+          : (rawIconValue ?? toAppIconValue(selectedIconName, selectedIconStyle));
+
     onSave({
       label: trimmedLabel,
       emoji: icon,
@@ -169,6 +189,8 @@ export function useAddTileForm({
     setIconMode,
     iconFilter,
     setIconFilter,
+    selectedEmojiName,
+    setSelectedEmojiName,
     selectedIconName,
     setSelectedIconName,
     selectedIconStyle,

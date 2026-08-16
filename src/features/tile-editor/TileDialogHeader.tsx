@@ -18,7 +18,7 @@ export function TileDialogHeader({ language, isEditing, form }: TileDialogHeader
       <div className="add-tile-preview-row">
         <div
           className="add-tile-preview"
-          style={{ background: `var(--color-${form.color}, var(--color-default))` }}
+          style={{ background: form.color || "var(--color-default)" }}
         >
           <span className="add-tile-preview__icon" aria-hidden="true">
             <IconVisual

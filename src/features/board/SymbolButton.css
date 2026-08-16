@@ -258,6 +258,11 @@
   z-index: 1;
 }
 
+.symbol-btn--has-bg-image .symbol-btn__icon,
+.symbol-btn--has-bg-image .symbol-btn__label {
+  display: none;
+}
+
 .symbol-btn--large .symbol-btn__icon {
   width: 2.8rem;
   height: 2.8rem;
