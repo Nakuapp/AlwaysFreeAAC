@@ -5,6 +5,7 @@ import {
   operationSuccess,
   type OperationResult,
 } from "../domain/operationResult";
+import { bundledMediaUrl, isAppAssetPath } from "../ui/mediaSources";
 import { isRecord } from "../utils/runtimeValidation";
 import { cleanupUnreferencedMedia, serializeBoardMedia } from "./mediaStorage";
 import { legacyIconToEmoji } from "./legacyIcons";
@@ -13,6 +14,7 @@ import { browserStorage, type KeyValueStorage } from "./storage";
 
 const LEGACY_CUSTOM_TILES_KEY = "aac_custom_tiles";
 const USER_BOARDS_KEY = "aac_user_boards";
+const ACTIVE_BOARD_KEY = "aac_active_board";
 const USER_BOARDS_VERSION = 1;
 
 const VALID_TILE_SIZES = new Set<TileSize>(["xs", "sm", "md", "lg", "xl"]);
@@ -31,7 +33,9 @@ function isValidSymbol(tile: unknown): tile is Record<string, unknown> {
 function isMediaValue(value: unknown, contentType: "image" | "audio"): value is string {
   return (
     typeof value === "string" &&
-    (value.startsWith(`data:${contentType}/`) || value.startsWith("media://"))
+    (value.startsWith(`data:${contentType}/`) ||
+      value.startsWith("media://") ||
+      isAppAssetPath(value))
   );
 }
 
@@ -188,6 +192,110 @@ export const DEFAULT_WELCOME_BOARD: UserBoard = {
   ],
 };
 
+/** Sound/animation showcase board shipped with the app; assets live in `public/boards/media/`. */
+export const DEFAULT_MEDIA_BOARD: UserBoard = {
+  id: "media",
+  label: "Media",
+  emoji: "❤️",
+  symbols: [
+    {
+      id: "media-ba-dum-tss",
+      label: "Ba Dum Tssss",
+      emoji: "🎵",
+      color: "blue",
+      hideLabel: true,
+      hideIcon: true,
+      tileHeight: "tall",
+      backgroundImage: bundledMediaUrl("ba-dum-tss.gif"),
+      soundFile: bundledMediaUrl("ba-dum-tss.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-oh-yeah",
+      label: "Oh Yeah",
+      emoji: "🛁",
+      color: "blue",
+      hideLabel: true,
+      hideIcon: true,
+      backgroundImage: bundledMediaUrl("oh-yeah.gif"),
+      soundFile: bundledMediaUrl("oh-yeah.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-womp",
+      label: "Womp",
+      emoji: "❌",
+      color: "blue",
+      hideLabel: true,
+      hideIcon: true,
+      tileHeight: "tall",
+      backgroundImage: bundledMediaUrl("womp.gif"),
+      soundFile: bundledMediaUrl("womp.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-hayy",
+      label: "hayy",
+      emoji: "☀️",
+      color: "blue",
+      hideLabel: true,
+      hideIcon: true,
+      tileHeight: "tall",
+      backgroundImage: bundledMediaUrl("hayy.jpg"),
+      soundFile: bundledMediaUrl("hayy.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-sus",
+      label: "Sus",
+      emoji: "👨‍👩‍👧",
+      color: "blue",
+      hideLabel: true,
+      hideIcon: true,
+      backgroundImage: bundledMediaUrl("sus.gif"),
+      soundFile: bundledMediaUrl("sus.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-red",
+      label: "Red",
+      emoji: "🔴",
+      color: "rgba(238, 42, 53, 1)",
+      soundFile: bundledMediaUrl("red.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-black",
+      label: "Black",
+      emoji: "⚫",
+      color: "rgba(0, 0, 0, 1)",
+      textColor: "#ffffff",
+      soundFile: bundledMediaUrl("black.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-white",
+      label: "White",
+      emoji: "⚪",
+      color: "rgba(255, 255, 255, 1)",
+      textColor: "#000000",
+      soundFile: bundledMediaUrl("white.mp3"),
+      isCustom: true,
+    },
+    {
+      id: "media-green",
+      label: "Green",
+      emoji: "🟢",
+      color: "rgba(0, 151, 54, 1)",
+      soundFile: bundledMediaUrl("green.mp3"),
+      isCustom: true,
+    },
+  ],
+};
+
+/** Boards seeded on first run, in display order. */
+export const DEFAULT_BOARDS: UserBoard[] = [DEFAULT_WELCOME_BOARD, DEFAULT_MEDIA_BOARD];
+
 export function loadUserBoards(
   storage: KeyValueStorage = browserStorage,
 ): OperationResult<UserBoard[]> {
@@ -263,9 +371,19 @@ export function loadUserBoards(
   );
 }
 
+interface SaveUserBoardsOptions {
+  /**
+   * Delete stored media that no board references.  Only safe when `boards` is
+   * the complete, successfully loaded board set — otherwise a partial list
+   * would permanently erase media belonging to the missing boards.
+   */
+  pruneMedia?: boolean;
+}
+
 export async function saveUserBoards(
   boards: UserBoard[],
   storage: KeyValueStorage = browserStorage,
+  { pruneMedia = true }: SaveUserBoardsOptions = {},
 ): Promise<OperationResult<void>> {
   const mediaResult = await serializeBoardMedia(boards);
   const serializedBoards = mediaResult.ok ? mediaResult.value : mediaResult.fallback;
@@ -286,7 +404,7 @@ export async function saveUserBoards(
   }
 
   try {
-    await cleanupUnreferencedMedia(serializedBoards);
+    if (pruneMedia) await cleanupUnreferencedMedia(serializedBoards);
   } catch (error) {
     warnings.push(
       new Error("User boards were saved, but stale media could not be cleaned up.", {
@@ -295,4 +413,32 @@ export async function saveUserBoards(
     );
   }
   return operationSuccess(undefined, warnings);
+}
+
+export function loadActiveBoardId(
+  storage: KeyValueStorage = browserStorage,
+): OperationResult<string | undefined> {
+  try {
+    return operationSuccess(storage.getItem(ACTIVE_BOARD_KEY) ?? undefined);
+  } catch (error) {
+    return operationFailure(
+      new Error("Could not read the selected board.", { cause: error }),
+      undefined,
+    );
+  }
+}
+
+export function saveActiveBoardId(
+  boardId: string,
+  storage: KeyValueStorage = browserStorage,
+): OperationResult<void> {
+  try {
+    storage.setItem(ACTIVE_BOARD_KEY, boardId);
+    return operationSuccess(undefined);
+  } catch (error) {
+    return operationFailure(
+      new Error("Could not save the selected board.", { cause: error }),
+      undefined,
+    );
+  }
 }

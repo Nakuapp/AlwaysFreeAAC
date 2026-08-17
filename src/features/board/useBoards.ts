@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { boardReducer, type Symbol, type UserBoard } from "../../domain";
 import {
-  DEFAULT_WELCOME_BOARD,
+  DEFAULT_BOARDS,
+  loadActiveBoardId,
   loadUserBoards,
+  saveActiveBoardId,
   saveUserBoards,
 } from "../../persistence/boardStorage";
 import { hydrateBoardMedia } from "../../persistence/mediaStorage";
@@ -17,9 +19,13 @@ export function useBoards(
   const loadedBoards = initialLoad.ok ? initialLoad.value : initialLoad.fallback;
   const [boards, dispatch] = useReducer(
     boardReducer,
-    loadedBoards.length > 0 ? loadedBoards : [DEFAULT_WELCOME_BOARD],
+    loadedBoards.length > 0 ? loadedBoards : DEFAULT_BOARDS,
   );
-  const [activeBoardId, setActiveBoardId] = useState(() => boards[0].id);
+  const [initialActiveBoard] = useState(() => loadActiveBoardId(storage));
+  const [activeBoardId, setActiveBoardId] = useState(() => {
+    const storedId = initialActiveBoard.ok ? initialActiveBoard.value : undefined;
+    return storedId && boards.some((board) => board.id === storedId) ? storedId : boards[0].id;
+  });
   const [isHydrated, setIsHydrated] = useState(false);
   const initialBoardsRef = useRef(boards);
   const initialLoadReportedRef = useRef(false);
@@ -32,7 +38,8 @@ export function useBoards(
     initialLoadReportedRef.current = true;
     if (!initialLoad.ok) onError(initialLoad.error);
     initialLoad.warnings.forEach(onError);
-  }, [initialLoad, onError]);
+    if (!initialActiveBoard.ok) onError(initialActiveBoard.error);
+  }, [initialActiveBoard, initialLoad, onError]);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,14 +73,20 @@ export function useBoards(
     const snapshot = boards;
     saveQueueRef.current = saveQueueRef.current
       .then(async () => {
-        const result = await saveUserBoards(snapshot, storage);
+        // A failed load can leave boards missing, so their media must not be pruned.
+        const result = await saveUserBoards(snapshot, storage, { pruneMedia: initialLoad.ok });
         if (!result.ok) onError?.(result.error);
         result.warnings.forEach((warning) => onError?.(warning));
       })
       .catch((error) => {
         onError?.(error instanceof Error ? error : new Error("Board persistence failed."));
       });
-  }, [boards, isHydrated, onError, storage]);
+  }, [boards, initialLoad.ok, isHydrated, onError, storage]);
+
+  useEffect(() => {
+    const result = saveActiveBoardId(activeBoardId, storage);
+    if (!result.ok) onErrorRef.current?.(result.error);
+  }, [activeBoardId, storage]);
 
   const activeBoard = boards.find((board) => board.id === activeBoardId) ?? boards[0];
   const allSymbols = useMemo(() => boards.flatMap((board) => board.symbols), [boards]);

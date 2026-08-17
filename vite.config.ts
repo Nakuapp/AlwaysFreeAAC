@@ -44,6 +44,17 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
         runtimeCaching: [
           {
+            // Board media ships in the build but is cached on demand to keep
+            // the precache small.
+            urlPattern: /\/boards\/media\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "board-media-cache",
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",
             options: {
