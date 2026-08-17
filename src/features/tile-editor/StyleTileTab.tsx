@@ -49,10 +49,10 @@ export function StyleTileTab({ language, defaultTileSize, form }: StyleTileTabPr
             <TwitterPicker
               color={form.color || activeTileBgColor}
               onChangeComplete={(color) => {
-                console.log("TwitterPicker onChangeComplete color:", color);
-                console.log("activeTileBgColor before change:", activeTileBgColor);
-                const newActiveTileBgColor: RGBColor = { ...color.rgb, a: activeTileBgColor.a }; // Preserve the alpha value};
-                console.log("newActiveTileBgColor:", newActiveTileBgColor);
+                const newActiveTileBgColor: RGBColor = {
+                  ...color.rgb,
+                  a: activeTileBgColor.a,
+                };
                 handleChange(newActiveTileBgColor);
               }}
               width="100%"

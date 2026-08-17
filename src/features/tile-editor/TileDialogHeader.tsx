@@ -1,5 +1,6 @@
 import { ImageIcon, Music, Palette } from "lucide-react";
 import { t, type Language } from "../../i18n";
+import { resolveTileColor, toCssBackgroundImage } from "../../ui/tileStyles";
 import { handleTabKeyDown } from "../../utils/tabNavigation";
 import { SymbolVisual } from "../../components/symbol";
 import type { AddTileForm } from "./useAddTileForm";
@@ -14,8 +15,8 @@ export function TileDialogHeader({ language, isEditing, form }: TileDialogHeader
   const tabIds = ["icon", "style", "media"] as const;
   const hasBgContent = !!form.backgroundImage;
   const previewBg = hasBgContent
-    ? `url(${form.backgroundImage})`
-    : form.color || "var(--color-default)";
+    ? toCssBackgroundImage(form.backgroundImage)
+    : resolveTileColor(form.color);
 
   return (
     <>
