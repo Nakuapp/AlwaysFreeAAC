@@ -36,12 +36,21 @@ function isMediaValue(value: unknown, contentType: "image" | "audio"): value is 
 }
 
 function parseSymbol(tile: Record<string, unknown>): Symbol {
+  const backgroundImage = isMediaValue(tile.backgroundImage, "image")
+    ? tile.backgroundImage
+    : undefined;
+  // Background-image tiles used to always hide their icon and label, so keep
+  // that appearance for tiles saved before the visibility toggles existed.
+  const hiddenByDefault = backgroundImage !== undefined;
   return {
     id: tile.id as string,
     label: tile.label as string,
     emoji: legacyIconToEmoji((tile.emoji as string) || (tile.icon as string)),
     speak: typeof tile.speak === "string" ? tile.speak : undefined,
     color: typeof tile.color === "string" ? tile.color : undefined,
+    textColor: typeof tile.textColor === "string" ? tile.textColor : undefined,
+    hideLabel: typeof tile.hideLabel === "boolean" ? tile.hideLabel : hiddenByDefault || undefined,
+    hideIcon: typeof tile.hideIcon === "boolean" ? tile.hideIcon : hiddenByDefault || undefined,
     tileSize:
       typeof tile.tileSize === "string" && VALID_TILE_SIZES.has(tile.tileSize as TileSize)
         ? (tile.tileSize as TileSize)
@@ -50,7 +59,7 @@ function parseSymbol(tile: Record<string, unknown>): Symbol {
       typeof tile.tileHeight === "string" && VALID_TILE_HEIGHTS.has(tile.tileHeight as TileHeight)
         ? (tile.tileHeight as TileHeight)
         : undefined,
-    backgroundImage: isMediaValue(tile.backgroundImage, "image") ? tile.backgroundImage : undefined,
+    backgroundImage,
     soundFile: isMediaValue(tile.soundFile, "audio") ? tile.soundFile : undefined,
     isCustom: true,
   };

@@ -43,6 +43,9 @@ export function useAddTileForm({
   const [emojiValue, setEmojiValue] = useState(initial.emojiValue);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(initial.imageDataUrl);
   const [color, setColor] = useState(initialSymbol?.color ?? "blue");
+  const [textColor, setTextColor] = useState(initialSymbol?.textColor ?? "");
+  const [hideLabel, setHideLabel] = useState(initialSymbol?.hideLabel ?? false);
+  const [hideIcon, setHideIcon] = useState(initialSymbol?.hideIcon ?? false);
   const [tileSize, setTileSize] = useState<TileSize | "">(initialSymbol?.tileSize ?? "");
   const [tileHeight, setTileHeight] = useState<TileHeight | "">(initialSymbol?.tileHeight ?? "");
   const [backgroundImage, setBackgroundImage] = useState<string | null>(
@@ -94,6 +97,9 @@ export function useAddTileForm({
       emoji: previewIcon,
       speak: speakOverride.trim() || undefined,
       color,
+      textColor: textColor || undefined,
+      hideLabel: hideLabel || undefined,
+      hideIcon: hideIcon || undefined,
       tileSize: tileSize || undefined,
       tileHeight: tileHeight || undefined,
       backgroundImage: backgroundImage ?? undefined,
@@ -121,6 +127,12 @@ export function useAddTileForm({
     setImageDataUrl,
     color,
     setColor,
+    textColor,
+    setTextColor,
+    hideLabel,
+    setHideLabel,
+    hideIcon,
+    setHideIcon,
     tileSize,
     setTileSize,
     tileHeight,

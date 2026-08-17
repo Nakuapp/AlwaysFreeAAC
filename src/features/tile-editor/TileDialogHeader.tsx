@@ -12,18 +12,28 @@ interface TileDialogHeaderProps {
 
 export function TileDialogHeader({ language, isEditing, form }: TileDialogHeaderProps) {
   const tabIds = ["icon", "style", "media"] as const;
+  const hasBgContent = !!form.backgroundImage;
+  const previewBg = hasBgContent
+    ? `url(${form.backgroundImage})`
+    : form.color || "var(--color-default)";
 
   return (
     <>
       <div className="add-tile-preview-row">
         <div
           className="add-tile-preview"
-          style={{ background: form.color || "var(--color-default)" }}
+          style={{
+            background: previewBg,
+            backgroundSize: hasBgContent ? "cover" : undefined,
+            color: form.textColor || undefined,
+          }}
         >
-          <span className="add-tile-preview__icon" aria-hidden="true">
-            <SymbolVisual value={form.previewIcon} className="add-tile-preview__icon-value" />
-          </span>
-          <span className="add-tile-preview__label">{form.label || "…"}</span>
+          {!form.hideIcon && (
+            <span className="add-tile-preview__icon" aria-hidden="true">
+              <SymbolVisual value={form.previewIcon} className="add-tile-preview__icon-value" />
+            </span>
+          )}
+          {!form.hideLabel && <span className="add-tile-preview__label">{form.label || "…"}</span>}
         </div>
       </div>
 

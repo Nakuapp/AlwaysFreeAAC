@@ -1,9 +1,25 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { TwitterPicker, AlphaPicker, type RGBColor } from "react-color";
 import type { TileHeight, TileSize } from "../../domain";
 import { t, type Language } from "../../i18n";
 import { TILE_HEIGHTS, TILE_SIZES } from "../../ui";
 import type { AddTileForm } from "./useAddTileForm";
+
+const TEXT_COLOR_SWATCHES = [
+  "#000000",
+  "#333333",
+  "#666666",
+  "#FFFFFF",
+  "#B80000",
+  "#DB3E00",
+  "#FCCB00",
+  "#008B02",
+  "#006B76",
+  "#1273DE",
+  "#004DCF",
+  "#5300EB",
+];
 
 interface StyleTileTabProps {
   language: Language;
@@ -24,67 +40,11 @@ export function StyleTileTab({ language, defaultTileSize, form }: StyleTileTabPr
     form.setColor(`rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`);
   };
 
-  // const handleChange = (newColor: { rgb: { r: number; g: number; b: number; a: number; }; }) => {
-  //   // newColor.rgb gives { r, g, b, a, source }
-  //   setColor(newColor.rgb);
-  //   form.setColor(`rgba(${newColor.rgb.r}, ${newColor.rgb.g}, ${newColor.rgb.b}, ${newColor.rgb.a})`);
-  // };
-
   return (
     <>
       <div className="add-tile-field">
         <span className="add-tile-field__label">{t(language, "tileColor")}</span>
         <div className="add-tile-colors">
-          {/* {COLOR_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={`add-tile-colors__swatch${form.color === option.value ? " add-tile-colors__swatch--selected" : ""}`}
-              style={{ background: option.bg }}
-              onClick={() => form.setColor(option.value)}
-              aria-label={t(language, option.labelKey)}
-              aria-pressed={form.color === option.value}
-            />
-          ))} */}
-          {/* <CirclePicker
-            color={form.color || "#ffffff"}
-            onChangeComplete={(color) => form.setColor(color.hex)}
-            colors={COLOR_OPTIONS.map((option) => option.bg)}
-            circleSize={24}
-            circleSpacing={8}
-          /> */}
-          {/* <TwitterPicker
-            color={form.color || "#9900EF"}
-            colors={colorMap}
-            onChangeComplete={(color) => form.setColor(color.hex)}
-            width="100%"
-            triangle="hide"
-            styles={{
-              default: {
-                card: { background: 'transparent' },
-                input: { paddingBottom: '2px' }
-              }
-            }}            
-          />
-          <AlphaPicker
-            color={form.color}
-            onChangeComplete={(color) => form.setColor(color.hex)}
-            width="100%"
-          /> */}
-          {/* <BlockPicker
-            color={form.color || "#ffffff"}
-            colors={colorMap}
-            onChangeComplete={(color) => form.setColor(color.hex)}
-            width="100%"
-            triangle="hide"
-            styles={{
-              default: {
-                card: { background: 'transparent' },
-                input: {}
-              }
-            }}            
-          /> */}
-
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             <TwitterPicker
               color={form.color || activeTileBgColor}
@@ -114,6 +74,66 @@ export function StyleTileTab({ language, defaultTileSize, form }: StyleTileTabPr
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="add-tile-field">
+        <span className="add-tile-field__label">{t(language, "tileTextColor")}</span>
+        <div className="add-tile-text-color">
+          <TwitterPicker
+            color={form.textColor || "#000000"}
+            colors={TEXT_COLOR_SWATCHES}
+            onChangeComplete={(color) => form.setTextColor(color.hex)}
+            width="100%"
+            triangle="hide"
+            styles={{
+              default: {
+                card: { background: "transparent" },
+                input: { paddingBottom: "2px" },
+              },
+            }}
+          />
+        </div>
+        <button
+          type="button"
+          className="add-tile-toggle"
+          onClick={() => form.setTextColor("")}
+          disabled={!form.textColor}
+        >
+          {t(language, "tileTextColorDefault")}
+        </button>
+      </div>
+
+      <div className="add-tile-field">
+        <span className="add-tile-field__label">{t(language, "tileVisibility")}</span>
+        <div className="add-tile-tabs" role="group" aria-label={t(language, "tileVisibility")}>
+          <button
+            type="button"
+            className={`add-tile-tabs__btn${form.hideLabel ? " add-tile-tabs__btn--active" : ""}`}
+            onClick={() => form.setHideLabel(!form.hideLabel)}
+            aria-pressed={form.hideLabel}
+          >
+            {form.hideLabel ? (
+              <EyeOff className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
+            ) : (
+              <Eye className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
+            )}
+            {t(language, "tileHideLabel")}
+          </button>
+          <button
+            type="button"
+            className={`add-tile-tabs__btn${form.hideIcon ? " add-tile-tabs__btn--active" : ""}`}
+            onClick={() => form.setHideIcon(!form.hideIcon)}
+            aria-pressed={form.hideIcon}
+          >
+            {form.hideIcon ? (
+              <EyeOff className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
+            ) : (
+              <Eye className="add-tile-tabs__icon" aria-hidden="true" focusable="false" />
+            )}
+            {t(language, "tileHideIcon")}
+          </button>
+        </div>
+        <p className="add-tile-field__hint">{t(language, "tileVisibilityHint")}</p>
       </div>
 
       <div className="add-tile-field">

@@ -71,6 +71,13 @@ export const fr = {
   tileIconEmoji: "Emoji",
   tileIconImage: "Image",
   tileColor: "Couleur de la fiche",
+  tileTextColor: "Couleur du texte",
+  tileTextColorDefault: "Utiliser la couleur de texte par défaut",
+  tileVisibility: "Afficher sur la fiche",
+  tileVisibilityHint:
+    "Masquez l'étiquette ou l'icône pour les fiches en image seule. Le texte parlé n'est pas affecté.",
+  tileHideLabel: "Masquer l'étiquette",
+  tileHideIcon: "Masquer l'icône",
   tileColorGreen: "Vert",
   tileColorBlue: "Bleu",
   tileColorOrange: "Orange",

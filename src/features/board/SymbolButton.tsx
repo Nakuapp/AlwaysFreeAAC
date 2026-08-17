@@ -84,6 +84,9 @@ export function SymbolButton({
   }
 
   const btnStyle: CSSProperties = { "--symbol-bg": bg } as CSSProperties;
+  if (symbol.textColor) {
+    btnStyle.color = symbol.textColor;
+  }
   if (symbol.backgroundImage) {
     btnStyle.backgroundImage = `url(${JSON.stringify(symbol.backgroundImage)})`;
     btnStyle.backgroundSize = "cover";
@@ -126,8 +129,8 @@ export function SymbolButton({
         type="button"
       >
         {symbol.backgroundImage && <span className="symbol-btn__bg-overlay" aria-hidden="true" />}
-        <SymbolVisual value={symbol.emoji} className="symbol-btn__icon" />
-        <span className="symbol-btn__label">{symbol.label}</span>
+        {!symbol.hideIcon && <SymbolVisual value={symbol.emoji} className="symbol-btn__icon" />}
+        {!symbol.hideLabel && <span className="symbol-btn__label">{symbol.label}</span>}
         {onEdit && (
           <span className="symbol-btn__edit-overlay" aria-hidden="true">
             <Pencil

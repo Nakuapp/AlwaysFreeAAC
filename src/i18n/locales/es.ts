@@ -70,6 +70,13 @@ export const es = {
   tileIconEmoji: "Emoji",
   tileIconImage: "Imagen",
   tileColor: "Color de ficha",
+  tileTextColor: "Color del texto",
+  tileTextColorDefault: "Usar color de texto predeterminado",
+  tileVisibility: "Mostrar en la ficha",
+  tileVisibilityHint:
+    "Oculta la etiqueta o el ícono en fichas de solo imagen. El texto hablado no cambia.",
+  tileHideLabel: "Ocultar etiqueta",
+  tileHideIcon: "Ocultar ícono",
   tileColorGreen: "Verde",
   tileColorBlue: "Azul",
   tileColorOrange: "Naranja",
