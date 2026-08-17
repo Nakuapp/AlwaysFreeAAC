@@ -1,1 +1,0 @@
-export { IconVisual } from "./IconVisual";

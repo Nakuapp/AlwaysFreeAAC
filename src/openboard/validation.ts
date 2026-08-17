@@ -1,5 +1,5 @@
 import { isRecord } from "../utils/runtimeValidation";
-import type { OBFBoard, OBFButton, OBFGrid, OBFImage, OBZManifest } from "./types";
+import type { OBFBoard, OBFButton, OBFGrid, OBFImage, OBFSound, OBZManifest } from "./types";
 
 export function parseOBFBoard(value: unknown): OBFBoard | null {
   if (!isRecord(value)) return null;
@@ -9,6 +9,9 @@ export function parseOBFBoard(value: unknown): OBFBoard | null {
   if (!isValidOBFGrid(value.grid)) return null;
   if (value.images !== undefined) {
     if (!Array.isArray(value.images) || !value.images.every(isValidOBFImage)) return null;
+  }
+  if (value.sounds !== undefined) {
+    if (!Array.isArray(value.sounds) || !value.sounds.every(isValidOBFSound)) return null;
   }
 
   return {
@@ -21,6 +24,7 @@ export function parseOBFBoard(value: unknown): OBFBoard | null {
     buttons: value.buttons,
     grid: value.grid,
     images: value.images ?? [],
+    sounds: value.sounds ?? [],
   };
 }
 
@@ -29,6 +33,10 @@ function isValidOBFButton(value: unknown): value is OBFButton {
 }
 
 function isValidOBFImage(value: unknown): value is OBFImage {
+  return isRecord(value) && typeof value.id === "string";
+}
+
+function isValidOBFSound(value: unknown): value is OBFSound {
   return isRecord(value) && typeof value.id === "string";
 }
 
@@ -84,10 +92,42 @@ const IMAGE_EXTENSION_TO_MIME: Record<string, string> = {
   svg: "image/svg+xml",
 };
 
+const AUDIO_EXTENSION_TO_MIME: Record<string, string> = {
+  mp3: "audio/mpeg",
+  m4a: "audio/mp4",
+  mp4: "audio/mp4",
+  aac: "audio/aac",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  opus: "audio/ogg",
+  wav: "audio/wav",
+  webm: "audio/webm",
+  flac: "audio/flac",
+};
+
+function extensionOf(path: string): string | undefined {
+  return path.split("?")[0].split(".").pop()?.toLowerCase();
+}
+
 export function inferImageMimeType(path: string): string | undefined {
-  const withoutQuery = path.split("?")[0];
-  const ext = withoutQuery.split(".").pop()?.toLowerCase();
+  const ext = extensionOf(path);
   return ext ? IMAGE_EXTENSION_TO_MIME[ext] : undefined;
+}
+
+export function inferAudioMimeType(path: string): string | undefined {
+  const ext = extensionOf(path);
+  return ext ? AUDIO_EXTENSION_TO_MIME[ext] : undefined;
+}
+
+export function extensionForMimeType(mimeType: string, fallback: string): string {
+  const normalized = mimeType.trim().toLowerCase();
+  for (const [ext, mime] of Object.entries(IMAGE_EXTENSION_TO_MIME)) {
+    if (mime === normalized) return ext;
+  }
+  for (const [ext, mime] of Object.entries(AUDIO_EXTENSION_TO_MIME)) {
+    if (mime === normalized) return ext;
+  }
+  return fallback;
 }
 
 export function asString(value: unknown): string | undefined {
@@ -97,4 +137,9 @@ export function asString(value: unknown): string | undefined {
 export function asImageMimeType(value: unknown): string | undefined {
   const mimeType = asString(value)?.trim().toLowerCase();
   return mimeType && /^image\/[a-z0-9.+-]+$/.test(mimeType) ? mimeType : undefined;
+}
+
+export function asAudioMimeType(value: unknown): string | undefined {
+  const mimeType = asString(value)?.trim().toLowerCase();
+  return mimeType && /^audio\/[a-z0-9.+-]+$/.test(mimeType) ? mimeType : undefined;
 }

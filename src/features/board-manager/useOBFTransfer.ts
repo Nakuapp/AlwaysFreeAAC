@@ -3,6 +3,7 @@ import type { Category, UserBoard } from "../../domain";
 import { t, type Language } from "../../i18n";
 import { createId } from "../../utils/createId";
 import {
+  categoryHasMedia,
   exportCategoryToOBF,
   exportCategoriesToOBZ,
   downloadOBF,
@@ -25,6 +26,14 @@ interface UseOBFTransferOptions {
    */
   onImport: (importedBoards: UserBoard[]) => void;
   onExportError?: (error: Error) => void;
+}
+
+/**
+ * A lone board without media fits in a single .obf; anything else needs the
+ * .obz archive so images and sounds travel with the board.
+ */
+function requiresArchive(selected: Category[]): boolean {
+  return selected.length > 1 || selected.some(categoryHasMedia);
 }
 
 function obfBoardToUserBoard(board: OBFBoard, language: Language): UserBoard {
@@ -89,11 +98,11 @@ export function useOBFTransfer({
     if (selected.length === 0) return;
     setIsExporting(true);
     try {
-      if (selected.length === 1) {
-        downloadOBF(exportCategoryToOBF(selected[0], language));
-      } else {
+      if (requiresArchive(selected)) {
         const { blob, filename } = await exportCategoriesToOBZ(selected, language);
         downloadOBZ(blob, filename);
+      } else {
+        downloadOBF(exportCategoryToOBF(selected[0], language));
       }
     } catch (error) {
       onExportError?.(error instanceof Error ? error : new Error("Board export failed."));
@@ -139,9 +148,9 @@ export function useOBFTransfer({
   const exportFormatLabel =
     selectedCount === 0
       ? t(language, "exportFormatNone")
-      : selectedCount === 1
-        ? t(language, "exportFormatOBF")
-        : t(language, "exportFormatOBZ");
+      : requiresArchive(items.filter((item) => selectedIds.has(item.id)))
+        ? t(language, "exportFormatOBZ")
+        : t(language, "exportFormatOBF");
 
   return {
     // Selection

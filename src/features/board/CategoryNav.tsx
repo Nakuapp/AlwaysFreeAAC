@@ -1,7 +1,7 @@
 import { Check, MessageSquare, Pencil, Settings2, Zap } from "lucide-react";
 import type { Category } from "../../domain";
 import { t, type Language } from "../../i18n";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
 import "./CategoryNav.css";
 
 interface CategoryNavProps {
@@ -42,7 +42,7 @@ export function CategoryNav({
                 aria-label={`${cat.label} ${t(language, "categorySuffix")}`}
                 type="button"
               >
-                <IconVisual value={cat.emoji} className="category-nav__icon" />
+                <SymbolVisual value={cat.emoji} className="category-nav__icon" />
                 <span className="category-nav__label">{cat.label}</span>
               </button>
             </li>

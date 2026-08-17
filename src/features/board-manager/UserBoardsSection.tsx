@@ -1,9 +1,33 @@
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
 import type { UserBoard } from "../../domain/models";
-import { CUSTOM_TILE_ICON_OPTIONS, toAppIconValue } from "../../ui";
 import { t, type Language } from "../../i18n";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
+
+const BOARD_EMOJI_OPTIONS = [
+  "✏️",
+  "⭐",
+  "❤️",
+  "🏠",
+  "🏫",
+  "🍎",
+  "🎮",
+  "🎵",
+  "📚",
+  "👨‍👩‍👧",
+  "💬",
+  "🐶",
+  "🚗",
+  "🛏️",
+  "🛁",
+  "🏥",
+  "🌳",
+  "☀️",
+  "🎨",
+  "⚽",
+];
+
+const DEFAULT_BOARD_EMOJI = BOARD_EMOJI_OPTIONS[0];
 
 interface UserBoardsSectionProps {
   language: Language;
@@ -24,7 +48,7 @@ export function UserBoardsSection({
 }: UserBoardsSectionProps) {
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
-  const [newBoardIcon, setNewBoardIcon] = useState("pen-square");
+  const [newBoardIcon, setNewBoardIcon] = useState(DEFAULT_BOARD_EMOJI);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renamingValue, setRenamingValue] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -33,12 +57,9 @@ export function UserBoardsSection({
   function handleCreateBoard() {
     const name = newBoardName.trim();
     if (!name) return;
-    onCreateBoard(
-      name,
-      toAppIconValue(newBoardIcon as Parameters<typeof toAppIconValue>[0], "outline"),
-    );
+    onCreateBoard(name, newBoardIcon);
     setNewBoardName("");
-    setNewBoardIcon("pen-square");
+    setNewBoardIcon(DEFAULT_BOARD_EMOJI);
     setShowNewBoardForm(false);
   }
 
@@ -111,22 +132,16 @@ export function UserBoardsSection({
             aria-label={t(language, "boardName")}
           />
           <div className="manage-boards-new-form__icon-row">
-            {CUSTOM_TILE_ICON_OPTIONS.slice(0, 20).map((icon) => (
+            {BOARD_EMOJI_OPTIONS.map((emoji) => (
               <button
-                key={icon.value}
+                key={emoji}
                 type="button"
-                className={`manage-boards-new-form__icon-btn${newBoardIcon === icon.value ? " manage-boards-new-form__icon-btn--selected" : ""}`}
-                onClick={() => setNewBoardIcon(icon.value)}
-                aria-label={icon.label}
-                aria-pressed={newBoardIcon === icon.value}
+                className={`manage-boards-new-form__icon-btn${newBoardIcon === emoji ? " manage-boards-new-form__icon-btn--selected" : ""}`}
+                onClick={() => setNewBoardIcon(emoji)}
+                aria-label={emoji}
+                aria-pressed={newBoardIcon === emoji}
               >
-                <IconVisual
-                  value={toAppIconValue(
-                    icon.value as Parameters<typeof toAppIconValue>[0],
-                    "outline",
-                  )}
-                  className="manage-boards-new-form__icon-value"
-                />
+                <SymbolVisual value={emoji} className="manage-boards-new-form__icon-value" />
               </button>
             ))}
           </div>
@@ -156,7 +171,7 @@ export function UserBoardsSection({
         )}
         {userBoards.map((board, index) => (
           <li key={board.id} className="manage-boards-list__item">
-            <IconVisual value={board.emoji} className="manage-boards-list__icon" />
+            <SymbolVisual value={board.emoji} className="manage-boards-list__icon" />
             {renamingId === board.id ? (
               <input
                 type="text"

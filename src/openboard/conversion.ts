@@ -1,7 +1,7 @@
 import type { Category, Symbol } from "../domain";
-import { isImageDataUrl } from "../ui";
+import { isAppAssetPath, isImageDataUrl } from "../ui";
 import { createId } from "../utils/createId";
-import type { OBFBoard, OBFButton, OBFImage } from "./types";
+import type { OBFBoard, OBFButton, OBFImage, OBFSound } from "./types";
 import { asString } from "./validation";
 
 /** App color name → RGBA string used in OBF background_color */
@@ -35,30 +35,51 @@ function colorNameFromOBF(value: unknown): string | undefined {
     "#b2dfdb": "teal",
     "#e0e0e0": "gray",
   };
-  return hexMap[value.toLowerCase()];
+  return hexMap[value.toLowerCase()] ?? (/^(#|rgba?\()/i.test(value) ? value : undefined);
+}
+
+/** Media the app can package: inline data URIs, https links, or bundled asset paths. */
+function isExportableMedia(value: string | undefined): value is string {
+  if (!value) return false;
+  return value.startsWith("data:") || value.startsWith("https://") || isAppAssetPath(value);
+}
+
+function toImageResource(id: string, value: string | undefined): OBFImage | undefined {
+  if (!isExportableMedia(value)) return undefined;
+  return value.startsWith("data:") ? { id, data: value } : { id, url: value };
+}
+
+function toSoundResource(id: string, value: string | undefined): OBFSound | undefined {
+  if (!isExportableMedia(value)) return undefined;
+  return value.startsWith("data:") ? { id, data: value } : { id, url: value };
+}
+
+/** True when a category has image or audio files that must travel with the board. */
+export function categoryHasMedia(category: Category): boolean {
+  return category.symbols.some(
+    (symbol) =>
+      isExportableMedia(symbol.emoji) ||
+      isExportableMedia(symbol.backgroundImage) ||
+      isExportableMedia(symbol.soundFile),
+  );
 }
 
 /** Convert an app Category into an OBF board object */
 export function exportCategoryToOBF(category: Category, locale = "en"): OBFBoard {
   const images: OBFImage[] = [];
+  const sounds: OBFSound[] = [];
   const buttons: OBFButton[] = [];
 
   for (const symbol of category.symbols) {
     const btnId = `btn-${symbol.id}`;
-    let imageId: string | undefined;
 
-    if (symbol.emoji.startsWith("data:image/")) {
-      // Custom uploaded image stored as a data URI
-      const imgId = `img-${symbol.id}`;
-      images.push({ id: imgId, data: symbol.emoji });
-      imageId = imgId;
-    } else if (symbol.emoji.startsWith("https://")) {
-      // External image URL (e.g. from OpenSymbols)
-      const imgId = `img-${symbol.id}`;
-      images.push({ id: imgId, url: symbol.emoji });
-      imageId = imgId;
-    }
-    // Emoji characters and icon keys are not image resources in OBF;
+    const iconImage = toImageResource(`img-${symbol.id}`, symbol.emoji);
+    if (iconImage) images.push(iconImage);
+    const backgroundImage = toImageResource(`bg-${symbol.id}`, symbol.backgroundImage);
+    if (backgroundImage) images.push(backgroundImage);
+    const sound = toSoundResource(`snd-${symbol.id}`, symbol.soundFile);
+    if (sound) sounds.push(sound);
+    // Emoji characters are not image resources in OBF;
     // OBF readers will display the label text.
 
     const button: OBFButton = {
@@ -68,11 +89,13 @@ export function exportCategoryToOBF(category: Category, locale = "en"): OBFBoard
     if (symbol.speak && symbol.speak !== symbol.label) {
       button.vocalization = symbol.speak;
     }
-    if (imageId) button.image_id = imageId;
-    if (symbol.color) {
-      const rgba = COLOR_TO_RGBA[symbol.color];
-      if (rgba) button.background_color = rgba;
-    }
+    if (iconImage) button.image_id = iconImage.id;
+    if (backgroundImage) button.ext_alwaysfreeaac_background_image_id = backgroundImage.id;
+    if (sound) button.sound_id = sound.id;
+    const backgroundColor = symbol.color
+      ? (COLOR_TO_RGBA[symbol.color] ?? symbol.color)
+      : undefined;
+    if (backgroundColor) button.background_color = backgroundColor;
     buttons.push(button);
   }
 
@@ -98,17 +121,24 @@ export function exportCategoryToOBF(category: Category, locale = "en"): OBFBoard
     buttons,
     grid: { rows, columns: cols, order },
     images,
+    sounds,
   };
 }
 
 /** Convert OBF buttons into app Symbols (for import into My Words) */
 export function importOBFToSymbols(board: OBFBoard): Symbol[] {
   const images = Array.isArray(board.images) ? board.images : [];
+  const sounds = Array.isArray(board.sounds) ? board.sounds : [];
   const buttons = Array.isArray(board.buttons) ? board.buttons : [];
   const imageMap = new Map<string, OBFImage>(
     images
       .filter((img): img is OBFImage & { id: string } => typeof img?.id === "string")
       .map((img) => [img.id, img]),
+  );
+  const soundMap = new Map<string, OBFSound>(
+    sounds
+      .filter((snd): snd is OBFSound & { id: string } => typeof snd?.id === "string")
+      .map((snd) => [snd.id, snd]),
   );
 
   return buttons
@@ -116,19 +146,11 @@ export function importOBFToSymbols(board: OBFBoard): Symbol[] {
       const label = asString(btn.label)?.trim();
       if (!label) return null;
 
-      let emoji = "❓";
-      if (btn.image_id) {
-        const img = imageMap.get(btn.image_id);
-        if (img) {
-          const data = asString(img.data);
-          const url = asString(img.url);
-          if (data && isImageDataUrl(data)) {
-            emoji = data;
-          } else if (url?.startsWith("https://")) {
-            emoji = url;
-          }
-        }
-      }
+      const emoji = resolveImageSource(imageMap.get(btn.image_id ?? "")) ?? "❓";
+      const backgroundImage = resolveImageSource(
+        imageMap.get(btn.ext_alwaysfreeaac_background_image_id ?? ""),
+      );
+      const soundFile = resolveAudioSource(soundMap.get(btn.sound_id ?? ""));
 
       const vocalization = asString(btn.vocalization)?.trim();
 
@@ -138,8 +160,29 @@ export function importOBFToSymbols(board: OBFBoard): Symbol[] {
         emoji,
         speak: vocalization || undefined,
         color: colorNameFromOBF(btn.background_color),
+        // Background-image tiles render the artwork on its own.
+        hideLabel: backgroundImage ? true : undefined,
+        hideIcon: backgroundImage ? true : undefined,
+        backgroundImage,
+        soundFile,
         isCustom: true,
       };
     })
     .filter((s): s is Symbol => s !== null);
+}
+
+function resolveImageSource(image: OBFImage | undefined): string | undefined {
+  if (!image) return undefined;
+  const data = asString(image.data);
+  if (data && isImageDataUrl(data)) return data;
+  const url = asString(image.url);
+  return url?.startsWith("https://") ? url : undefined;
+}
+
+function resolveAudioSource(sound: OBFSound | undefined): string | undefined {
+  if (!sound) return undefined;
+  const data = asString(sound.data);
+  if (data?.startsWith("data:audio/")) return data;
+  const url = asString(sound.url);
+  return url?.startsWith("https://") ? url : undefined;
 }

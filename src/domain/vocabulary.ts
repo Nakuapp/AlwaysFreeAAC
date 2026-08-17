@@ -6,11 +6,16 @@ export type TileHeight = "tall" | "taller";
 export interface Symbol {
   id: string;
   label: string;
-  /** Icon key, emoji character, or a data: URL for a custom uploaded image */
+  /** Emoji character, data: URL, or https: URL for a custom image */
   emoji: string;
   speak?: string; // override spoken text if different from label
   color?: string; // background color category
-  iconColor?: string; // icon fill/stroke color category
+  /** Label/emoji text color; when absent the theme default is used */
+  textColor?: string;
+  /** When true the label text is not rendered on the tile */
+  hideLabel?: boolean;
+  /** When true the emoji/image icon is not rendered on the tile */
+  hideIcon?: boolean;
   /** Per-tile size override; when absent the global tile size is used */
   tileSize?: TileSize;
   /** Per-tile row span override; when absent the tile spans 1 row */

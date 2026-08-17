@@ -9,14 +9,27 @@ export interface OBFImage {
   height?: number;
 }
 
+export interface OBFSound {
+  id: string;
+  /** Public URL for the audio clip */
+  url?: string;
+  /** Full data URI (e.g. "data:audio/mpeg;base64,…") */
+  data?: string;
+  content_type?: string;
+  duration?: number;
+}
+
 export interface OBFButton {
   id: string;
   label: string;
   /** Text spoken aloud — omit if identical to label */
   vocalization?: string;
   image_id?: string;
+  sound_id?: string;
   background_color?: string;
   border_color?: string;
+  /** Non-spec: image drawn behind the tile icon and label */
+  ext_alwaysfreeaac_background_image_id?: string;
 }
 
 export interface OBFGrid {
@@ -34,6 +47,7 @@ export interface OBFBoard {
   buttons: OBFButton[];
   grid: OBFGrid;
   images: OBFImage[];
+  sounds: OBFSound[];
 }
 
 export interface OBZManifest {

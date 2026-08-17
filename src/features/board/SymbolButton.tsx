@@ -1,8 +1,8 @@
 import type { CSSProperties, DragEvent } from "react";
 import { ChevronLeft, ChevronRight, GripVertical, Pencil, X } from "lucide-react";
 import type { Symbol } from "../../domain";
-import { ICON_COLOR_HEX } from "../../ui";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
+import { resolveTileColor, toCssBackgroundImage } from "../../ui/tileStyles";
 import "./SymbolButton.css";
 
 interface SymbolButtonProps {
@@ -34,18 +34,6 @@ interface SymbolButtonProps {
   moveForwardAriaLabel?: (symbol: Symbol) => string;
 }
 
-const COLOR_MAP: Record<string, string> = {
-  green: "var(--color-green)",
-  red: "var(--color-red)",
-  blue: "var(--color-blue)",
-  orange: "var(--color-orange)",
-  yellow: "var(--color-yellow)",
-  purple: "var(--color-purple)",
-  pink: "var(--color-pink)",
-  teal: "var(--color-teal)",
-  gray: "var(--color-gray)",
-};
-
 export function SymbolButton({
   symbol,
   onClick,
@@ -69,10 +57,7 @@ export function SymbolButton({
   moveBackwardAriaLabel,
   moveForwardAriaLabel,
 }: SymbolButtonProps) {
-  const bg = symbol.color
-    ? (COLOR_MAP[symbol.color] ?? "var(--color-default)")
-    : "var(--color-default)";
-  const iconColor = symbol.iconColor ? (ICON_COLOR_HEX[symbol.iconColor] ?? undefined) : undefined;
+  const bg = resolveTileColor(symbol.color);
 
   const wrapperStyle: CSSProperties = {};
   if (colSpan && colSpan > 1) {
@@ -83,8 +68,11 @@ export function SymbolButton({
   }
 
   const btnStyle: CSSProperties = { "--symbol-bg": bg } as CSSProperties;
+  if (symbol.textColor) {
+    btnStyle.color = symbol.textColor;
+  }
   if (symbol.backgroundImage) {
-    btnStyle.backgroundImage = `url(${JSON.stringify(symbol.backgroundImage)})`;
+    btnStyle.backgroundImage = toCssBackgroundImage(symbol.backgroundImage);
     btnStyle.backgroundSize = "cover";
     btnStyle.backgroundPosition = "center";
   }
@@ -125,8 +113,8 @@ export function SymbolButton({
         type="button"
       >
         {symbol.backgroundImage && <span className="symbol-btn__bg-overlay" aria-hidden="true" />}
-        <IconVisual value={symbol.emoji} className="symbol-btn__icon" iconColor={iconColor} />
-        <span className="symbol-btn__label">{symbol.label}</span>
+        {!symbol.hideIcon && <SymbolVisual value={symbol.emoji} className="symbol-btn__icon" />}
+        {!symbol.hideLabel && <span className="symbol-btn__label">{symbol.label}</span>}
         {onEdit && (
           <span className="symbol-btn__edit-overlay" aria-hidden="true">
             <Pencil

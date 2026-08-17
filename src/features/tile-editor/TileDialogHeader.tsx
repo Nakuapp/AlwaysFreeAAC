@@ -1,7 +1,8 @@
 import { ImageIcon, Music, Palette } from "lucide-react";
 import { t, type Language } from "../../i18n";
+import { resolveTileColor, toCssBackgroundImage } from "../../ui/tileStyles";
 import { handleTabKeyDown } from "../../utils/tabNavigation";
-import { IconVisual } from "../../components/icon";
+import { SymbolVisual } from "../../components/symbol";
 import type { AddTileForm } from "./useAddTileForm";
 
 interface TileDialogHeaderProps {
@@ -12,22 +13,29 @@ interface TileDialogHeaderProps {
 
 export function TileDialogHeader({ language, isEditing, form }: TileDialogHeaderProps) {
   const tabIds = ["icon", "style", "media"] as const;
+  const backgroundImage = form.backgroundImage;
+  const hasBgContent = backgroundImage !== null;
+  const previewBg = backgroundImage
+    ? toCssBackgroundImage(backgroundImage)
+    : resolveTileColor(form.color);
 
   return (
     <>
       <div className="add-tile-preview-row">
         <div
           className="add-tile-preview"
-          style={{ background: `var(--color-${form.color}, var(--color-default))` }}
+          style={{
+            background: previewBg,
+            backgroundSize: hasBgContent ? "cover" : undefined,
+            color: form.textColor || undefined,
+          }}
         >
-          <span className="add-tile-preview__icon" aria-hidden="true">
-            <IconVisual
-              value={form.previewIcon}
-              className="add-tile-preview__icon-value"
-              iconColor={form.previewIconColor}
-            />
-          </span>
-          <span className="add-tile-preview__label">{form.label || "…"}</span>
+          {!form.hideIcon && (
+            <span className="add-tile-preview__icon" aria-hidden="true">
+              <SymbolVisual value={form.previewIcon} className="add-tile-preview__icon-value" />
+            </span>
+          )}
+          {!form.hideLabel && <span className="add-tile-preview__label">{form.label || "…"}</span>}
         </div>
       </div>
 
