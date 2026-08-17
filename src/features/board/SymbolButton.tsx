@@ -2,6 +2,7 @@ import type { CSSProperties, DragEvent } from "react";
 import { ChevronLeft, ChevronRight, GripVertical, Pencil, X } from "lucide-react";
 import type { Symbol } from "../../domain";
 import { SymbolVisual } from "../../components/symbol";
+import { resolveTileColor, toCssBackgroundImage } from "../../ui/tileStyles";
 import "./SymbolButton.css";
 
 interface SymbolButtonProps {
@@ -33,18 +34,6 @@ interface SymbolButtonProps {
   moveForwardAriaLabel?: (symbol: Symbol) => string;
 }
 
-const COLOR_MAP: Record<string, string> = {
-  green: "var(--color-green)",
-  red: "var(--color-red)",
-  blue: "var(--color-blue)",
-  orange: "var(--color-orange)",
-  yellow: "var(--color-yellow)",
-  purple: "var(--color-purple)",
-  pink: "var(--color-pink)",
-  teal: "var(--color-teal)",
-  gray: "var(--color-gray)",
-};
-
 export function SymbolButton({
   symbol,
   onClick,
@@ -68,12 +57,7 @@ export function SymbolButton({
   moveBackwardAriaLabel,
   moveForwardAriaLabel,
 }: SymbolButtonProps) {
-  const bgType = symbol.color?.startsWith("#") || symbol.color?.startsWith("rgb") ? "col" : "obj";
-  const bg = symbol.color
-    ? bgType === "col"
-      ? symbol.color
-      : (COLOR_MAP[symbol.color] ?? "var(--color-default)")
-    : "var(--color-default)";
+  const bg = resolveTileColor(symbol.color);
 
   const wrapperStyle: CSSProperties = {};
   if (colSpan && colSpan > 1) {
@@ -88,7 +72,7 @@ export function SymbolButton({
     btnStyle.color = symbol.textColor;
   }
   if (symbol.backgroundImage) {
-    btnStyle.backgroundImage = `url(${JSON.stringify(symbol.backgroundImage)})`;
+    btnStyle.backgroundImage = toCssBackgroundImage(symbol.backgroundImage);
     btnStyle.backgroundSize = "cover";
     btnStyle.backgroundPosition = "center";
   }
