@@ -13,9 +13,10 @@ interface TileDialogHeaderProps {
 
 export function TileDialogHeader({ language, isEditing, form }: TileDialogHeaderProps) {
   const tabIds = ["icon", "style", "media"] as const;
-  const hasBgContent = !!form.backgroundImage;
-  const previewBg = hasBgContent
-    ? toCssBackgroundImage(form.backgroundImage)
+  const backgroundImage = form.backgroundImage;
+  const hasBgContent = backgroundImage !== null;
+  const previewBg = backgroundImage
+    ? toCssBackgroundImage(backgroundImage)
     : resolveTileColor(form.color);
 
   return (
