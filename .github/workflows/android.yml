@@ -144,6 +144,8 @@ jobs:
           STORE_PASSWORD_PROP="$(printf 'android.injected.signing.store.%s' 'password')"
           KEY_PASSWORD_PROP="$(printf 'android.injected.signing.key.%s' 'password')"
           ./gradlew ${{ steps.artifact.outputs.gradle_task }} --no-daemon \
+            -Pandroid.injected.version.code=${{ github.run_number }} \
+            -Pandroid.injected.version.name="${{ inputs.version }}" \
             -Pandroid.injected.signing.store.file="${RUNNER_TEMP}/android-release.keystore" \
             -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" \
             "-P${STORE_PASSWORD_PROP}=${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}" \
@@ -152,7 +154,10 @@ jobs:
 
       - name: Build Android artifact
         if: ${{ inputs.artifact_type != 'release_aab' }}
-        run: ./gradlew ${{ steps.artifact.outputs.gradle_task }} --no-daemon
+        run: |
+          ./gradlew ${{ steps.artifact.outputs.gradle_task }} --no-daemon \
+            -Pandroid.injected.version.code=${{ github.run_number }} \
+            -Pandroid.injected.version.name="${{ inputs.version }}"
         working-directory: android
 
       - name: Normalize build label
