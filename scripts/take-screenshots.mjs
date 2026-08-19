@@ -47,7 +47,7 @@ async function run() {
         console.log(`Saved ${fileHome}`);
 
         // --- SCREEN 2: Media Screen ---
-        const firstCategory = page.locator(".category-nav button, .category-nav a").last();
+        const firstCategory = page.locator(".category-nav button").last();
         if ((await firstCategory.count()) > 0) {
           await firstCategory.click();
           await page.waitForTimeout(500); // Short pause for any transitions
@@ -58,9 +58,7 @@ async function run() {
         }
 
         // --- SCREEN 3: Settings Screen ---
-        const settingsButton = page
-          .locator('button:has-text("Settings"), button:has-text("Edit"), .settings-btn')
-          .first();
+        const settingsButton = page.locator(".category-nav__manage-btn").first();
         if ((await settingsButton.count()) > 0) {
           await settingsButton.click();
           await page.waitForTimeout(500);
