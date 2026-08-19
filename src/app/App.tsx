@@ -62,6 +62,7 @@ export default function App() {
   const { sentence, selectSymbol, speakSentence, speakWord, removeLast, removeWord, clear } =
     useSentence({
       sentenceBuilderEnabled: settings.sentenceBuilderEnabled,
+      rate: settings.rate,
       volume: settings.volume,
       speak,
       onError: () => notify(t(settings.language, "audioPlaybackError"), "error"),
