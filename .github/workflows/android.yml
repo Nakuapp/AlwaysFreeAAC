@@ -87,23 +87,34 @@ jobs:
       - name: Sync web assets to Android
         run: npx cap sync android
 
-      - name: Dynamically Update Android Versioning Code
+      - name: Dynamically Update Android Versioning and Enable R8
         run: |
           BUILD_FILE="android/app/build.gradle"
           if [ ! -f "$BUILD_FILE" ]; then
             BUILD_FILE="android/app/build.gradle.kts"
           fi
 
-          echo "Updating version numbers in $BUILD_FILE..."
+          echo "Injecting release optimization rules into $BUILD_FILE..."
 
-          # Replace the hardcoded versionCode line with our incoming run number
+          # 1. Update the version numbers
           sed -i "s/versionCode .*/versionCode ${{ github.run_number }}/g" "$BUILD_FILE"
-
-          # Replace the hardcoded versionName line with our incoming text tag
           sed -i "s/versionName .*/versionName \"${{ inputs.version }}\"/g" "$BUILD_FILE"
 
+          # 2. Force R8 minification and resource shrinking to true for release builds
+          sed -i 's/minifyEnabled false/minifyEnabled true/g' "$BUILD_FILE"
+          sed -i 's/shrinkResources false/shrinkResources true/g' "$BUILD_FILE"
+
+          # 3. Create the ProGuard configuration file on the fly to keep Capacitor bridges safe
+          PROGUARD_FILE="android/app/proguard-rules.pro"
+          echo "Creating runtime ProGuard rules file at $PROGUARD_FILE..."
+          cat << 'EOF' > "$PROGUARD_FILE"
+          # Keep Capacitor core infrastructure safe from R8 minification
+          -keep class com.getcapacitor.** { *; }
+          -keep interface com.getcapacitor.** { *; }
+          EOF
+
           echo "Verification of modified file lines:"
-          grep -E "versionCode|versionName" "$BUILD_FILE"
+          grep -E "versionCode|versionName|minifyEnabled|shrinkResources" "$BUILD_FILE"
 
       - name: Resolve Android artifact metadata
         id: artifact

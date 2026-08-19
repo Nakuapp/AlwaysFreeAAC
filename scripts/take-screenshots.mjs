@@ -3,7 +3,7 @@
  * Captures 7" and 10" tablet screenshots of AlwaysFreeAAC using Playwright.
  *
  * Usage:
- *   node scripts/take-screenshots.mjs [base-url]
+ * node scripts/take-screenshots.mjs [base-url]
  *
  * Defaults to http://127.0.0.1:4173 (vite preview default).
  * Screenshots are written to screenshots/ in the project root.
@@ -18,6 +18,9 @@ const BASE_URL = process.argv[2] ?? "http://127.0.0.1:4173";
 const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "screenshots");
 
 const VIEWPORTS = [
+  // --- Phone (6.5-inch standard modern aspect ratios) ---
+  { label: "phone-portrait", width: 1242, height: 2688 },
+  { label: "phone-landscape", width: 2688, height: 1242 },
   // 7-inch tablet — portrait and landscape
   { label: "7in-portrait", width: 800, height: 1280 },
   { label: "7in-landscape", width: 1280, height: 800 },
@@ -28,19 +31,46 @@ const VIEWPORTS = [
 
 async function run() {
   await mkdir(OUT_DIR, { recursive: true });
-
   const browser = await chromium.launch();
+
   try {
     for (const { label, width, height } of VIEWPORTS) {
       const page = await browser.newPage({ viewport: { width, height } });
+
       try {
-        // Wait for the app shell to render before capturing.
+        // --- SCREEN 1: Home/Index Screen ---
         await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
         await page.waitForSelector(".category-nav", { state: "visible" });
 
-        const file = join(OUT_DIR, `screenshot-${label}.png`);
-        await page.screenshot({ path: file, fullPage: false });
-        console.log(`Saved ${file}`);
+        const fileHome = join(OUT_DIR, `01-home-${label}.png`);
+        await page.screenshot({ path: fileHome, fullPage: false });
+        console.log(`Saved ${fileHome}`);
+
+        // --- SCREEN 2: Media Screen ---
+        const firstCategory = page.locator(".category-nav button, .category-nav a").last();
+        if ((await firstCategory.count()) > 0) {
+          await firstCategory.click();
+          await page.waitForTimeout(500); // Short pause for any transitions
+
+          const fileCategory = join(OUT_DIR, `02-media-${label}.png`);
+          await page.screenshot({ path: fileCategory, fullPage: false });
+          console.log(`Saved ${fileCategory}`);
+        }
+
+        // --- SCREEN 3: Settings Screen ---
+        const settingsButton = page
+          .locator('button:has-text("Settings"), button:has-text("Edit"), .settings-btn')
+          .first();
+        if ((await settingsButton.count()) > 0) {
+          await settingsButton.click();
+          await page.waitForTimeout(500);
+
+          const fileSettings = join(OUT_DIR, `03-settings-${label}.png`);
+          await page.screenshot({ path: fileSettings, fullPage: false });
+          console.log(`Saved ${fileSettings}`);
+        }
+      } catch (err) {
+        console.error(`Failed capturing viewport ${label}:`, err.message);
       } finally {
         await page.close();
       }
