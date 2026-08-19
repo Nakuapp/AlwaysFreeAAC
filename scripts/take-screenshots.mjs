@@ -36,7 +36,7 @@ async function run() {
       try {
         // Wait for the app shell to render before capturing.
         await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
-        await page.waitForSelector(".app-header", { state: "visible" });
+        await page.waitForSelector(".category-nav", { state: "visible" });
 
         const file = join(OUT_DIR, `screenshot-${label}.png`);
         await page.screenshot({ path: file, fullPage: false });
