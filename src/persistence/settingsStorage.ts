@@ -24,10 +24,10 @@ export function defaultSettings(): AppSettings {
     tileSize: "md",
     fontSize: 14,
     language: "en",
-    theme: "light",
+    theme: "dark",
     themeAccent: "blue",
     layoutOrder: "tabs-top",
-    sentenceBuilderEnabled: true,
+    sentenceBuilderEnabled: false,
   };
 }
 
